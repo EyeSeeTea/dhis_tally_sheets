@@ -4,9 +4,7 @@ export class DataSetsExportSpreadsheetRepository {
             if (dataSet.formType === "SECTION" || dataSet.formType === "DEFAULT") {
                 return [
                     {
-                        name: dataSet.pickedTranslations
-                            ? `${dataSet.name.trim()}_${dataSet.pickedTranslations}.xlsx`
-                            : `${dataSet.name.trim()}.xlsx`,
+                        name: `${dataSet.displayFormName.trim()}`,
                         blob: XlsxPopulate.fromBlankAsync().then(workbook => exportDataSet(workbook, dataSet)),
                     },
                 ];
@@ -64,18 +62,19 @@ const styles = {
     },
 };
 
-function populateHeaders(sheet, header) {
+function populateHeaders(sheet, header, title) {
     sheet.cell("A1").value(header.healthFacility).style(styles.titleStyle);
     sheet.cell("A2").value(header.reportingPeriod).style({ bold: true, fontSize: 18 });
-    sheet.cell("A3").value(header.dataSetName).style(styles.titleStyle);
+    sheet.cell("A3").value(title).style(styles.titleStyle);
 }
 
 function populateDefault(sheet, dataSet) {
-    if (dataSet.headers) populateHeaders(sheet, dataSet.headers);
+    if (dataSet.headers)
+        populateHeaders(sheet, dataSet.headers, dataSet.displayFormName ?? dataSet.headers.dataSetName);
     sheet.cell("A4").value(dataSet.displayFormName).style(styles.titleStyle);
     sheet.cell("B6").value("Value");
     sheet.row(6).style(styles.categoryHeaderStyle);
-    _.sortBy(dataSet.dataSetElements, ({ displayFormName }) => displayFormName).forEach((de, idx) =>
+    dataSet.dataSetElements.forEach((de, idx) =>
         sheet
             .row(7 + idx) //(6 + 1 cause idx starts on 0)
             .cell(1)
@@ -90,7 +89,8 @@ function populateDefault(sheet, dataSet) {
 }
 
 function populateSections(sheet, dataSet) {
-    if (dataSet.headers) populateHeaders(sheet, dataSet.headers);
+    if (dataSet.headers)
+        populateHeaders(sheet, dataSet.headers, dataSet.displayFormName ?? dataSet.headers.dataSetName);
     let row = 3;
     _.range(0, dataSet.sections.length).forEach(i => {
         const section = dataSet.sections[i];
@@ -136,7 +136,7 @@ function addSection(sheet, section, row) {
 
         const cocIds = categoryCombo.categoryOptionCombos.map(({ id }) => id);
 
-        _.sortBy(categoryCombo.dataElements, ({ displayFormName }) => displayFormName).forEach(de => {
+        categoryCombo.dataElements.forEach(de => {
             sheet.row(++row).cell(1).value(de.displayFormName).style(styles.dataElementStyle);
 
             if (!_.isEmpty(categoryCombo.greyedFields)) {

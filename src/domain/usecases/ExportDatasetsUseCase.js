@@ -4,16 +4,38 @@ export class ExportDatasetsUseCase {
         this.dataSetsExportSpreadsheetRepository = dataSetsExportSpreadsheetRepository;
     }
 
-    execute($resource, dataSetsIds, headers, locales, removedSections) {
+    execute($resource, dataSetsIds, _headers, locales, removedSections) {
+        const translations$ = _.fromPairs(
+            _.uniq([...locales, "en"]).map(locale => [
+                locale,
+                fetch(`${location}/languages/${locale}.json`)
+                    .then(response => response.json())
+                    .catch(() => undefined),
+            ])
+        );
+        const promises$ = Object.keys(translations$).map(prop => translations$[prop] ?? Promise.resolve(null));
+        const translations = Promise.all(promises$).then(results => {
+            return Object.keys(translations$).reduce(
+                (acc, task, i) => Object.assign(acc, { [Object.keys(translations$)[i]]: results[i] }),
+                {}
+            );
+        });
+
         return this.dataSetsDhis2Repository
             .get($resource, dataSetsIds)
-            .$promise.then(({ dataSets }) => {
+            .$promise.then(({ dataSets }) => translations.then(translations => ({ translations, dataSets })))
+            .then(({ dataSets, translations }) => {
                 const dataSetsWithoutCommentsAndRemovedSections = dataSets.map(dataSet => ({
                     ...dataSet,
                     sections: dataSet.sections.filter(
                         section =>
                             !(
+                                section.name.toLowerCase().includes("comments") ||
                                 section.displayName.toLowerCase().includes("comments") ||
+                                section.displayName.toLowerCase().includes("comentarios") ||
+                                section.displayName.toLowerCase().includes("commentaires") ||
+                                section.displayName.toLowerCase().includes("comentários") ||
+                                section.displayName.toLowerCase().includes("notas") ||
                                 removedSections.includes(section.id)
                             )
                     ),
@@ -44,29 +66,43 @@ export class ExportDatasetsUseCase {
 
                 const pickedTranslations = overridedDataSets.map(dataSet => ({
                     ...dataSet,
-                    pickedTranslations: _.intersection(
-                        locales,
-                        dataSet.translations
+                    pickedTranslations: _.intersection(locales, [
+                        "en", //add English for default
+                        ...dataSet.translations
                             .filter(translation => translation.property === "NAME")
-                            .map(translation => translation.locale.split("_")[0])
-                    ),
+                            .map(translation => translation.locale.split("_")[0]),
+                    ]),
                 }));
 
                 const translatedDatasets = pickedTranslations.flatMap(mapDataSetTranslations);
 
-                const mappedDatasets = getDataSets([...translatedDatasets, ...overridedDataSets]);
+                const mappedDatasets = getDataSets(translatedDatasets);
 
-                const dataSetsWithHeaders = mappedDatasets.map(dataSet => ({
-                    ...dataSet,
-                    headers: headers.find(({ id }) => id === dataSet.id),
-                }));
+                const dataSetsWithHeaders = mappedDatasets.map(dataSet => {
+                    const healthFacility =
+                        translations[dataSet.pickedTranslations]?.FACILITY ?? translations.en.FACILITY;
+                    const reportingPeriod = translations[dataSet.pickedTranslations]?.PERIOD ?? translations.en.PERIOD;
+                    return {
+                        ...dataSet,
+                        headers: {
+                            healthFacility: healthFacility ? healthFacility + ": " : "",
+                            reportingPeriod: reportingPeriod ? reportingPeriod + ": " : "",
+                        },
+                    };
+                });
 
                 return this.dataSetsExportSpreadsheetRepository.createFiles(dataSetsWithHeaders);
             })
             .then(blobFiles => {
                 if (blobFiles.length > 1) {
                     const zip = new JSZip();
-                    blobFiles.forEach(file => zip.file(sanitizeFileName(file.name), file.blob));
+                    const names = [];
+                    blobFiles.forEach(file => {
+                        const name = sanitizeFileName(file.name);
+                        const idx = names.filter(s => s === name).length;
+                        zip.file(name + (idx ? ` (${idx})` : "") + ".xlsx", file.blob);
+                        names.push(name);
+                    });
 
                     return zip.generateAsync({ type: "blob" }).then(blob => {
                         saveAs(blob, "MSF-OCBA HMIS.zip");
@@ -76,7 +112,8 @@ export class ExportDatasetsUseCase {
 
                     return file?.blob.then(blob => saveAs(blob, sanitizeFileName(file.name)));
                 }
-            });
+            })
+            .catch(err => console.error(err));
     }
 }
 
@@ -192,7 +229,7 @@ function mapCategoryOption(categoryOption, locale) {
         displayFormName:
             getTranslationValue(categoryOption.translations, locale, "FORM_NAME") ??
             getTranslationValue(categoryOption.translations, locale, "NAME") ??
-            categoryOption.displayFormName,
+            (locale === "en" ? categoryOption.name : categoryOption.displayFormName),
     };
 }
 
@@ -200,11 +237,15 @@ function mapDataSetTranslations(dataSet) {
     return dataSet.pickedTranslations.map(locale => {
         const mappedDataset = {
             ...dataSet,
-            displayFormName: getTranslationValue(dataSet.translations, locale) ?? dataSet.displayFormName,
+            displayFormName:
+                getTranslationValue(dataSet.translations, locale) ??
+                (locale === "en" ? dataSet.formName ?? dataSet.name : dataSet.displayFormName),
             sections: dataSet.sections.map(section => ({
                 ...section,
                 //section does not have description available to translate??
-                displayName: getTranslationValue(section.translations, locale) ?? section.displayName,
+                displayName:
+                    getTranslationValue(section.translations, locale) ??
+                    (locale === "en" ? section.name : section.displayName),
                 categoryCombos: section.categoryCombos.map(categoryCombo => ({
                     ...categoryCombo,
                     categories: categoryCombo.categories.map(category => ({
@@ -212,11 +253,19 @@ function mapDataSetTranslations(dataSet) {
                     })),
                     categoryOptionCombos: categoryCombo.categoryOptionCombos.map(coc => {
                         const categoryOptions = coc.categoryOptions.map(co => mapCategoryOption(co, locale));
-                        const ids = coc.displayFormName
+                        const ids = (locale === "en" ? coc.name : coc.displayFormName)
                             .split(", ")
-                            .map(dco => coc.categoryOptions.find(co => co.displayFormName === dco)?.id);
+                            .map(
+                                dco =>
+                                    coc.categoryOptions.find(
+                                        co => (locale === "en" ? co.name : co.displayFormName) === dco
+                                    )?.id
+                            );
                         const displayFormName = ids
-                            .map(id => categoryOptions.find(co => co.id === id)?.displayFormName)
+                            .map(id => {
+                                const co = categoryOptions.find(co => co.id === id);
+                                return locale === "en" ? co?.name : co?.displayFormName;
+                            })
                             .join(", ");
 
                         return {
@@ -231,7 +280,7 @@ function mapDataSetTranslations(dataSet) {
                     displayFormName:
                         getTranslationValue(de.translations, locale, "FORM_NAME") ??
                         getTranslationValue(de.translations, locale, "NAME") ??
-                        de.displayFormName,
+                        (locale === "en" ? de.formName ?? de.name : de.displayFormName),
                 })),
             })),
             dataSetElements: dataSet.dataSetElements.map(dse => ({
@@ -241,7 +290,9 @@ function mapDataSetTranslations(dataSet) {
                     displayFormName:
                         getTranslationValue(dse.dataElement.translations, locale, "FORM_NAME") ??
                         getTranslationValue(dse.dataElement.translations, locale, "NAME") ??
-                        dse.dataElement.displayFormName,
+                        (locale === "en"
+                            ? dse.dataElement.formName ?? dse.dataElement.name
+                            : dse.dataElement.displayFormName),
                 },
             })),
         };
@@ -249,3 +300,5 @@ function mapDataSetTranslations(dataSet) {
         return { ...mappedDataset, pickedTranslations: locale };
     });
 }
+
+const location = window.location.href.substring(0, window.location.href.lastIndexOf("/"));
