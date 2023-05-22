@@ -11,6 +11,9 @@ export const TallySheetsController = TallySheets.controller("TallySheetsControll
     "Locales",
     "DataSetEntryForm",
     "UserSettingsKeyUiLocale",
+    "Storage",
+    "CurrentUser",
+    "UserGroups",
     function (
         $rootScope,
         $scope,
@@ -20,7 +23,10 @@ export const TallySheetsController = TallySheets.controller("TallySheetsControll
         DataSetsUID,
         Locales,
         DataSetEntryForm,
-        UserSettingsKeyUiLocale
+        UserSettingsKeyUiLocale,
+        Storage,
+        CurrentUser,
+        UserGroups
     ) {
         $scope.includeHeaders = true;
         $scope.datasets = [];
@@ -33,6 +39,7 @@ export const TallySheetsController = TallySheets.controller("TallySheetsControll
         $scope.selectAllDatasets = false;
         $scope.removedSections = [];
         $scope.preferredLanguage = "en";
+        $scope.isAdmin = false;
 
         Locales.get()
             .$promise.then(result => {
@@ -43,6 +50,47 @@ export const TallySheetsController = TallySheets.controller("TallySheetsControll
                 $scope.preferredLanguage = $scope.languages.map(({ locale }) => locale).includes(locale.response)
                     ? locale.response
                     : "en";
+            });
+
+        Storage.get()
+            .$promise.then(result => {
+                const constants = result.constants;
+                if (constants && constants[0]?.code === "TALLY_SHEETS_STORAGE") {
+                    try {
+                        const storage = JSON.parse(constants[0].description);
+                        return storage.administratorGroups && storage.administratorGroups.length > 0
+                            ? storage.administratorGroups
+                            : undefined;
+                    } catch (e) {
+                        $scope.isAdmin = true;
+                        console.error(
+                            "Unable to retrieve if the user is Admin. The TALLY_SHEETS_STORAGE description is not a valid JSON object.",
+                            e
+                        );
+                    }
+                }
+            })
+            .then(administratorGroups => {
+                if (administratorGroups)
+                    return UserGroups.get().$promise.then(result => {
+                        const userGroups = result.userGroups;
+                        return userGroups &&
+                            userGroups.length > 0 &&
+                            userGroups.some(group => administratorGroups.includes(group.id))
+                            ? administratorGroups
+                            : undefined;
+                    });
+                else $scope.isAdmin = true;
+            })
+            .then(administratorGroups => {
+                if (administratorGroups)
+                    CurrentUser.get().$promise.then(result => {
+                        const userGroups = result.userGroups;
+                        if (userGroups && userGroups.length > 0) {
+                            $scope.isAdmin = userGroups.some(group => administratorGroups.includes(group.id));
+                        }
+                    });
+                else $scope.isAdmin = true;
             });
 
         DataSetsUID.get().$promise.then(result => {
