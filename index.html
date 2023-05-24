@@ -53,7 +53,7 @@
 
             <!-- SELECT ALL -->
             <div class="row select-all">
-                <div>
+                <div ng-show="isAdmin">
                     <label id="selectAllLangs">{{ 'SELECT_ALL_LANGUAGES' | translate }}</label>
                     <input type="checkbox" ng-click="updateLangs()" ng-model="selectAllLangs"
                         aria-labelledby="selectAllLangs" ng-disabled="exporting || progressbarDisplayed">
