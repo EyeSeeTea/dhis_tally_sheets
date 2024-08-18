@@ -1,15 +1,16 @@
 {
-    "short_name": "DHIS2 Skeleton App",
-    "name": "DHIS2 Skeleton App",
+    "short_name": "HMIS Tally sheets",
+    "name": "HMIS Tally sheets",
     "icons": [
         {
-            "src": "favicon.ico",
-            "sizes": "64x64 32x32 24x24 16x16",
-            "type": "image/x-icon"
+            "src": "icon.png",
+            "sizes": "48x48",
+            "type": "image/png"
         }
     ],
     "start_url": ".",
     "display": "standalone",
     "theme_color": "#000000",
-    "background_color": "#ffffff"
+    "background_color": "#ffffff",
+    "lang": "en"
 }
