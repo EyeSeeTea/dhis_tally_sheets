@@ -1,13 +1,13 @@
 {
-    "name": "dhis2-app-skeleton",
-    "description": "DHIS2 Skeleton App",
-    "version": "0.0.1",
+    "name": "hmis-tally-sheets",
+    "description": "HMIS Tally sheets",
+    "version": "2.5.0",
     "license": "GPL-3.0",
-    "author": "EyeSeeTea team",
+    "author": "MSF OCBA, EyeSeeTea team",
     "homepage": ".",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/eyeseetea/dhis2-app-skeleton.git"
+        "url": "git+https://github.com/EyeSeeTea/dhis_tally_sheets.git"
     },
     "dependencies": {
         "$": "link:./src",
@@ -19,6 +19,7 @@
         "@eyeseetea/d2-api": "1.16.0-beta.6",
         "@eyeseetea/d2-ui-components": "2.9.0-beta.3",
         "@eyeseetea/feedback-component": "0.1.3-beta.1",
+        "@eyeseetea/xlsx-populate": "^4.3.0",
         "@material-ui/core": "4.12.4",
         "@material-ui/icons": "4.11.3",
         "@material-ui/lab": "4.0.0-alpha.60",
@@ -27,7 +28,9 @@
         "d2": "31.10.2",
         "d2-manifest": "1.0.0",
         "eslint-plugin-no-relative-import-paths": "^1.5.3",
+        "file-saver": "^2.0.5",
         "font-awesome": "4.7.0",
+        "jszip": "^3.10.1",
         "purify-ts": "1.2.0",
         "purify-ts-extra-codec": "0.6.0",
         "react": "^18.2.0",
@@ -110,19 +113,29 @@
         "script-example": "npx ts-node src/scripts/example.ts"
     },
     "manifest.webapp": {
-        "name": "DHIS2 Skeleton App",
-        "description": "DHIS2 Skeleton App",
+        "name": "HMIS Tally sheets",
+        "description": "HMIS Tally sheets",
         "icons": {
             "48": "icon.png"
         },
-        "developer": {
+        "developer1": {
+            "url": "",
+            "name": "Victor Garcia - MSFOCBA",
+            "email": "victor.garcia@barcelona.msf.org"
+        },
+        "developer2": {
             "url": "https://www.eyeseetea.com/",
             "name": "EyeSeeTea team"
         },
+        "installs_allowed_from": null,
+        "default_locale": "en",
         "activities": {
             "dhis": {
                 "href": "*"
             }
         }
+    },
+    "engines": {
+        "yarn": ">= 1.0.0"
     }
 }

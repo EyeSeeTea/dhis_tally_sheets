@@ -15,6 +15,9 @@ import { HashMap } from "./HashMap";
  * ```
  */
 
+// HMIS Tally Sheets not implemented methods from lodash:
+// "lodash": "4.17.21", --> _.isEmpty and _.intersection to be added to Collection
+
 export class Collection<T> {
     protected xs: T[];
 
