@@ -3,7 +3,7 @@ import { FeedbackOptions } from "@eyeseetea/feedback-component";
 export const appConfig: AppConfig = {
     id: "hmis-tally-sheets",
     appearance: {
-        showShareButton: true,
+        showShareButton: false,
     },
     feedback: {
         repositories: {
