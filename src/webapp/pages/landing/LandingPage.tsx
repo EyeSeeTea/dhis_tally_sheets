@@ -1,10 +1,10 @@
 import React from "react";
-import { Box, Button, Checkbox, FormControlLabel, Paper, useTheme } from "@material-ui/core";
-import { GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
 import {
     MultipleSelector,
     MultipleSelectorProps,
 } from "$/webapp/components/multiple-selector/MultipleSelector";
+import { Box, Button, Checkbox, FormControlLabel, Paper, useTheme } from "@material-ui/core";
+import { GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
 import i18n from "$/utils/i18n";
 
 export const LandingPage: React.FC = React.memo(() => {
