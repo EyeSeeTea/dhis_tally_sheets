@@ -23,8 +23,8 @@ export const LandingPage: React.FC = React.memo(() => {
         [options]
     );
 
-    const datasetsProps = useDatasetSelector();
-    const languagesProps = useLanguagesSelector();
+    const datasetSelectorProps = useDatasetSelector();
+    const languageSelectorProps = useLanguagesSelector();
 
     return (
         <Box margin={theme.spacing(0.5)}>
@@ -69,8 +69,10 @@ export const LandingPage: React.FC = React.memo(() => {
                             marginTop={theme.spacing(0.25)}
                             gridColumnGap={theme.spacing(3)}
                         >
-                            {!options.allDatasets && <MultipleSelector {...datasetsProps} />}
-                            {!options.allLanguages && <MultipleSelector {...languagesProps} />}
+                            {!options.allDatasets && <MultipleSelector {...datasetSelectorProps} />}
+                            {!options.allLanguages && (
+                                <MultipleSelector {...languageSelectorProps} />
+                            )}
                         </Box>
                     </Box>
                     <Box display="flex" gridColumnGap={theme.spacing(3)} alignItems="flex-start">
@@ -94,7 +96,7 @@ function useDatasetSelector(): MultipleSelectorProps {
         setSelected(values);
     }, []);
 
-    const datasetsProps: MultipleSelectorProps = React.useMemo(
+    const props: MultipleSelectorProps = React.useMemo(
         () => ({
             items: [
                 { value: "dataset1", text: "Dataset 1" },
@@ -108,7 +110,7 @@ function useDatasetSelector(): MultipleSelectorProps {
         [selected, onChange]
     );
 
-    return datasetsProps;
+    return props;
 }
 
 function useLanguagesSelector(): MultipleSelectorProps {
@@ -118,7 +120,7 @@ function useLanguagesSelector(): MultipleSelectorProps {
         setSelected(values);
     }, []);
 
-    const datasetsProps: MultipleSelectorProps = React.useMemo(
+    const props: MultipleSelectorProps = React.useMemo(
         () => ({
             items: [
                 { value: "en", text: "English" },
@@ -133,5 +135,5 @@ function useLanguagesSelector(): MultipleSelectorProps {
         [selected, onChange]
     );
 
-    return datasetsProps;
+    return props;
 }
