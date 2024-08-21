@@ -7,6 +7,7 @@ export interface UserAttrs {
     username: string;
     userRoles: UserRole[];
     userGroups: NamedRef[];
+    isAdmin: boolean;
 }
 
 export interface UserRole extends NamedRef {
@@ -16,9 +17,5 @@ export interface UserRole extends NamedRef {
 export class User extends Struct<UserAttrs>() {
     belongToUserGroup(userGroupUid: string): boolean {
         return this.userGroups.some(({ id }) => id === userGroupUid);
-    }
-
-    isAdmin(): boolean {
-        return this.userRoles.some(({ authorities }) => authorities.includes("ALL"));
     }
 }

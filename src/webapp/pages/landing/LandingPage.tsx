@@ -5,10 +5,12 @@ import {
 } from "$/webapp/components/multiple-selector/MultipleSelector";
 import { Box, Button, Checkbox, FormControlLabel, Paper, useTheme } from "@material-ui/core";
 import { GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
+import { useAppContext } from "$/webapp/contexts/app-context";
 import i18n from "$/utils/i18n";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
+    const { compositionRoot, currentUser } = useAppContext();
 
     const [options, setOptions] = React.useState({
         includeHeaders: true,
@@ -25,6 +27,15 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const datasetSelectorProps = useDatasetSelector();
     const languageSelectorProps = useLanguagesSelector();
+
+    const exportToExcel = React.useCallback(() => {
+        compositionRoot.test.execute().run(
+            res => {
+                console.log(res);
+            },
+            () => {}
+        );
+    }, [compositionRoot.test]);
 
     return (
         <Box margin={theme.spacing(0.5)}>
@@ -70,7 +81,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             gridColumnGap={theme.spacing(3)}
                         >
                             {!options.allDatasets && <MultipleSelector {...datasetSelectorProps} />}
-                            {!options.allLanguages && (
+                            {!options.allLanguages && currentUser.isAdmin && (
                                 <MultipleSelector {...languageSelectorProps} />
                             )}
                         </Box>
@@ -79,7 +90,12 @@ export const LandingPage: React.FC = React.memo(() => {
                         <Button variant="contained" color="default" startIcon={<PrintIcon />}>
                             {i18n.t("Print")}
                         </Button>
-                        <Button variant="contained" color="primary" startIcon={<DownloadIcon />}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<DownloadIcon />}
+                            onClick={exportToExcel}
+                        >
                             {i18n.t("Export to MS Excel")}
                         </Button>
                     </Box>

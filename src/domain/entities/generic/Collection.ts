@@ -245,6 +245,14 @@ export class Collection<T> {
         }
     }
 
+    isEmpty(): boolean {
+        return this.size === 0;
+    }
+
+    isNotEmpty(): boolean {
+        return !this.isEmpty();
+    }
+
     // forEach(fn: (value: T) => void): void
 
     zipLongest<S>(xs: Collection<S>): Collection<[T | undefined, S | undefined]> {
