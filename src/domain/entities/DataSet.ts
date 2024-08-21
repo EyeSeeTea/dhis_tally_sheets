@@ -1,4 +1,4 @@
-import { Id, Ref } from "$/domain/entities/Ref";
+import { Id, NamedRef, Ref } from "$/domain/entities/Ref";
 import { Maybe } from "$/utils/ts-utils";
 import { D2DataSet } from "@eyeseetea/d2-api/2.36";
 import { D2Translation } from "@eyeseetea/d2-api/schemas";
@@ -13,6 +13,14 @@ export interface DataSet {
     formType: D2DataSet["formType"];
     sections: Section[];
     dataSetElements: DataSetElement[];
+}
+
+export interface PartialDataSet {
+    id: Id;
+    translations: D2Translation[];
+    displayName: string;
+    formType: D2DataSet["formType"];
+    attributeValues: AttributeValue[];
 }
 
 interface Section {
@@ -63,4 +71,9 @@ interface CategoryOptionCombo {
     name: string;
     displayFormName: string;
     categoryOptions: CategoryOption[];
+}
+
+interface AttributeValue {
+    value: string;
+    attribute: NamedRef;
 }
