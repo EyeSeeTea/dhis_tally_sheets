@@ -26,7 +26,7 @@ export const LandingPage: React.FC = React.memo(() => {
     );
 
     const datasetSelectorProps = useDatasetSelector();
-    const languageSelectorProps = useLanguagesSelector();
+    const languageSelectorProps = useLanguagesSelector(currentUser.preferredLocale);
 
     const exportToExcel = React.useCallback(() => {
         compositionRoot.test.execute().run(
@@ -129,8 +129,18 @@ function useDatasetSelector(): MultipleSelectorProps {
     return props;
 }
 
-function useLanguagesSelector(): MultipleSelectorProps {
-    const [selected, setSelected] = React.useState<string[]>([]);
+function useLanguagesSelector(preferredLocale: string): MultipleSelectorProps {
+    const items = React.useMemo(
+        () => [
+            { value: "en", text: "English" },
+            { value: "fr", text: "French" },
+            { value: "es", text: "Spanish" },
+        ],
+        []
+    );
+
+    const preferred = items.map(i => i.value).find(locale => locale === preferredLocale);
+    const [selected, setSelected] = React.useState<string[]>(preferred ? [preferred] : []);
 
     const onChange = React.useCallback((values: string[]) => {
         setSelected(values);
@@ -138,17 +148,13 @@ function useLanguagesSelector(): MultipleSelectorProps {
 
     const props: MultipleSelectorProps = React.useMemo(
         () => ({
-            items: [
-                { value: "en", text: "English" },
-                { value: "fr", text: "French" },
-                { value: "es", text: "Spanish" },
-            ],
+            items: items,
             values: selected,
             onChange: onChange,
             label: i18n.t("Select a language"),
             name: "select-language",
         }),
-        [selected, onChange]
+        [items, selected, onChange]
     );
 
     return props;

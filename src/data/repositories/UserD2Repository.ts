@@ -49,6 +49,7 @@ export class UserD2Repository implements UserRepository {
             name: d2User.displayName,
             userGroups: d2User.userGroups,
             isAdmin: isAdmin,
+            preferredLocale: d2User.settings.keyUiLocale,
             ...d2User.userCredentials,
         });
     }
@@ -62,6 +63,9 @@ const userFields = {
         username: true,
         userRoles: { id: true, name: true, authorities: true },
     },
+    settings: {
+        keyUiLocale: true,
+    },
 } as const;
 
 const constantFields = {
@@ -74,4 +78,8 @@ const constantDescriptionCodec = Codec.interface({ administratorGroups: array(st
 const constantsErrMsg =
     "Unable to retrieve if the user is Admin. The TALLY_SHEETS_STORAGE description is not a valid JSON object.";
 
-type D2User = MetadataPick<{ users: { fields: typeof userFields } }>["users"][number];
+type D2User = MetadataPick<{ users: { fields: typeof userFields } }>["users"][number] & {
+    settings: {
+        keyUiLocale: string;
+    };
+};

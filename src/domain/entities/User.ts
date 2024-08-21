@@ -8,6 +8,7 @@ export interface UserAttrs {
     userRoles: UserRole[];
     userGroups: NamedRef[];
     isAdmin: boolean;
+    preferredLocale: string;
 }
 
 export interface UserRole extends NamedRef {
