@@ -15,7 +15,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 translate: "true",
                 paging: false,
             })
-        ).map(d2DataSet => d2DataSet.objects.map(this.buildPartialDataSet));
+        ).map(res => res.objects.map(this.buildPartialDataSet));
     }
 
     public getByIds(ids: Id[]): FutureData<DataSet[]> {
@@ -25,7 +25,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 filter: { id: { in: ids } },
                 paging: false,
             })
-        ).map(d2DataSet => d2DataSet.objects.map(this.buildFullDataSet));
+        ).map(res => res.objects.map(this.buildFullDataSet));
     }
 
     private buildPartialDataSet(d2DataSet: PartialD2DataSet): PartialDataSet {
