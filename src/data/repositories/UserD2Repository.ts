@@ -20,14 +20,19 @@ export class UserD2Repository implements UserRepository {
         ).flatMap(res => {
             const description = _c(res.objects).first()?.description;
 
+            /* To pass beside not having the constant or not being valid */
             if (description) {
                 return constantDescriptionCodec.decode(JSON.parse(description)).caseOf({
-                    Left: _err => Future.error<Error, Id[]>(new Error(constantsErrMsg)),
+                    Left: _err => {
+                        console.error(new Error(constantsErrMsg));
+                        return Future.success<Error, Id[]>([]);
+                    },
                     Right: res => Future.success<Error, Id[]>(res.administratorGroups),
                 });
+            } else {
+                console.error(new Error(constantsErrMsg));
+                return Future.success<Error, Id[]>([]);
             }
-
-            return Future.error<Error, Id[]>(new Error(constantsErrMsg));
         });
 
         const d2User$ = apiToFuture(

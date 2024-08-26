@@ -16,6 +16,8 @@ export function createUserWithGroups(userGroups: NamedRef[] = []): User {
         id: "YjJdEO6d38H",
         name: "John Traore",
         username: "user",
+        canSelectAllLocales: false,
+        preferredLocale: "en",
         userRoles: [],
         userGroups,
     });
@@ -25,6 +27,8 @@ function createUser(userRoles: UserRole[], userGroups: NamedRef[] = []): User {
         id: "kQiwoyMYHBS",
         name: "John Traore",
         username: "user",
+        canSelectAllLocales: false,
+        preferredLocale: "en",
         userRoles,
         userGroups,
     });
