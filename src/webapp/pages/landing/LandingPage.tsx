@@ -25,7 +25,7 @@ export const LandingPage: React.FC = React.memo(() => {
         [options]
     );
 
-    const datasetSelectorProps = useDatasetSelector();
+    const dataSetSelectorProps = useDatasetSelector();
     const languageSelectorProps = useLanguagesSelector(currentUser.preferredLocale);
 
     const exportToExcel = React.useCallback(() => {
@@ -80,7 +80,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             marginTop={theme.spacing(0.25)}
                             gridColumnGap={theme.spacing(3)}
                         >
-                            {!options.allDatasets && <MultipleSelector {...datasetSelectorProps} />}
+                            {!options.allDatasets && <MultipleSelector {...dataSetSelectorProps} />}
                             {!options.allLanguages && currentUser.isAdmin && (
                                 <MultipleSelector {...languageSelectorProps} />
                             )}

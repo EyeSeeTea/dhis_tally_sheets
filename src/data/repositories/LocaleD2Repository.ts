@@ -16,10 +16,10 @@ export class LocaleD2Repository implements LocaleRepository {
         const { id, name, displayName, locale } = d2Locale;
 
         return {
-            id,
-            name,
-            displayName,
-            locale,
+            id: id,
+            name: name,
+            displayName: displayName,
+            code: locale,
         };
     }
 }

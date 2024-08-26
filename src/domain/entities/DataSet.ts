@@ -1,29 +1,34 @@
-import { Id, NamedRef, Ref } from "$/domain/entities/Ref";
+import { Struct } from "$/domain/entities/generic/Struct";
+import { Id, Ref } from "$/domain/entities/Ref";
 import { Maybe } from "$/utils/ts-utils";
-import { D2DataSet } from "@eyeseetea/d2-api/2.36";
-import { D2Translation } from "@eyeseetea/d2-api/schemas";
+import {
+    BasicDataSetAttrs,
+    D2Translation,
+    validateDataSetIsAllowed,
+} from "$/domain/entities/BasicDataSet";
 
-export interface DataSet {
-    id: Id;
+export interface DataSetAttrs extends BasicDataSetAttrs {
     name: string;
     displayFormName: string;
-    translations: D2Translation[];
     formName: string;
-    displayName: string;
-    formType: D2DataSet["formType"];
     sections: Section[];
     dataSetElements: DataSetElement[];
 }
 
-export interface PartialDataSet {
-    id: Id;
-    translations: D2Translation[];
-    displayName: string;
-    formType: D2DataSet["formType"];
-    attributeValues: AttributeValue[];
+export class DataSet extends Struct<DataSetAttrs>() {
+    constructor(attrs: DataSetAttrs) {
+        super(attrs);
+        validateDataSetIsAllowed(this);
+    }
+
+    removeSection(sectionId: Id): DataSet {
+        return this._update({
+            sections: this.sections.filter(section => section.id !== sectionId),
+        });
+    }
 }
 
-interface Section {
+type Section = {
     id: Id;
     translations: D2Translation[];
     name: string;
@@ -32,48 +37,43 @@ interface Section {
     categoryCombos: CategoryCombo[];
     dataElements: DataElement[];
     greyedFields: { dataElement: Ref; categoryOptionCombo: Ref }[];
-}
+};
 
-interface DataSetElement {
+type DataSetElement = {
     categoryCombo: Ref;
     dataElement: DataElement;
-}
+};
 
-interface DataElement {
+type DataElement = {
     id: Id;
     name: string;
     displayFormName: string;
     translations: D2Translation[];
     formName: string;
     categoryCombo: Maybe<Ref>;
-}
+};
 
-interface CategoryCombo {
+type CategoryCombo = {
     id: Id;
     displayName: Maybe<string>;
     categories: Category[];
     categoryOptionCombos: CategoryOptionCombo[];
-}
+};
 
-interface Category {
+type Category = {
     categoryOptions: CategoryOption[];
-}
+};
 
-interface CategoryOption {
+type CategoryOption = {
     id: Id;
     name: string;
     displayFormName: string;
     translations: D2Translation[];
-}
+};
 
-interface CategoryOptionCombo {
+type CategoryOptionCombo = {
     id: Id;
     name: string;
     displayFormName: string;
     categoryOptions: CategoryOption[];
-}
-
-interface AttributeValue {
-    value: string;
-    attribute: NamedRef;
-}
+};
