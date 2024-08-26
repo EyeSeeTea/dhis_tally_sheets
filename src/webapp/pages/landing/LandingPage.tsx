@@ -29,13 +29,13 @@ export const LandingPage: React.FC = React.memo(() => {
     const languageSelectorProps = useLanguagesSelector(currentUser.preferredLocale);
 
     const exportToExcel = React.useCallback(() => {
-        compositionRoot.test.execute().run(
+        compositionRoot.dataSets.export.execute([]).run(
             res => {
                 console.log(res);
             },
             () => {}
         );
-    }, [compositionRoot.test]);
+    }, [compositionRoot]);
 
     return (
         <Box margin={theme.spacing(0.5)}>
@@ -81,7 +81,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             gridColumnGap={theme.spacing(3)}
                         >
                             {!options.allDatasets && <MultipleSelector {...dataSetSelectorProps} />}
-                            {!options.allLanguages && currentUser.isAdmin && (
+                            {!options.allLanguages && currentUser.canSelectAllLocales && (
                                 <MultipleSelector {...languageSelectorProps} />
                             )}
                         </Box>

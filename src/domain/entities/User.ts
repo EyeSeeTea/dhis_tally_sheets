@@ -7,7 +7,7 @@ export interface UserAttrs {
     username: string;
     userRoles: UserRole[];
     userGroups: NamedRef[];
-    isAdmin: boolean;
+    canSelectAllLocales: boolean;
     preferredLocale: string;
 }
 
@@ -18,5 +18,10 @@ export interface UserRole extends NamedRef {
 export class User extends Struct<UserAttrs>() {
     belongToUserGroup(userGroupUid: string): boolean {
         return this.userGroups.some(({ id }) => id === userGroupUid);
+    }
+
+    isAdmin(): boolean {
+        /* Readded for next implementation Settings feature */
+        return this.userRoles.some(({ authorities }) => authorities.includes("ALL"));
     }
 }
