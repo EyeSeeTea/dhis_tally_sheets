@@ -30,8 +30,8 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const exportToExcel = React.useCallback(() => {
         compositionRoot.dataSets.export.execute([]).run(
-            res => {
-                console.log(res);
+            _res => {
+                // console.log(res);
             },
             () => {}
         );
