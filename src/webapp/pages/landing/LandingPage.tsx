@@ -76,6 +76,14 @@ export const LandingPage: React.FC = React.memo(() => {
         currentUser.preferredLocale
     );
 
+    const _selectedLocales = React.useMemo(() => {
+        return options.allLanguages
+            ? languageSelectorProps.allItems
+            : languageSelectorProps.allItems.filter(i =>
+                  languageSelectorProps.values.includes(i.code)
+              );
+    }, [languageSelectorProps.allItems, languageSelectorProps.values, options.allLanguages]);
+
     const loading = React.useMemo(
         () =>
             dataSetSelectorProps.loading === "loading" ||
