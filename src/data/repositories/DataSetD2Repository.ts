@@ -1,9 +1,10 @@
-import { BasicDataSet } from "$/domain/entities/BasicDataSet";
-import { DataSet } from "$/domain/entities/DataSet";
+import { Id } from "$/domain/entities/Ref";
+import { BasicDataSet, BasicDataSetAttrs } from "$/domain/entities/BasicDataSet";
+import { DataSet, DataSetAttrs } from "$/domain/entities/DataSet";
 import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
 import { D2Api, MetadataPick } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
-import { Id } from "$/domain/entities/Ref";
+import { filterValidInstances } from "$/utils/instance-utils";
 
 export class DataSetD2Repository implements DataSetRepository {
     constructor(private api: D2Api) {}
@@ -16,7 +17,10 @@ export class DataSetD2Repository implements DataSetRepository {
                 translate: "true",
                 paging: false,
             })
-        ).map(res => res.objects.map(this.buildBasicDataSet));
+        ).map(res => {
+            const attrs: BasicDataSetAttrs[] = res.objects.map(this.buildBasicDataSet);
+            return filterValidInstances(BasicDataSet, attrs).instances;
+        });
     }
 
     public getByIds(ids: Id[]): FutureData<DataSet[]> {
@@ -27,7 +31,10 @@ export class DataSetD2Repository implements DataSetRepository {
                 translate: "true",
                 paging: false,
             })
-        ).map(res => res.objects.map(this.buildFullDataSet));
+        ).map(res => {
+            const attrs: DataSetAttrs[] = res.objects.map(this.buildFullDataSet);
+            return filterValidInstances(DataSet, attrs).instances;
+        });
     }
 
     public getAll(): FutureData<DataSet[]> {
@@ -38,21 +45,24 @@ export class DataSetD2Repository implements DataSetRepository {
                 translate: "true",
                 paging: false,
             })
-        ).map(res => res.objects.map(this.buildFullDataSet));
+        ).map(res => {
+            const attrs: DataSetAttrs[] = res.objects.map(this.buildFullDataSet);
+            return filterValidInstances(DataSet, attrs).instances;
+        });
     }
 
-    private buildBasicDataSet(d2DataSet: PartialD2DataSet): BasicDataSet {
-        return BasicDataSet.create({
+    private buildBasicDataSet(d2DataSet: PartialD2DataSet): BasicDataSetAttrs {
+        return {
             id: d2DataSet.id,
             formType: d2DataSet.formType,
             displayName: d2DataSet.displayName,
             translations: d2DataSet.translations,
             attributeValues: d2DataSet.attributeValues,
-        });
+        };
     }
 
-    private buildFullDataSet(d2DataSet: D2DataSet): DataSet {
-        return DataSet.create({
+    private buildFullDataSet(d2DataSet: D2DataSet): DataSetAttrs {
+        return {
             id: d2DataSet.id,
             name: d2DataSet.name,
             displayFormName: d2DataSet.displayFormName,
@@ -80,7 +90,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 categoryCombo: dataSetElement.categoryCombo,
                 dataElement: { ...dataSetElement.dataElement, categoryCombo: undefined },
             })),
-        });
+        };
     }
 }
 
