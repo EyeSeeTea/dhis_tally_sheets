@@ -10,37 +10,55 @@ import {
     useTheme,
 } from "@material-ui/core";
 import { MultipleDropdownProps } from "@eyeseetea/d2-ui-components";
+import i18n from "$/utils/i18n";
+import _c from "$/domain/entities/generic/Collection";
 
 export interface MultipleSelectorProps extends MultipleDropdownProps {
     /* Select doesn't support variant="outlined" https://github.com/mui/material-ui/issues/14203 */
     name: string;
+    disabled?: boolean;
 }
 
 export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(props => {
-    const { items, values, onChange, label, className, name } = props;
+    const { items, values, onChange, label, className, name, disabled } = props;
 
     const theme = useTheme();
     const classes = useStyles();
 
+    const mergedClasses = [className, classes.formControl].join(" ");
+
+    const selected = React.useMemo(
+        () => (_c(values).isEmpty() ? ["multiple-selector-void"] : values),
+        [values]
+    );
+
     const notifyChange = React.useCallback(
-        (event: React.ChangeEvent<{ value: unknown }>) => onChange(event.target.value as string[]),
+        (event: React.ChangeEvent<{ value: unknown }>) =>
+            onChange((event.target.value as string[]).filter(s => s !== "multiple-selector-void")),
         [onChange]
     );
 
-    const mergedClasses = [className, classes.formControl].join(" ");
-
     return (
-        <FormControl variant="outlined" className={mergedClasses} fullWidth margin="dense">
+        <FormControl
+            variant="outlined"
+            className={mergedClasses}
+            fullWidth
+            margin="dense"
+            disabled={disabled}
+        >
             <InputLabel htmlFor={name}>{label}</InputLabel>
             <Select
                 id={name}
                 label={label}
                 name={name}
                 multiple
-                value={values}
+                value={selected}
                 onChange={notifyChange}
                 MenuProps={MenuProps}
             >
+                <MenuItem value="multiple-selector-void" disabled>
+                    {i18n.t("Nothing selected")}
+                </MenuItem>
                 {items.map(item => (
                     <MenuItem
                         key={item.value}
@@ -67,7 +85,8 @@ function getStyles(name: string, values: string[], theme: Theme) {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         formControl: {
-            minWidth: theme.spacing(32),
+            minWidth: theme.spacing(42),
+            maxWidth: theme.spacing(42),
         },
     })
 );
@@ -78,7 +97,7 @@ const MenuProps = {
     PaperProps: {
         style: {
             maxHeight: ITEM_HEIGHT * 12 + ITEM_PADDING_TOP,
-            width: 250,
+            maxWidth: 600,
         },
     },
     /* [Select] Moves when re-rendering or selecting multiple items https://github.com/mui/material-ui/issues/19245 */
