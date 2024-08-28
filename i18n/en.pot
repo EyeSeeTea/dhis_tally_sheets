@@ -5,19 +5,16 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-20T22:24:24.604Z\n"
-"PO-Revision-Date: 2024-08-20T22:24:24.604Z\n"
+"POT-Creation-Date: 2024-08-28T13:57:13.972Z\n"
+"PO-Revision-Date: 2024-08-28T13:57:13.972Z\n"
+
+msgid "Nothing selected"
+msgstr ""
 
 msgid "Back"
 msgstr ""
 
 msgid "Help"
-msgstr ""
-
-msgid "Hello {{name}}"
-msgstr ""
-
-msgid "Detail page"
 msgstr ""
 
 msgid "Include headers"

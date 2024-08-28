@@ -1,24 +1,21 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-08-20T22:24:24.604Z\n"
+"POT-Creation-Date: 2024-08-28T13:57:13.972Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
+msgid "Nothing selected"
+msgstr ""
+
 msgid "Back"
 msgstr "Volver"
 
 msgid "Help"
 msgstr "Ayuda"
-
-msgid "Hello {{name}}"
-msgstr "Hola {{name}}"
-
-msgid "Detail page"
-msgstr ""
 
 msgid "Include headers"
 msgstr ""
@@ -40,6 +37,9 @@ msgstr ""
 
 msgid "Select a language"
 msgstr ""
+
+#~ msgid "Hello {{name}}"
+#~ msgstr "Hola {{name}}"
 
 #~ msgid "Add"
 #~ msgstr "Añadir"
