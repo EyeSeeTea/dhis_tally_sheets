@@ -1,11 +1,6 @@
-import { Struct } from "$/domain/entities/generic/Struct";
 import { Id, Ref } from "$/domain/entities/Ref";
 import { Maybe } from "$/utils/ts-utils";
-import {
-    BasicDataSetAttrs,
-    D2Translation,
-    validateDataSetIsAllowed,
-} from "$/domain/entities/BasicDataSet";
+import { BasicDataSet, BasicDataSetAttrs, D2Translation } from "$/domain/entities/BasicDataSet";
 
 export interface DataSetAttrs extends BasicDataSetAttrs {
     name: string;
@@ -15,10 +10,36 @@ export interface DataSetAttrs extends BasicDataSetAttrs {
     dataSetElements: DataSetElement[];
 }
 
-export class DataSet extends Struct<DataSetAttrs>() {
+export class DataSet extends BasicDataSet {
+    name: string;
+    displayFormName: string;
+    formName: string;
+    sections: Section[];
+    dataSetElements: DataSetElement[];
+
     constructor(attrs: DataSetAttrs) {
         super(attrs);
-        validateDataSetIsAllowed(this);
+        this.name = attrs.name;
+        this.displayFormName = attrs.displayFormName;
+        this.formName = attrs.formName;
+        this.sections = attrs.sections;
+        this.dataSetElements = attrs.dataSetElements;
+    }
+
+    _getAttributes(): DataSetAttrs {
+        return this._getAttributes() as DataSetAttrs;
+    }
+
+    protected _update(partialAttrs: Partial<DataSetAttrs>): this {
+        Object.assign(this, partialAttrs);
+        return this;
+    }
+
+    static create<DataSet>(
+        this: new (attrs: DataSetAttrs) => DataSet,
+        attrs: DataSetAttrs
+    ): DataSet {
+        return new this(attrs);
     }
 
     removeSection(sectionId: Id): DataSet {

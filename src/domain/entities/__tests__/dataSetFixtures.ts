@@ -1,6 +1,11 @@
-import { BasicDataSetAttrs } from "$/domain/entities/BasicDataSet";
+import { BasicDataSet, BasicDataSetAttrs } from "$/domain/entities/BasicDataSet";
+import { DataSet, DataSetAttrs } from "$/domain/entities/DataSet";
 
-export function validBasicAttrs(): BasicDataSetAttrs {
+export const validBasic = new BasicDataSet(validBasicAttrs());
+export const valid = new DataSet(validAttrs());
+export const withSections = new DataSet(withSectionsAttrs());
+
+function validBasicAttrs(): BasicDataSetAttrs {
     return createBasicAttrs();
 }
 
@@ -12,6 +17,27 @@ export function basicAttrsWithHideInTallySheetsAttribute(): BasicDataSetAttrs {
     return createBasicAttrs({
         attributeValues: [
             { value: "true", attribute: { id: "BwyMfDBLih9", name: "hideInTallySheet" } },
+        ],
+    });
+}
+
+function validAttrs(): DataSetAttrs {
+    return createAttrs();
+}
+
+function withSectionsAttrs(): DataSetAttrs {
+    return createAttrs({
+        sections: [
+            {
+                id: "section1",
+                translations: [],
+                name: "Section 1",
+                displayName: "Section 1",
+                description: "",
+                categoryCombos: [],
+                dataElements: [],
+                greyedFields: [],
+            },
         ],
     });
 }
@@ -29,5 +55,16 @@ function createBasicAttrs(options?: {
         displayName: "Basic Data Set",
         formType: formType,
         attributeValues: attributeValues,
+    };
+}
+
+function createAttrs(options?: { sections?: DataSetAttrs["sections"] }): DataSetAttrs {
+    return {
+        ...createBasicAttrs(),
+        name: "",
+        displayFormName: "",
+        formName: "",
+        sections: options?.sections ?? [],
+        dataSetElements: [],
     };
 }
