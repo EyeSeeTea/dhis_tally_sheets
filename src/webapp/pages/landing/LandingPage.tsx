@@ -1,11 +1,22 @@
 import React from "react";
+import { GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
+import {
+    Box,
+    Button,
+    Checkbox,
+    CircularProgress,
+    FormControlLabel,
+    Paper,
+    useTheme,
+} from "@material-ui/core";
 import {
     MultipleSelector,
     MultipleSelectorProps,
 } from "$/webapp/components/multiple-selector/MultipleSelector";
-import { Box, Button, Checkbox, FormControlLabel, Paper, useTheme } from "@material-ui/core";
-import { GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
 import { useAppContext } from "$/webapp/contexts/app-context";
+import { BasicDataSet } from "$/domain/entities/BasicDataSet";
+import { Locale } from "$/domain/entities/Locale";
+import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 
 export const LandingPage: React.FC = React.memo(() => {
@@ -26,7 +37,6 @@ export const LandingPage: React.FC = React.memo(() => {
     );
 
     const dataSetSelectorProps = useDatasetSelector();
-    const languageSelectorProps = useLanguagesSelector(currentUser.preferredLocale);
 
     const exportToExcel = React.useCallback(() => {
         compositionRoot.dataSets.export.execute([]).run(
@@ -36,6 +46,48 @@ export const LandingPage: React.FC = React.memo(() => {
             () => {}
         );
     }, [compositionRoot]);
+
+    const resetView = React.useCallback(() => {}, []);
+
+    const selectedDatasets = React.useMemo(() => {
+        return options.allDatasets
+            ? dataSetSelectorProps.allItems
+            : dataSetSelectorProps.allItems.filter(i => dataSetSelectorProps.values.includes(i.id));
+    }, [dataSetSelectorProps.allItems, dataSetSelectorProps.values, options.allDatasets]);
+
+    const availableLocales = React.useMemo(() => {
+        return _c(selectedDatasets).isEmpty()
+            ? []
+            : _c(
+                  selectedDatasets.flatMap(dataSet =>
+                      dataSet.translations.flatMap(t =>
+                          t.property === "NAME" ? [t.locale.split("_")[0]] : []
+                      )
+                  )
+              )
+                  .uniq()
+                  .compact()
+                  .value()
+                  .concat("en"); // Add English because is not included in translations
+    }, [selectedDatasets]);
+
+    const languageSelectorProps = useLanguagesSelector(
+        availableLocales,
+        currentUser.preferredLocale
+    );
+
+    const loading = React.useMemo(
+        () =>
+            dataSetSelectorProps.loading === "loading" ||
+            languageSelectorProps.loading === "loading",
+        [dataSetSelectorProps.loading, languageSelectorProps.loading]
+    );
+
+    React.useEffect(() => {
+        if (options.allDatasets === false) {
+            resetView();
+        }
+    }, [options.allDatasets, resetView]);
 
     return (
         <Box margin={theme.spacing(0.5)}>
@@ -79,10 +131,17 @@ export const LandingPage: React.FC = React.memo(() => {
                             display="flex"
                             marginTop={theme.spacing(0.25)}
                             gridColumnGap={theme.spacing(3)}
+                            alignItems="center"
                         >
                             {!options.allDatasets && <MultipleSelector {...dataSetSelectorProps} />}
                             {!options.allLanguages && currentUser.canSelectAllLocales && (
                                 <MultipleSelector {...languageSelectorProps} />
+                            )}
+
+                            {loading && (
+                                <Box display="flex" alignItems="center">
+                                    <CircularProgress size="2em" thickness={4} />
+                                </Box>
                             )}
                         </Box>
                     </Box>
@@ -101,61 +160,132 @@ export const LandingPage: React.FC = React.memo(() => {
                     </Box>
                 </Box>
             </Paper>
+            <Box marginTop={theme.spacing(0.5)}>
+                {selectedDatasets.map(ds => (
+                    <Box key={ds.id}>{ds.displayName}</Box>
+                ))}
+            </Box>
         </Box>
     );
 });
 
-function useDatasetSelector(): MultipleSelectorProps {
+type LoadingState = "loading" | "loaded" | "error";
+type SelectorProps<Item> = MultipleSelectorProps & { loading: LoadingState; allItems: Item[] };
+
+function useDatasetSelector(): SelectorProps<BasicDataSet> {
+    const { compositionRoot } = useAppContext();
+
+    const [dataSets, setDataSets] = React.useState<BasicDataSet[]>([]);
     const [selected, setSelected] = React.useState<string[]>([]);
+    const [loading, setLoading] = React.useState<LoadingState>("loading");
 
     const onChange = React.useCallback((values: string[]) => {
         setSelected(values);
     }, []);
 
-    const props: MultipleSelectorProps = React.useMemo(
+    const props: SelectorProps<BasicDataSet> = React.useMemo(
         () => ({
-            items: [
-                { value: "dataset1", text: "Dataset 1" },
-                { value: "dataset2", text: "Dataset 2" },
-            ],
+            items: _c(dataSets.map(ds => ({ value: ds.id, text: ds.displayName })))
+                .sortBy(i => i.text.toLowerCase())
+                .value(),
+            allItems: dataSets,
             values: selected,
             onChange: onChange,
             label: i18n.t("Select a dataset"),
             name: "select-dataset",
+            loading: loading,
+            disabled: loading === "loading" || dataSets.length === 0,
         }),
-        [selected, onChange]
+        [selected, onChange, dataSets, loading]
+    );
+
+    React.useEffect(
+        () =>
+            compositionRoot.dataSets.getBasicList.execute().run(
+                dataSets => {
+                    setDataSets(dataSets);
+                    setLoading("loaded");
+                },
+                err => {
+                    console.error(err);
+                    setLoading("error");
+                }
+            ),
+        [compositionRoot.dataSets.getBasicList]
     );
 
     return props;
 }
 
-function useLanguagesSelector(preferredLocale: string): MultipleSelectorProps {
-    const items = React.useMemo(
-        () => [
-            { value: "en", text: "English" },
-            { value: "fr", text: "French" },
-            { value: "es", text: "Spanish" },
-        ],
-        []
+function useLanguagesSelector(
+    availableLocales: string[],
+    preferredLocale: string
+): SelectorProps<Locale> {
+    const { compositionRoot } = useAppContext();
+
+    const [locales, setLocales] = React.useState<Locale[]>([]);
+    const [loading, setLoading] = React.useState<LoadingState>("loading");
+    const [selected, setSelected] = React.useState<string[]>([]);
+
+    const available = React.useMemo(
+        () => locales.filter(locale => availableLocales?.includes(locale.code)),
+        [availableLocales, locales]
     );
 
-    const preferred = items.map(i => i.value).find(locale => locale === preferredLocale);
-    const [selected, setSelected] = React.useState<string[]>(preferred ? [preferred] : []);
+    const items = React.useMemo(
+        () =>
+            available.map(locale => ({
+                value: locale.code,
+                text: locale.displayName,
+            })),
+        [available]
+    );
 
     const onChange = React.useCallback((values: string[]) => {
         setSelected(values);
     }, []);
 
-    const props: MultipleSelectorProps = React.useMemo(
+    const props: SelectorProps<Locale> = React.useMemo(
         () => ({
             items: items,
             values: selected,
             onChange: onChange,
             label: i18n.t("Select a language"),
             name: "select-language",
+            loading: loading,
+            allItems: available,
+            disabled: loading === "loading" || _c(available).isEmpty(),
         }),
-        [items, selected, onChange]
+        [items, selected, onChange, loading, available]
     );
+
+    React.useEffect(
+        () =>
+            compositionRoot.locales.get.execute().run(
+                locales => {
+                    setLocales(locales);
+                    setLoading("loaded");
+                },
+                err => {
+                    console.error(err);
+                    setLoading("error");
+                }
+            ),
+        [compositionRoot.locales.get]
+    );
+
+    React.useEffect(() => {
+        const preferredIsAvailable = available.map(locale => locale.code).includes(preferredLocale);
+        const codes = available.map(locale => locale.code);
+
+        setSelected(selected =>
+            _c(selected).isEmpty() && preferredIsAvailable
+                ? [preferredLocale]
+                : _c(selected)
+                      .select(s => codes.includes(s))
+                      .value()
+        );
+    }, [available, preferredLocale]);
 
     return props;
 }
