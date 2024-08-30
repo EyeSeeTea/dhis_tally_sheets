@@ -58,6 +58,16 @@ describe("Collection", () => {
         expectTypeOf(values).toEqualTypeOf<Collection<string>>();
     });
 
+    test("concat", () => {
+        const values1 = _([1, 2]);
+        const values2 = _([3, 4]);
+        const concatenated = values1.concat(values2);
+        const str = _(["a"]);
+
+        expect(concatenated.toArray()).toEqual([1, 2, 3, 4]);
+        expect(str.concat("b").toArray()).toEqual(["a", "b"]);
+    });
+
     test("append", () => {
         expect(_([1, 2]).append(3).toArray()).toEqual([1, 2, 3]);
     });

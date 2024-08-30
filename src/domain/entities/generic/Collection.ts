@@ -87,6 +87,14 @@ export class Collection<T> {
         return this.map(fn).compact() as unknown as Collection<U>;
     }
 
+    concat(...items: (T | Collection<T>)[]): Collection<T> {
+        const flattenedItems = items.map(item =>
+            item instanceof Collection ? item.toArray() : item
+        );
+
+        return _c(this.xs.concat(...flattenedItems));
+    }
+
     append(x: T): Collection<T> {
         return _c(this.xs.concat([x]));
     }
