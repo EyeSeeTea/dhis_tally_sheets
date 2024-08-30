@@ -56,7 +56,7 @@ type Section = {
     displayName: string;
     description: string;
     categoryCombos: CategoryCombo[];
-    dataElements: DataElement[];
+    dataElements: SectionDataElement[];
     greyedFields: { dataElement: Ref; categoryOptionCombo: Ref }[];
 };
 
@@ -71,12 +71,15 @@ type DataElement = {
     displayFormName: string;
     translations: D2Translation[];
     formName: string;
-    categoryCombo: Maybe<Ref>;
+};
+
+type SectionDataElement = DataElement & {
+    categoryCombo: Ref;
 };
 
 type CategoryCombo = {
     id: Id;
-    displayName: Maybe<string>;
+    displayName: string;
     categories: Category[];
     categoryOptionCombos: CategoryOptionCombo[];
 };

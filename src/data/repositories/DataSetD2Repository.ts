@@ -18,8 +18,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 paging: false,
             })
         ).map(res => {
-            const attrs: BasicDataSetAttrs[] = res.objects.map(this.buildBasicDataSet);
-            return filterValidInstances(BasicDataSet, attrs).instances;
+            return this.createBasicDataSets(res.objects);
         });
     }
 
@@ -32,8 +31,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 paging: false,
             })
         ).map(res => {
-            const attrs: DataSetAttrs[] = res.objects.map(this.buildFullDataSet);
-            return filterValidInstances(DataSet, attrs).instances;
+            return this.createDataSets(res.objects);
         });
     }
 
@@ -46,51 +44,16 @@ export class DataSetD2Repository implements DataSetRepository {
                 paging: false,
             })
         ).map(res => {
-            const attrs: DataSetAttrs[] = res.objects.map(this.buildFullDataSet);
-            return filterValidInstances(DataSet, attrs).instances;
+            return this.createDataSets(res.objects);
         });
     }
 
-    private buildBasicDataSet(d2DataSet: PartialD2DataSet): BasicDataSetAttrs {
-        return {
-            id: d2DataSet.id,
-            formType: d2DataSet.formType,
-            displayName: d2DataSet.displayName,
-            translations: d2DataSet.translations,
-            attributeValues: d2DataSet.attributeValues,
-        };
+    private createBasicDataSets(attrs: BasicDataSetAttrs[]): BasicDataSet[] {
+        return filterValidInstances(BasicDataSet, attrs).instances;
     }
 
-    private buildFullDataSet(d2DataSet: D2DataSet): DataSetAttrs {
-        return {
-            id: d2DataSet.id,
-            name: d2DataSet.name,
-            displayFormName: d2DataSet.displayFormName,
-            translations: d2DataSet.translations,
-            formName: d2DataSet.formName,
-            displayName: d2DataSet.displayName,
-            formType: d2DataSet.formType,
-            attributeValues: d2DataSet.attributeValues,
-            sections: d2DataSet.sections.map(section => ({
-                id: section.id,
-                translations: section.translations,
-                name: section.name,
-                displayName: section.displayName,
-                description: section.description,
-                categoryCombos: section.categoryCombos.map(categoryCombo => ({
-                    id: categoryCombo.id,
-                    displayName: undefined,
-                    categories: categoryCombo.categories,
-                    categoryOptionCombos: categoryCombo.categoryOptionCombos,
-                })),
-                dataElements: section.dataElements,
-                greyedFields: section.greyedFields,
-            })),
-            dataSetElements: d2DataSet.dataSetElements.map(dataSetElement => ({
-                categoryCombo: dataSetElement.categoryCombo,
-                dataElement: { ...dataSetElement.dataElement, categoryCombo: undefined },
-            })),
-        };
+    private createDataSets(attrs: DataSetAttrs[]): DataSet[] {
+        return filterValidInstances(DataSet, attrs).instances;
     }
 }
 
@@ -118,6 +81,7 @@ const dataSetFields = {
         description: true,
         categoryCombos: {
             id: true,
+            displayName: true,
             categories: {
                 categoryOptions: {
                     id: true,
