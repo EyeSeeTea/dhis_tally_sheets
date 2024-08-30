@@ -76,7 +76,7 @@ export const LandingPage: React.FC = React.memo(() => {
         currentUser.preferredLocale
     );
 
-    const _selectedLocales = React.useMemo(() => {
+    const selectedLocales = React.useMemo(() => {
         return options.allLanguages
             ? languageSelectorProps.allItems
             : languageSelectorProps.allItems.filter(i =>
@@ -162,6 +162,11 @@ export const LandingPage: React.FC = React.memo(() => {
                             color="primary"
                             startIcon={<DownloadIcon />}
                             onClick={exportToExcel}
+                            disabled={
+                                _c(selectedDatasets).isEmpty() ||
+                                _c(selectedLocales).isEmpty() ||
+                                loading
+                            }
                         >
                             {i18n.t("Export to MS Excel")}
                         </Button>
