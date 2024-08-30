@@ -6,6 +6,6 @@ export class GetAllBasicDataSetsInfoUseCase {
     constructor(private dataSetRepository: DataSetRepository) {}
 
     public execute(): FutureData<BasicDataSet[]> {
-        return this.dataSetRepository.getAllBasic();
+        return this.dataSetRepository.getBasic();
     }
 }

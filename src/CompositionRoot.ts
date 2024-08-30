@@ -52,8 +52,8 @@ export function getTestCompositionRoot() {
         usersRepository: new UserTestRepository(),
         dataSetRepository: {
             getByIds: () => Future.success([]),
-            getAll: () => Future.success([]),
-            getAllBasic: () => Future.success([]),
+            get: () => Future.success([]),
+            getBasic: () => Future.success([]),
         },
         localeRepository: { get: () => Future.success([]) },
     };

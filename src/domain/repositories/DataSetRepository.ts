@@ -5,6 +5,6 @@ import { Id } from "$/domain/entities/Ref";
 
 export interface DataSetRepository {
     getByIds(ids: Id[]): FutureData<DataSet[]>;
-    getAll(): FutureData<DataSet[]>;
-    getAllBasic(): FutureData<BasicDataSet[]>;
+    get(): FutureData<DataSet[]>;
+    getBasic(): FutureData<BasicDataSet[]>;
 }

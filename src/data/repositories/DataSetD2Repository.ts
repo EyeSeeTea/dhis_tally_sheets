@@ -9,7 +9,7 @@ import { filterValidInstances } from "$/utils/instance-utils";
 export class DataSetD2Repository implements DataSetRepository {
     constructor(private api: D2Api) {}
 
-    public getAllBasic(): FutureData<BasicDataSet[]> {
+    public getBasic(): FutureData<BasicDataSet[]> {
         return apiToFuture(
             this.api.models.dataSets.get({
                 fields: partialDataSetFields,
@@ -37,7 +37,7 @@ export class DataSetD2Repository implements DataSetRepository {
         });
     }
 
-    public getAll(): FutureData<DataSet[]> {
+    public get(): FutureData<DataSet[]> {
         return apiToFuture(
             this.api.models.dataSets.get({
                 fields: dataSetFields,
