@@ -31,6 +31,10 @@ export class Collection<T> {
         return new Collection(xs);
     }
 
+    static fromSet<T>(set: Set<T>): Collection<T> {
+        return Collection.from(Array.from(set));
+    }
+
     static range(start: number, end: number, step = 1): Collection<number> {
         const output = [];
         for (let idx = start; idx < end; idx = idx + step) output.push(idx);
@@ -204,6 +208,15 @@ export class Collection<T> {
 
     getMany(idxs: number[]): Collection<T | undefined> {
         return _c(idxs.map(idx => this.xs[idx]));
+    }
+
+    /* June 2024 Set.prototype.intersection() Newly Available (same goes for union, difference, symmetricDifference) */
+    intersection(...collections: Collection<T>[]): Collection<T> {
+        const intersectionSet = collections
+            .map(c => new Set(c.toArray()))
+            .reduce<Set<T>>((acc, v) => acc.intersection(v), new Set(this.toArray()));
+
+        return Collection.fromSet(intersectionSet);
     }
 
     intersperse(value: T): Collection<T> {

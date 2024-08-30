@@ -151,6 +151,30 @@ describe("Collection", () => {
         expect(xs.getMany([1, 3]).toArray()).toEqual(["b", undefined]);
     });
 
+    // Polyfill for Set.prototype.intersection
+    if (!Set.prototype.intersection) {
+        // eslint-disable-next-line no-extend-native
+        Set.prototype.intersection = function <T>(this: Set<T>, otherSet: Set<T>): Set<T> {
+            const result = new Set<T>();
+            for (const elem of this) {
+                if (otherSet.has(elem)) {
+                    result.add(elem);
+                }
+            }
+            return result;
+        };
+    }
+
+    // Vitest upgrade version: 0.32.4 -> 2.0.5 (https://chatgpt.com/share/eb896ac5-5e5f-4e3d-be18-701806b477d9)
+    test("intersection", () => {
+        const xs = _([1, 2, 3]);
+
+        expect(xs.intersection(_([2, 3, 4])).toArray()).toEqual([2, 3]);
+        expect(xs.intersection(_([4, 5, 6])).toArray()).toEqual([]);
+        expect(xs.intersection(_([2, 3, 4]), _([3, 4, 5])).toArray()).toEqual([3]);
+        expect(xs.intersection(_([4, 5, 6]), _([7, 8, 9])).toArray()).toEqual([]);
+    });
+
     test("intersperse", () => {
         const xs = _(["a", "b", "c"]);
 
