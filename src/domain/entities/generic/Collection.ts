@@ -211,7 +211,7 @@ export class Collection<T> {
     }
 
     /* June 2024 Set.prototype.intersection() Newly Available (same goes for union, difference, symmetricDifference) */
-    intersection(...collections: Collection<T>[]): Collection<T> {
+    intersection<U>(...collections: Collection<U>[]): Collection<T> {
         const intersectionSet = collections
             .map(c => new Set(c.toArray()))
             .reduce<Set<T>>((acc, v) => acc.intersection(v), new Set(this.toArray()));
