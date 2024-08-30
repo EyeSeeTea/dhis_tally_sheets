@@ -5,8 +5,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-28T13:57:13.972Z\n"
-"PO-Revision-Date: 2024-08-28T13:57:13.972Z\n"
+"POT-Creation-Date: 2024-08-30T08:29:26.865Z\n"
+"PO-Revision-Date: 2024-08-30T08:29:26.865Z\n"
+
+msgid "Health facility"
+msgstr ""
+
+msgid "Reporting period"
+msgstr ""
 
 msgid "Nothing selected"
 msgstr ""
