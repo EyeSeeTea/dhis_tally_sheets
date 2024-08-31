@@ -1,3 +1,5 @@
+import JSZip from "jszip";
+import saveAs from "file-saver";
 import { FutureData } from "$/data/api-futures";
 import {
     CategoryCombo,
@@ -13,10 +15,8 @@ import { D2Translation } from "$/domain/entities/BasicDataSet";
 import { HashMap } from "$/domain/entities/generic/HashMap";
 import { Locale } from "$/domain/entities/Locale";
 import { Maybe } from "$/utils/ts-utils";
-import i18n from "$/utils/i18n";
-import JSZip from "jszip";
-import saveAs from "file-saver";
 import { Future } from "$/domain/entities/generic/Future";
+import i18n from "$/utils/i18n";
 
 export class ExportDataSetsUseCase {
     constructor(private exportRepository: DataSetExportRepository) {}
@@ -84,35 +84,30 @@ export class ExportDataSetsUseCase {
             .values()
             .flat();
 
-        const downloadFiles = Promise.all(
+        const downloadFiles$ = Future.sequential(
             dataSetsWithHeaders.map(dataSet => this.exportRepository.exportDataSet(dataSet))
-        )
-            .then(blobFiles => {
-                if (blobFiles.length > 1) {
-                    const zip = new JSZip();
+        ).map(blobFiles => {
+            if (blobFiles.length > 1) {
+                const zip = new JSZip();
 
-                    blobFiles.reduce<string[]>((names, file) => {
-                        const name = sanitizeFileName(file.name);
-                        const idx = names.filter(s => s === name).length;
-                        zip.file(name + (idx ? ` (${idx})` : "") + ".xlsx", file.blob);
-                        return names.concat(name);
-                    }, []);
+                blobFiles.reduce<string[]>((names, file) => {
+                    const name = sanitizeFileName(file.name);
+                    const idx = names.filter(s => s === name).length;
+                    zip.file(name + (idx ? ` (${idx})` : "") + ".xlsx", file.blob);
+                    return names.concat(name);
+                }, []);
 
-                    return zip.generateAsync({ type: "blob" }).then(blob => {
-                        saveAs(blob, "MSF-OCBA HMIS.zip");
-                    });
-                } else if (blobFiles.length === 1) {
-                    const file = blobFiles[0];
-                    if (!file) return;
-                    return saveAs(file.blob, sanitizeFileName(file.name));
-                }
-            })
-            .catch(err => console.error(err));
-
-        return Future.fromComputation((resolve, reject) => {
-            downloadFiles.then(resolve).catch(reject);
-            return () => {};
+                zip.generateAsync({ type: "blob" }).then(blob => {
+                    saveAs(blob, "MSF-OCBA HMIS.zip");
+                });
+            } else if (blobFiles.length === 1) {
+                const file = blobFiles[0];
+                if (!file) return;
+                return saveAs(file.blob, sanitizeFileName(file.name));
+            }
         });
+
+        return downloadFiles$;
     }
 }
 

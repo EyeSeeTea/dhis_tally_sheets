@@ -2,15 +2,22 @@ import _c, { Collection } from "$/domain/entities/generic/Collection";
 import { Headers, ProcessedDataSet, Section } from "$/domain/entities/DataSet";
 import { DataSetExportRepository, ExportFile } from "$/domain/repositories/DataSetExportRepository";
 import XlsxPopulate, { Sheet, Workbook } from "@eyeseetea/xlsx-populate";
+import { FutureData } from "$/data/api-futures";
+import { Future } from "$/domain/entities/generic/Future";
 
 export class DataSetExportSpreadsheetRepository implements DataSetExportRepository {
-    async exportDataSet(dataSet: ProcessedDataSet): Promise<ExportFile> {
-        return {
-            name: `${dataSet.displayFormName.trim()}`,
-            blob: await XlsxPopulate.fromBlankAsync().then(workbook =>
+    exportDataSet(dataSet: ProcessedDataSet): FutureData<ExportFile> {
+        return Future.fromComputation((resolve, reject) => {
+            XlsxPopulate.fromBlankAsync().then(workbook => {
                 exportDataSet(workbook, dataSet)
-            ),
-        };
+                    .then(blob => {
+                        resolve({ name: "export.xlsx", blob });
+                    })
+                    .catch(reject);
+            });
+
+            return () => {};
+        });
     }
 }
 

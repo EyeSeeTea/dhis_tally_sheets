@@ -1,6 +1,8 @@
 import { DataSetD2Repository } from "$/data/repositories/DataSetD2Repository";
+import { DataSetExportSpreadsheetRepository } from "$/data/repositories/DataSetExportSpreadsheetRepository";
 import { LocaleD2Repository } from "$/data/repositories/LocaleD2Repository";
 import { Future } from "$/domain/entities/generic/Future";
+import { DataSetExportRepository } from "$/domain/repositories/DataSetExportRepository";
 import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
 import { LocaleRepository } from "$/domain/repositories/LocaleRepository";
 import { ExportDataSetsUseCase } from "$/domain/usecases/ExportDataSetsUseCase";
@@ -18,6 +20,7 @@ export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 type Repositories = {
     usersRepository: UserRepository;
     dataSetRepository: DataSetRepository;
+    dataSetExportRepository: DataSetExportRepository;
     localeRepository: LocaleRepository;
 };
 
@@ -29,7 +32,7 @@ function getCompositionRoot(repositories: Repositories) {
         dataSets: {
             getBasicList: new GetAllBasicDataSetsInfoUseCase(repositories.dataSetRepository),
             getById: new GetDataSetUseCase(repositories.dataSetRepository),
-            export: new ExportDataSetsUseCase(repositories.dataSetRepository),
+            export: new ExportDataSetsUseCase(repositories.dataSetExportRepository),
         },
         locales: {
             get: new GetLocalesUseCase(repositories.localeRepository),
@@ -42,6 +45,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         usersRepository: new UserD2Repository(api),
         dataSetRepository: new DataSetD2Repository(api),
         localeRepository: new LocaleD2Repository(api),
+        dataSetExportRepository: new DataSetExportSpreadsheetRepository(),
     };
 
     return getCompositionRoot(repositories);
@@ -54,6 +58,9 @@ export function getTestCompositionRoot() {
             getByIds: () => Future.success([]),
             get: () => Future.success([]),
             getBasic: () => Future.success([]),
+        },
+        dataSetExportRepository: {
+            exportDataSet: () => Future.success({ name: "", blob: new Blob() }),
         },
         localeRepository: { get: () => Future.success([]) },
     };
