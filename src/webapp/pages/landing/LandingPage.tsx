@@ -38,15 +38,6 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const dataSetSelectorProps = useDatasetSelector();
 
-    const exportToExcel = React.useCallback(() => {
-        compositionRoot.dataSets.export.execute([]).run(
-            _res => {
-                // console.log(res);
-            },
-            () => {}
-        );
-    }, [compositionRoot]);
-
     const resetView = React.useCallback(() => {}, []);
 
     const selectedDatasets = React.useMemo(() => {
@@ -65,10 +56,10 @@ export const LandingPage: React.FC = React.memo(() => {
                       )
                   )
               )
+                  .concat("en")
                   .uniq()
                   .compact()
-                  .value()
-                  .concat("en"); // Add English because is not included in translations
+                  .value(); // Add English because is not included in translations
     }, [selectedDatasets]);
 
     const languageSelectorProps = useLanguagesSelector(
@@ -90,6 +81,15 @@ export const LandingPage: React.FC = React.memo(() => {
             languageSelectorProps.loading === "loading",
         [dataSetSelectorProps.loading, languageSelectorProps.loading]
     );
+
+    const exportToExcel = React.useCallback(() => {
+        compositionRoot.dataSets.export.execute([], selectedLocales).run(
+            _res => {
+                // console.log(res);
+            },
+            () => {}
+        );
+    }, [compositionRoot.dataSets.export, selectedLocales]);
 
     React.useEffect(() => {
         if (options.allDatasets === false) {
@@ -168,7 +168,7 @@ export const LandingPage: React.FC = React.memo(() => {
                                 loading
                             }
                         >
-                            {i18n.t("Export to MS Excel")}
+                            {i18n.t("Export to Excel")}
                         </Button>
                     </Box>
                 </Box>

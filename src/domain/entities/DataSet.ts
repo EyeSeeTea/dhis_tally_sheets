@@ -1,5 +1,4 @@
 import { Id, Ref } from "$/domain/entities/Ref";
-import { Maybe } from "$/utils/ts-utils";
 import { BasicDataSet, BasicDataSetAttrs, D2Translation } from "$/domain/entities/BasicDataSet";
 
 export interface DataSetAttrs extends BasicDataSetAttrs {
@@ -8,6 +7,27 @@ export interface DataSetAttrs extends BasicDataSetAttrs {
     formName: string;
     sections: Section[];
     dataSetElements: DataSetElement[];
+    locale?: string /* To be removed */;
+    headers?: Headers;
+}
+
+export type Headers = {
+    healthFacility: string;
+    reportingPeriod: string;
+};
+
+/* TO REMOVE */
+export interface ProcessedDataSet extends BasicDataSetAttrs {
+    name: string;
+    displayFormName: string;
+    formName: string;
+    sections: Section<string[][]>[];
+    dataSetElements: DataSetElement[];
+    locale?: string /* To be removed */;
+    headers?: {
+        healthFacility: string;
+        reportingPeriod: string;
+    };
 }
 
 export class DataSet extends BasicDataSet {
@@ -19,10 +39,14 @@ export class DataSet extends BasicDataSet {
 
     constructor(attrs: DataSetAttrs) {
         super(attrs);
+
+        const sections = this.excludeCommentsSection(attrs.sections);
+        const overridedSections = this.assignCategoryCombos(attrs.dataSetElements, sections);
+
         this.name = attrs.name;
         this.displayFormName = attrs.displayFormName;
         this.formName = attrs.formName;
-        this.sections = attrs.sections;
+        this.sections = overridedSections;
         this.dataSetElements = attrs.dataSetElements;
     }
 
@@ -47,17 +71,63 @@ export class DataSet extends BasicDataSet {
             sections: this.sections.filter(section => section.id !== sectionId),
         });
     }
+
+    private excludeCommentsSection(sections: DataSet["sections"]) {
+        return sections.filter(
+            section =>
+                !(
+                    section.name.toLowerCase().includes("comments") ||
+                    section.displayName.toLowerCase().includes("comments") ||
+                    section.displayName.toLowerCase().includes("comentarios") ||
+                    section.displayName.toLowerCase().includes("commentaires") ||
+                    section.displayName.toLowerCase().includes("comentários") ||
+                    section.displayName.toLowerCase().includes("notas")
+                )
+        );
+    }
+
+    /**
+     * Reassigns the `categoryCombo` of the `dataElements` in the `dataSet` based on the `dataSetElements`.
+     * The `dataElements` in the `dataSet` may have a `categoryCombo` that doesn't correspond with the relationship `dataSet-dataElement-categoryCombo`.
+     * This function looks for `dataSet.id` in `dataElement.categoryCombos` where the relationship is expressed.
+     *
+     * @param dataSetElements - The `dataSetElements` containing the correct `categoryCombos`.
+     * @param sections - The sections of the `dataSet`.
+     * @returns The sections of the `dataSet` with reassigned `categoryCombos` for the `dataElements`.
+     */
+    private assignCategoryCombos(
+        dataSetElements: DataSet["dataSetElements"],
+        sections: DataSet["sections"]
+    ): DataSet["sections"] {
+        const overrides = dataSetElements.map(dse => ({
+            categoryComboId: dse.categoryCombo?.id,
+            dataElementId: dse.dataElement.id,
+        }));
+
+        return sections.map(section => ({
+            ...section,
+            dataElements: section.dataElements.map(de => ({
+                ...de,
+                categoryCombo: {
+                    id:
+                        overrides.find(o => o.dataElementId === de.id)?.categoryComboId ??
+                        de.categoryCombo.id,
+                },
+            })),
+        }));
+    }
 }
 
-type Section = {
+/* To remove Categories*/
+export type Section<Categories = Category[]> = {
     id: Id;
     translations: D2Translation[];
     name: string;
     displayName: string;
     description: string;
-    categoryCombos: CategoryCombo[];
+    categoryCombos: CategoryCombo<Categories>[];
     dataElements: SectionDataElement[];
-    greyedFields: { dataElement: Ref; categoryOptionCombo: Ref }[];
+    greyedFields: GreyedField[];
 };
 
 type DataSetElement = {
@@ -77,18 +147,21 @@ type SectionDataElement = DataElement & {
     categoryCombo: Ref;
 };
 
-type CategoryCombo = {
+/* To remove Categories*/
+export type CategoryCombo<Categories = Category[]> = {
     id: Id;
     displayName: string;
-    categories: Category[];
+    categories: Categories;
     categoryOptionCombos: CategoryOptionCombo[];
+    dataElements?: SectionDataElement[] /* To remove */;
+    greyedFields?: GreyedField[] /* To remove */;
 };
 
 type Category = {
     categoryOptions: CategoryOption[];
 };
 
-type CategoryOption = {
+export type CategoryOption = {
     id: Id;
     name: string;
     displayFormName: string;
@@ -100,4 +173,7 @@ type CategoryOptionCombo = {
     name: string;
     displayFormName: string;
     categoryOptions: CategoryOption[];
+    categories?: string[] /* To Remove*/;
 };
+
+type GreyedField = { dataElement: Ref; categoryOptionCombo: Ref };
