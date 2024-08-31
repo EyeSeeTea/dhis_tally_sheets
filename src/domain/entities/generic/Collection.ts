@@ -55,7 +55,7 @@ export class Collection<T> {
 
     /* Methods that return a Collection */
 
-    map<U>(fn: (x: T) => U): Collection<U> {
+    map<U>(fn: (x: T, idx: number) => U): Collection<U> {
         return _c(this.xs.map(fn));
     }
 
