@@ -11,7 +11,7 @@ export class DataSetExportSpreadsheetRepository implements DataSetExportReposito
             XlsxPopulate.fromBlankAsync().then(workbook => {
                 exportDataSet(workbook, dataSet)
                     .then(blob => {
-                        resolve({ name: "export.xlsx", blob });
+                        resolve({ name: `${dataSet.displayFormName.trim()}`, blob });
                     })
                     .catch(reject);
             });

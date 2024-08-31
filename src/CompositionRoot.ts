@@ -31,7 +31,7 @@ function getCompositionRoot(repositories: Repositories) {
         },
         dataSets: {
             getBasicList: new GetAllBasicDataSetsInfoUseCase(repositories.dataSetRepository),
-            getById: new GetDataSetUseCase(repositories.dataSetRepository),
+            getByIds: new GetDataSetUseCase(repositories.dataSetRepository),
             export: new ExportDataSetsUseCase(repositories.dataSetExportRepository),
         },
         locales: {

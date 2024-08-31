@@ -83,13 +83,18 @@ export const LandingPage: React.FC = React.memo(() => {
     );
 
     const exportToExcel = React.useCallback(() => {
-        compositionRoot.dataSets.export.execute([], selectedLocales).run(
+        const REMOVE_AND_TURN_BACK_TO_GET_BY_ID = compositionRoot.dataSets.getByIds.execute(
+            selectedDatasets.map(ds => ds.id)
+        );
+        REMOVE_AND_TURN_BACK_TO_GET_BY_ID.flatMap(dataSets =>
+            compositionRoot.dataSets.export.execute(dataSets, selectedLocales)
+        ).run(
             _res => {
                 // console.log(res);
             },
             () => {}
         );
-    }, [compositionRoot.dataSets.export, selectedLocales]);
+    }, [compositionRoot, selectedDatasets, selectedLocales]);
 
     React.useEffect(() => {
         if (options.allDatasets === false) {

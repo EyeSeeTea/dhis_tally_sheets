@@ -8,9 +8,9 @@ import _c from "$/domain/entities/generic/Collection";
 export class GetDataSetUseCase {
     constructor(private dataSetRepository: DataSetRepository) {}
 
-    public execute(id: Id): FutureData<DataSet> {
-        return this.dataSetRepository.getByIds([id]).flatMap(dataSets => {
-            const dataSet = _c(dataSets).first();
+    public execute(ids: Id[]): FutureData<DataSet[]> {
+        return this.dataSetRepository.getByIds(ids).flatMap(dataSets => {
+            const dataSet = dataSets;
             return dataSet ? Future.success(dataSet) : Future.error(new Error("DataSet not found"));
         });
     }
