@@ -1,77 +1,26 @@
-## Setup
+# Tally Sheets
 
-```
-$ nvm use # uses node version in .nvmrc
-$ yarn install
-```
+## Setup and Installation
+Build the app running:
 
-## Build
-
-Build a production distributable DHIS2 zip file:
-
+```console
+shell:~$ yarn install # first time only
+shell:~$ yarn build
 ```
-$ yarn build
-```
+This will create a `hmis-tally-sheets.zip` file that can be manually installed in DHIS2 App Management.
 
 ## Development
 
-Copy `.env` to `.env.local` and configure DHIS2 instance to use. Then start the development server:
-
-```
-$ yarn start
-```
-
-Now in your browser, go to `http://localhost:8081`.
-
-## Tests
-
-```
-$ yarn test
+The above mentioned method of deploying the app is not suited for development. To deploy a local instance of the app use:
+```console
+shell:~$ yarn start
 ```
 
-## Some development tips
+This deploys a [http-server](https://github.com/http-party/http-server) serving the app with a proxy to the DHIS2 instance to serve the DHIS2 API calls.
+The `yarn start` command reads the variables present in `.env.local` to start the local server. Use `.env` as a template to create it.
 
-### Clean architecture folder structure
+## Development environment building
 
--   `src/domain`: Domain layer of the app (entities, use cases, repository definitions)
--   `src/data`: Data of the app (repository implementations)
--   `src/webapp/pages`: Main React components.
--   `src/webapp/components`: React components.
--   `src/utils`: Misc utilities.
--   `i18n/`: Contains literal translations (gettext format)
--   `public/`: General non-React webapp resources.
+The app dependencies in `assets/includes` has been migrated to `yarn` using `yarn info <package>@<ver> repository` to compare the repositories mentioned in the old files and the ones from Yarn to ensure we get the correct ones. Some files needed to be cross-checked to ensure thy were the same.
 
-## Data structures
-
--   `Future.ts`: Async values, similar to promises, but cancellables and with type-safe errors.
--   `Collection.ts`: Similar to Lodash, provides a wrapper over JS arrays.
--   `Obj.ts`: Similar to Lodash, provides a wrapper over JS objects.
--   `HashMap.ts`: Similar to ES6 map, but immutable.
--   `Struct.ts`: Base class for typical classes with attributes. Features: create, update.
--   `Either.ts`: Either a success value or an error.
-
-## Docs
-
-We use [TypeDoc](https://typedoc.org/example/):
-
-```
-$ yarn generate-docs
-```
-
-### i18n
-
-Update i18n .po files from `i18n.t(...)` calls in the source code:
-
-```
-$ yarn localize
-```
-
-### Scripts
-
-Check the example script, entry `"script-example"`in `package.json`->scripts and `src/scripts/example.ts`.
-
-### Misc Notes
-
--   Requests to DHIS2 will be transparently proxied (see `vite.config.ts` -> `server.proxy`) from `http://localhost:8081/dhis2/xyz` to `${VITE_DHIS2_BASE_URL}/xyz`. This prevents CORS and cross-domain problems.
-
--   You can use `.env` variables within the React app: `const value = import.meta.env.NAME;`
+The `build-deps.sh` script is used as a postinstall script to make a copy of the necessary files to the `assets/includes` folder to avoid uploading unnecessary files with the app build zip file.
