@@ -1,6 +1,6 @@
 ## Setup
 
-```
+```shell
 $ nvm use # uses node version in .nvmrc
 $ yarn install
 ```
@@ -9,7 +9,7 @@ $ yarn install
 
 Build a production distributable DHIS2 zip file:
 
-```
+```shell
 $ yarn build
 ```
 
@@ -17,7 +17,7 @@ $ yarn build
 
 Copy `.env` to `.env.local` and configure DHIS2 instance to use. Then start the development server:
 
-```
+```shell
 $ yarn start
 ```
 
@@ -25,7 +25,7 @@ Now in your browser, go to `http://localhost:8081`.
 
 ## Tests
 
-```
+```shell
 $ yarn test
 ```
 
@@ -54,7 +54,7 @@ $ yarn test
 
 We use [TypeDoc](https://typedoc.org/example/):
 
-```
+```shell
 $ yarn generate-docs
 ```
 
@@ -62,7 +62,7 @@ $ yarn generate-docs
 
 Update i18n .po files from `i18n.t(...)` calls in the source code:
 
-```
+```shell
 $ yarn localize
 ```
 
@@ -72,6 +72,6 @@ Check the example script, entry `"script-example"`in `package.json`->scripts and
 
 ### Misc Notes
 
--   Requests to DHIS2 will be transparently proxied (see `vite.config.ts` -> `server.proxy`) from `http://localhost:8081/dhis2/xyz` to `${VITE_DHIS2_BASE_URL}/xyz`. This prevents CORS and cross-domain problems.
+-   Requests to DHIS2 will be transparently proxied (see `vite.config.ts` -> `server.proxy`) from `http://localhost:PORT/dhis2/xyz` to `${VITE_DHIS2_BASE_URL}/xyz`. This prevents CORS and cross-domain problems.
 
--   You can use `.env` variables within the React app: `const value = import.meta.env.NAME;`
+-   You can use `.env` variables within the React app: `const value = import.meta.env.VITE_SOME_VAR;`
