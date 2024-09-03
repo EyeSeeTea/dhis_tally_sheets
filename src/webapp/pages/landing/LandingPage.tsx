@@ -17,9 +17,10 @@ import { useAppContext } from "$/webapp/contexts/app-context";
 import { BasicDataSet } from "$/domain/entities/BasicDataSet";
 import { Locale } from "$/domain/entities/Locale";
 import { DataSet } from "$/domain/entities/DataSet";
+import { DataSetTable } from "$/webapp/components/dataset-table/DataSetTable";
+import { Id } from "$/domain/entities/Ref";
 import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
-import { Id } from "$/domain/entities/Ref";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
@@ -84,7 +85,14 @@ export const LandingPage: React.FC = React.memo(() => {
         [dataSetSelectorProps.loading, languageSelectorProps.loading]
     );
 
-    const dataSets = useDataSets(selectedDatasets);
+    const { dataSets, removeSection } = useDataSets(selectedDatasets);
+
+    const onRemoveSection = React.useMemo(
+        () => (dataSetId: Id) => (sectionId: Id) => {
+            removeSection(dataSetId, sectionId);
+        },
+        [removeSection]
+    );
 
     const exportToExcel = React.useCallback(() => {
         compositionRoot.dataSets.export
@@ -174,11 +182,27 @@ export const LandingPage: React.FC = React.memo(() => {
                     </Box>
                 </Box>
             </Paper>
-            <Box marginTop={theme.spacing(0.5)}>
-                {dataSets.map(ds => (
-                    <Box key={ds.id}>{ds.displayName}</Box>
-                ))}
-            </Box>
+
+            {_c(dataSets).isNotEmpty() && (
+                <Paper>
+                    <Box
+                        marginTop={theme.spacing(0.5)}
+                        padding={theme.spacing(0.5)}
+                        display="flex"
+                        flexDirection="column"
+                        gridRowGap={theme.spacing(8)}
+                    >
+                        {dataSets.map(ds => (
+                            <DataSetTable
+                                includeHeaders={options.includeHeaders}
+                                key={ds.id}
+                                dataSet={ds}
+                                onRemoveSection={onRemoveSection(ds.id)}
+                            />
+                        ))}
+                    </Box>
+                </Paper>
+            )}
         </Box>
     );
 });
@@ -304,40 +328,78 @@ function useLanguagesSelector(
     return props;
 }
 
-function useDataSets(selectedDataSets: BasicDataSet[]): DataSet[] {
+function useDataSets(selectedDataSets: BasicDataSet[]) {
     const { compositionRoot } = useAppContext();
 
-    const loadingIds = React.useRef<Id[]>([]);
-
+    // Cache in useHook, to restore sections when a Data Set is added again and prevent quick
+    const [cachedDataSets, setCachedDataSets] = React.useState<DataSet[]>([]);
     const [dataSets, setDataSets] = React.useState<DataSet[]>([]);
 
+    const removeSection = React.useCallback(
+        (dataSetId: Id, sectionId: Id) => {
+            setDataSets(dataSets => {
+                const dataSet = dataSets.find(ds => ds.id === dataSetId);
+
+                return dataSet
+                    ? dataSets.map(ds =>
+                          ds.id === dataSet.id ? dataSet.removeSection(sectionId) : ds
+                      )
+                    : dataSets;
+            });
+        },
+        [setDataSets]
+    );
+
+    /* REFACTOR TO BE DONE */
+    /* ALSO NOW REMOVE SECTION IS NOT RESTORING AFTER UNSELECT, SELECT */
     React.useEffect(() => {
         const { added, removed } = diffDataSets(selectedDataSets, dataSets);
-
-        /*TO FIX QUICK SELECTION*/
-
+        console.log("updated");
         if (_c(added).isNotEmpty()) {
-            loadingIds.current = added.map(getId).filter(id => !loadingIds.current?.includes(id));
-            compositionRoot.dataSets.getByIds.execute(loadingIds.current).run(
-                addedDataSets =>
-                    setDataSets(dataSets => {
-                        const newDataSets = _c(dataSets)
-                            .concat(_c(addedDataSets))
-                            .uniqBy(getId)
-                            .value();
+            const cached = cachedDataSets.filter(ds => added.map(getId).includes(ds.id));
+            const toRequest = added.filter(ds => !cached.map(getId).includes(ds.id));
+            if (_c(toRequest).isNotEmpty()) {
+                compositionRoot.dataSets.getByIds.execute(toRequest.map(getId)).run(
+                    addedDataSets =>
+                        setDataSets(dataSets => {
+                            setCachedDataSets(cachedDataSets => {
+                                const newCached = _c(cachedDataSets)
+                                    .concat(_c(addedDataSets))
+                                    .uniqBy(getId)
+                                    .value();
 
-                        return _c(removed).isEmpty()
-                            ? newDataSets
-                            : excludeRemoved(newDataSets, removed);
-                    }),
-                err => console.error(err)
-            );
+                                setCachedDataSets(newCached);
+
+                                return newCached;
+                            });
+
+                            const newDataSets = _c(dataSets)
+                                .concat(_c(addedDataSets))
+                                .concat(_c(cached))
+                                .uniqBy(getId)
+                                .value();
+
+                            return _c(removed).isEmpty()
+                                ? newDataSets
+                                : excludeRemoved(newDataSets, removed);
+                        }),
+                    err => console.error(err)
+                );
+            } else {
+                setDataSets(dataSets => {
+                    const newDataSets = _c(dataSets).concat(_c(cached)).uniqBy(getId).value();
+
+                    return _c(removed).isEmpty()
+                        ? newDataSets
+                        : excludeRemoved(newDataSets, removed);
+                });
+            }
         } else if (_c(removed).isNotEmpty()) {
             setDataSets(dataSets => excludeRemoved(dataSets, removed));
         }
-    }, [compositionRoot, dataSets, selectedDataSets]);
+    }, [cachedDataSets, compositionRoot, dataSets, selectedDataSets]);
 
-    return dataSets;
+    return { dataSets, removeSection };
 }
 
 function excludeRemoved(dataSets: DataSet[], removed: BasicDataSet[]) {
