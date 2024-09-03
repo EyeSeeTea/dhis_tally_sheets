@@ -19,6 +19,7 @@ import { Locale } from "$/domain/entities/Locale";
 import { DataSet } from "$/domain/entities/DataSet";
 import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
+import { Id } from "$/domain/entities/Ref";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
@@ -306,13 +307,18 @@ function useLanguagesSelector(
 function useDataSets(selectedDataSets: BasicDataSet[]): DataSet[] {
     const { compositionRoot } = useAppContext();
 
+    const loadingIds = React.useRef<Id[]>([]);
+
     const [dataSets, setDataSets] = React.useState<DataSet[]>([]);
 
     React.useEffect(() => {
         const { added, removed } = diffDataSets(selectedDataSets, dataSets);
 
+        /*TO FIX QUICK SELECTION*/
+
         if (_c(added).isNotEmpty()) {
-            compositionRoot.dataSets.getByIds.execute(added.map(getId)).run(
+            loadingIds.current = added.map(getId).filter(id => !loadingIds.current?.includes(id));
+            compositionRoot.dataSets.getByIds.execute(loadingIds.current).run(
                 addedDataSets =>
                     setDataSets(dataSets => {
                         const newDataSets = _c(dataSets)
