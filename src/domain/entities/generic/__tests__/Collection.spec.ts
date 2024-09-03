@@ -160,6 +160,36 @@ describe("Collection", () => {
         expect(xs.intersection(_([4, 5, 6]), _([7, 8, 9])).toArray()).toEqual([]);
     });
 
+    test("difference", () => {
+        const xs = _([1, 2, 3]);
+
+        expect(xs.difference(_([2, 3, 4])).toArray()).toEqual([1]);
+        expect(xs.difference(_([4, 5, 6])).toArray()).toEqual([1, 2, 3]);
+        expect(xs.difference(_([2, 3, 4]), _([3, 4, 5])).toArray()).toEqual([1]);
+        expect(xs.difference(_([4, 5, 6]), _([7, 8, 9])).toArray()).toEqual([1, 2, 3]);
+    });
+
+    test("differenceBy", () => {
+        function addId(n: number) {
+            return { id: n };
+        }
+
+        function getId(obj: { id: number }) {
+            return obj.id;
+        }
+
+        const xs = _([1, 2, 3].map(addId));
+        const xs2 = _([2, 3, 4].map(addId));
+        const xs3 = _([3, 4, 5].map(addId));
+        const xs4 = _([4, 5, 6].map(addId));
+        const xs7 = _([7, 8, 9].map(addId));
+
+        expect(xs.differenceBy(getId, xs2).toArray()).toEqual([1].map(addId));
+        expect(xs.differenceBy(getId, xs4).toArray()).toEqual([1, 2, 3].map(addId));
+        expect(xs.differenceBy(getId, xs2, xs3).toArray()).toEqual([1].map(addId));
+        expect(xs.differenceBy(getId, xs4, xs7).toArray()).toEqual([1, 2, 3].map(addId));
+    });
+
     test("intersperse", () => {
         const xs = _(["a", "b", "c"]);
 

@@ -223,6 +223,30 @@ export class Collection<T> {
         return _c(output);
     }
 
+    difference(...collections: Collection<T>[]): Collection<T> {
+        const output: T[] = [];
+
+        for (const item of this.xs) {
+            if (collections.every(collection => !collection.includes(item))) {
+                output.push(item);
+            }
+        }
+
+        return _c(output);
+    }
+
+    differenceBy<U>(mapper: (x: T) => U, ...collections: Collection<T>[]): Collection<T> {
+        const output: T[] = [];
+
+        for (const item of this.xs) {
+            if (collections.every(collection => !collection.map(mapper).includes(mapper(item)))) {
+                output.push(item);
+            }
+        }
+
+        return _c(output);
+    }
+
     intersperse(value: T): Collection<T> {
         return this.flatMap(x => _c([x, value])).thru(cs => cs.take(cs.size - 1));
     }
