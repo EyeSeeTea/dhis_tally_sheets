@@ -12,6 +12,8 @@ import { Clear as ClearIcon } from "@material-ui/icons";
 import { DataSet, Section as SectionType } from "$/domain/entities/DataSet";
 import { Id } from "$/domain/entities/Ref";
 import i18n from "$/utils/i18n";
+import { styled } from "styled-components";
+import _c, { Collection } from "$/domain/entities/generic/Collection";
 
 interface DataSetTableProps {
     dataSet: DataSet;
@@ -43,10 +45,10 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
                 >
                     {/* TO ADD HEADERS BY DATASET DIRECTLY */}
                     <Typography className={classes.headers} variant="h6">
-                        {i18n.t("Health facility:", { nsSeparator: false })}
+                        {i18n.t("Health facility")}:
                     </Typography>
                     <Typography className={classes.headers} variant="h6">
-                        {i18n.t("Reporting period:", { nsSeparator: false })}
+                        {i18n.t("Reporting period")}:
                     </Typography>
                 </Box>
             )}
@@ -88,8 +90,40 @@ const Section: React.FC<SectionProps> = React.memo(props => {
                     <ClearIcon fontSize="small" />
                 </Button>
                 {section.name}
+                <Box
+                    border={"1px solid #ddd"}
+                    borderRadius={theme.shape.borderRadius}
+                    marginTop={theme.spacing(0.25)}
+                >
+                    <SectionTable section={section} />
+                </Box>
             </Typography>
         </Box>
+    );
+});
+
+const SectionTable: React.FC<{ section: SectionType }> = React.memo(props => {
+    const { section } = props;
+
+    const table = React.useMemo(() => {
+        return section.categoryCombos.map(categoryCombo => {
+            return _c(
+                categoryCombo.categories.map(c => c.categoryOptions.map(co => co.displayFormName))
+            )
+                .cartesian()
+                .value();
+        });
+    }, []);
+
+    React.useEffect(() => {
+        console.log(table);
+    }, [table]);
+
+    return (
+        <DisplayTable>
+            {/* <thead></thead>
+            <tbody></tbody> */}
+        </DisplayTable>
     );
 });
 
@@ -114,3 +148,12 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     })
 );
+
+const DisplayTable = styled.table`
+    font-size: 1rem;
+    border-collapse: collapse;
+    td,
+    th {
+        border: 1px solid #000;
+    }
+`;
