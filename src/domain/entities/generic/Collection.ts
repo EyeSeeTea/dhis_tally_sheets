@@ -211,12 +211,16 @@ export class Collection<T> {
     }
 
     /* June 2024 Set.prototype.intersection() Newly Available (same goes for union, difference, symmetricDifference) */
-    intersection<U>(...collections: Collection<U>[]): Collection<T> {
-        const intersectionSet = collections
-            .map(c => new Set(c.toArray()))
-            .reduce<Set<T>>((acc, v) => acc.intersection(v), new Set(this.toArray()));
+    intersection(...collections: Collection<T>[]): Collection<T> {
+        const output: T[] = [];
 
-        return Collection.fromSet(intersectionSet);
+        for (const item of this.xs) {
+            if (collections.every(collection => collection.includes(item))) {
+                output.push(item);
+            }
+        }
+
+        return _c(output);
     }
 
     intersperse(value: T): Collection<T> {
