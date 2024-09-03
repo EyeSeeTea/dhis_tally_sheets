@@ -1,13 +1,12 @@
 import { DataSetD2Repository } from "$/data/repositories/DataSetD2Repository";
 import { DataSetExportSpreadsheetRepository } from "$/data/repositories/DataSetExportSpreadsheetRepository";
 import { LocaleD2Repository } from "$/data/repositories/LocaleD2Repository";
-import { Future } from "$/domain/entities/generic/Future";
 import { DataSetExportRepository } from "$/domain/repositories/DataSetExportRepository";
 import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
 import { LocaleRepository } from "$/domain/repositories/LocaleRepository";
 import { ExportDataSetsUseCase } from "$/domain/usecases/ExportDataSetsUseCase";
 import { GetAllBasicDataSetsInfoUseCase } from "$/domain/usecases/GetAllBasicDataSetsInfoUseCase";
-import { GetDataSetUseCase } from "$/domain/usecases/GetDataSetUseCase";
+import { GetDataSetsByIdsUseCase } from "$/domain/usecases/GetDataSetsByIdsUseCase";
 import { GetLocalesUseCase } from "$/domain/usecases/GetLocalesUseCase";
 import { UserD2Repository } from "./data/repositories/UserD2Repository";
 import { UserTestRepository } from "./data/repositories/UserTestRepository";
@@ -31,7 +30,7 @@ function getCompositionRoot(repositories: Repositories) {
         },
         dataSets: {
             getBasicList: new GetAllBasicDataSetsInfoUseCase(repositories.dataSetRepository),
-            getByIds: new GetDataSetUseCase(repositories.dataSetRepository),
+            getByIds: new GetDataSetsByIdsUseCase(repositories.dataSetRepository),
             export: new ExportDataSetsUseCase(repositories.dataSetExportRepository),
         },
         locales: {
@@ -55,14 +54,26 @@ export function getTestCompositionRoot() {
     const repositories: Repositories = {
         usersRepository: new UserTestRepository(),
         dataSetRepository: {
-            getByIds: () => Future.success([]),
-            get: () => Future.success([]),
-            getBasic: () => Future.success([]),
+            getByIds: () => {
+                throw new Error("Not implemented");
+            },
+            get: () => {
+                throw new Error("Not implemented");
+            },
+            getBasic: () => {
+                throw new Error("Not implemented");
+            },
         },
         dataSetExportRepository: {
-            exportDataSet: () => Future.success({ name: "", blob: new Blob() }),
+            exportDataSet: () => {
+                throw new Error("Not implemented");
+            },
         },
-        localeRepository: { get: () => Future.success([]) },
+        localeRepository: {
+            get: () => {
+                throw new Error("Not implemented");
+            },
+        },
     };
 
     return getCompositionRoot(repositories);

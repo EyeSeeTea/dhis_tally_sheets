@@ -16,6 +16,7 @@ import {
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { BasicDataSet } from "$/domain/entities/BasicDataSet";
 import { Locale } from "$/domain/entities/Locale";
+import { DataSet } from "$/domain/entities/DataSet";
 import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 
@@ -36,7 +37,7 @@ export const LandingPage: React.FC = React.memo(() => {
         [options]
     );
 
-    const dataSetSelectorProps = useDatasetSelector();
+    const dataSetSelectorProps = useDataSetSelector();
 
     const resetView = React.useCallback(() => {}, []);
 
@@ -82,19 +83,13 @@ export const LandingPage: React.FC = React.memo(() => {
         [dataSetSelectorProps.loading, languageSelectorProps.loading]
     );
 
+    const dataSets = useDataSets(selectedDatasets);
+
     const exportToExcel = React.useCallback(() => {
-        const REMOVE_AND_TURN_BACK_TO_GET_BY_ID = compositionRoot.dataSets.getByIds.execute(
-            selectedDatasets.map(ds => ds.id)
-        );
-        REMOVE_AND_TURN_BACK_TO_GET_BY_ID.flatMap(dataSets =>
-            compositionRoot.dataSets.export.execute(dataSets, selectedLocales)
-        ).run(
-            _res => {
-                // console.log(res);
-            },
-            () => {}
-        );
-    }, [compositionRoot, selectedDatasets, selectedLocales]);
+        compositionRoot.dataSets.export
+            .execute(dataSets, selectedLocales)
+            .run(console.log, console.error);
+    }, [compositionRoot, dataSets, selectedLocales]);
 
     React.useEffect(() => {
         if (options.allDatasets === false) {
@@ -179,7 +174,7 @@ export const LandingPage: React.FC = React.memo(() => {
                 </Box>
             </Paper>
             <Box marginTop={theme.spacing(0.5)}>
-                {selectedDatasets.map(ds => (
+                {dataSets.map(ds => (
                     <Box key={ds.id}>{ds.displayName}</Box>
                 ))}
             </Box>
@@ -190,7 +185,7 @@ export const LandingPage: React.FC = React.memo(() => {
 type LoadingState = "loading" | "loaded" | "error";
 type SelectorProps<Item> = MultipleSelectorProps & { loading: LoadingState; allItems: Item[] };
 
-function useDatasetSelector(): SelectorProps<BasicDataSet> {
+function useDataSetSelector(): SelectorProps<BasicDataSet> {
     const { compositionRoot } = useAppContext();
 
     const [dataSets, setDataSets] = React.useState<BasicDataSet[]>([]);
@@ -306,4 +301,53 @@ function useLanguagesSelector(
     }, [available, preferredLocale]);
 
     return props;
+}
+
+function useDataSets(selectedDataSets: BasicDataSet[]): DataSet[] {
+    const { compositionRoot } = useAppContext();
+
+    const [dataSets, setDataSets] = React.useState<DataSet[]>([]);
+
+    React.useEffect(() => {
+        const { added, removed } = diffDataSets(selectedDataSets, dataSets);
+
+        if (_c(added).isNotEmpty()) {
+            compositionRoot.dataSets.getByIds.execute(added.map(getId)).run(
+                addedDataSets =>
+                    setDataSets(dataSets => {
+                        const newDataSets = _c(dataSets)
+                            .concat(_c(addedDataSets))
+                            .uniqBy(getId)
+                            .value();
+
+                        return _c(removed).isEmpty()
+                            ? newDataSets
+                            : excludeRemoved(newDataSets, removed);
+                    }),
+                err => console.error(err)
+            );
+        } else if (_c(removed).isNotEmpty()) {
+            setDataSets(dataSets => excludeRemoved(dataSets, removed));
+        }
+    }, [compositionRoot, dataSets, selectedDataSets]);
+
+    return dataSets;
+}
+
+function excludeRemoved(dataSets: DataSet[], removed: BasicDataSet[]) {
+    return dataSets.filter(ds => !removed.map(getId).includes(ds.id));
+}
+
+function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) {
+    const newDS = _c(newDataSets);
+    const oldDS = _c(oldDataSets);
+
+    const added = newDS.differenceBy(getId, oldDS);
+    const removed = oldDS.differenceBy(getId, newDS);
+
+    return { added: added.value(), removed: removed.value() };
+}
+
+function getId(dataSet: BasicDataSet) {
+    return dataSet.id;
 }

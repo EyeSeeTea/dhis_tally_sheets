@@ -17,9 +17,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 translate: "true",
                 paging: false,
             })
-        ).map(res => {
-            return this.createBasicDataSets(res.objects);
-        });
+        ).map(res => this.createBasicDataSets(res.objects));
     }
 
     public getByIds(ids: Id[]): FutureData<DataSet[]> {
@@ -30,9 +28,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 translate: "true",
                 paging: false,
             })
-        ).map(res => {
-            return this.createDataSets(res.objects);
-        });
+        ).map(res => this.createDataSets(res.objects));
     }
 
     public get(): FutureData<DataSet[]> {
@@ -43,9 +39,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 translate: "true",
                 paging: false,
             })
-        ).map(res => {
-            return this.createDataSets(res.objects);
-        });
+        ).map(res => this.createDataSets(res.objects));
     }
 
     private createBasicDataSets(attrs: BasicDataSetAttrs[]): BasicDataSet[] {
