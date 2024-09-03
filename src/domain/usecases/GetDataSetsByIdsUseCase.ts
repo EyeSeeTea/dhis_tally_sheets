@@ -20,7 +20,11 @@ export class GetDataSetsByIdsUseCase {
                     return Future.success(cachedDataSets);
                 } else {
                     return this.dataSetRepository.getByIds(uncachedIds).map(uncachedDataSets => {
-                        this.cache = this.cache.concat(uncachedDataSets);
+                        this.cache = _c(this.cache)
+                            .concat(_c(uncachedDataSets))
+                            .uniqBy(({ id }) => id)
+                            .value();
+
                         return cachedDataSets.concat(uncachedDataSets);
                     });
                 }
