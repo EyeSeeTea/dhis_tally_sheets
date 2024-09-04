@@ -1,6 +1,8 @@
 import React from "react";
 import {
+    Box,
     createStyles,
+    Divider,
     FormControl,
     InputLabel,
     makeStyles,
@@ -17,24 +19,33 @@ export interface MultipleSelectorProps extends MultipleDropdownProps {
     /* Select doesn't support variant="outlined" https://github.com/mui/material-ui/issues/14203 */
     name: string;
     disabled?: boolean;
+    allOption?: {
+        value: string;
+        text: string;
+    };
 }
 
 export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(props => {
-    const { items, values, onChange, label, className, name, disabled } = props;
+    const { items, values, onChange, label, className, name, disabled, allOption } = props;
 
-    const theme = useTheme();
     const classes = useStyles();
 
     const mergedClasses = [className, classes.formControl].join(" ");
 
-    const selected = React.useMemo(
-        () => (_c(values).isEmpty() ? ["multiple-selector-void"] : values),
-        [values]
+    const isAllSelected = React.useMemo(
+        () => (allOption ? values.includes(allOption.value) : false),
+        [allOption, values]
     );
 
+    const selected = React.useMemo(() => {
+        if (isAllSelected && allOption) return [allOption.value];
+        else return _c(values).isEmpty() ? ["multiple-selector-void"] : values;
+    }, [allOption, isAllSelected, values]);
+
     const notifyChange = React.useCallback(
-        (event: React.ChangeEvent<{ value: unknown }>) =>
-            onChange((event.target.value as string[]).filter(s => s !== "multiple-selector-void")),
+        (event: React.ChangeEvent<{ value: unknown }>) => {
+            onChange((event.target.value as string[]).filter(s => s !== "multiple-selector-void"));
+        },
         [onChange]
     );
 
@@ -59,12 +70,15 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                 <MenuItem value="multiple-selector-void" disabled>
                     {i18n.t("Nothing selected")}
                 </MenuItem>
+                {/* Material UI does not like React.Fragment as children inside the Menu component */}
+                {allOption && <MenuItem value={allOption.value}>{allOption.text}</MenuItem>}
+                {allOption && (
+                    <Box margin="0.75rem 1rem">
+                        <Divider />
+                    </Box>
+                )}
                 {items.map(item => (
-                    <MenuItem
-                        key={item.value}
-                        value={item.value}
-                        style={getStyles(name, values, theme)}
-                    >
+                    <MenuItem key={item.value} value={item.value} disabled={isAllSelected}>
                         {item.text}
                     </MenuItem>
                 ))}
@@ -72,15 +86,6 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
         </FormControl>
     );
 });
-
-function getStyles(name: string, values: string[], theme: Theme) {
-    return {
-        fontWeight:
-            values.indexOf(name) === -1
-                ? theme.typography.fontWeightRegular
-                : theme.typography.fontWeightMedium,
-    };
-}
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

@@ -28,8 +28,6 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const [options, setOptions] = React.useState({
         includeHeaders: true,
-        allLanguages: false,
-        allDatasets: false,
     });
 
     const handleChange = React.useCallback(
@@ -43,11 +41,7 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const resetView = React.useCallback(() => {}, []);
 
-    const selectedDatasets = React.useMemo(() => {
-        return options.allDatasets
-            ? dataSetSelectorProps.allItems
-            : dataSetSelectorProps.allItems.filter(i => dataSetSelectorProps.values.includes(i.id));
-    }, [dataSetSelectorProps.allItems, dataSetSelectorProps.values, options.allDatasets]);
+    const selectedDatasets = dataSetSelectorProps.selectedItems;
 
     const availableLocales = React.useMemo(() => {
         return _c(selectedDatasets).isEmpty()
@@ -67,16 +61,11 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const languageSelectorProps = useLanguagesSelector(
         availableLocales,
-        currentUser.preferredLocale
+        currentUser.preferredLocale,
+        currentUser.canSelectAllLocales
     );
 
-    const selectedLocales = React.useMemo(() => {
-        return options.allLanguages
-            ? languageSelectorProps.allItems
-            : languageSelectorProps.allItems.filter(i =>
-                  languageSelectorProps.values.includes(i.code)
-              );
-    }, [languageSelectorProps.allItems, languageSelectorProps.values, options.allLanguages]);
+    const selectedLocales = languageSelectorProps.selectedItems;
 
     const loading = React.useMemo(
         () =>
@@ -100,11 +89,11 @@ export const LandingPage: React.FC = React.memo(() => {
             .run(console.log, console.error);
     }, [compositionRoot, dataSets, selectedLocales]);
 
-    React.useEffect(() => {
-        if (options.allDatasets === false) {
-            resetView();
-        }
-    }, [options.allDatasets, resetView]);
+    // React.useEffect(() => {
+    //     if (options.allDatasets === false) {
+    //         resetView();
+    //     }
+    // }, [options.allDatasets, resetView]);
 
     return (
         <Box margin={theme.spacing(0.5)}>
@@ -122,38 +111,14 @@ export const LandingPage: React.FC = React.memo(() => {
                             }
                             label={i18n.t("Include headers")}
                         />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={options.allLanguages}
-                                    onChange={handleChange}
-                                    name="allLanguages"
-                                    color="primary"
-                                />
-                            }
-                            label={i18n.t("Select all languages")}
-                        />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={options.allDatasets}
-                                    onChange={handleChange}
-                                    name="allDatasets"
-                                    color="primary"
-                                />
-                            }
-                            label={i18n.t("Select all datasets")}
-                        />
                         <Box
                             display="flex"
                             marginTop={theme.spacing(0.25)}
                             gridColumnGap={theme.spacing(3)}
                             alignItems="center"
                         >
-                            {!options.allDatasets && <MultipleSelector {...dataSetSelectorProps} />}
-                            {!options.allLanguages && currentUser.canSelectAllLocales && (
-                                <MultipleSelector {...languageSelectorProps} />
-                            )}
+                            <MultipleSelector {...dataSetSelectorProps} />
+                            <MultipleSelector {...languageSelectorProps} />
 
                             {loading && (
                                 <Box display="flex" alignItems="center">
@@ -183,7 +148,7 @@ export const LandingPage: React.FC = React.memo(() => {
                 </Box>
             </Paper>
 
-            {_c(dataSets).isNotEmpty() && (
+            {!dataSetSelectorProps.allSelected && _c(dataSets).isNotEmpty() && (
                 <Paper>
                     <Box
                         marginTop={theme.spacing(0.5)}
@@ -208,7 +173,12 @@ export const LandingPage: React.FC = React.memo(() => {
 });
 
 type LoadingState = "loading" | "loaded" | "error";
-type SelectorProps<Item> = MultipleSelectorProps & { loading: LoadingState; allItems: Item[] };
+type SelectorProps<Item> = MultipleSelectorProps & {
+    loading: LoadingState;
+    allItems: Item[];
+    selectedItems: Item[];
+    allSelected: boolean;
+};
 
 function useDataSetSelector(): SelectorProps<BasicDataSet> {
     const { compositionRoot } = useAppContext();
@@ -220,6 +190,8 @@ function useDataSetSelector(): SelectorProps<BasicDataSet> {
     const onChange = React.useCallback((values: string[]) => {
         setSelected(values);
     }, []);
+
+    const allValue = "all-datasets";
 
     const props: SelectorProps<BasicDataSet> = React.useMemo(
         () => ({
@@ -233,6 +205,14 @@ function useDataSetSelector(): SelectorProps<BasicDataSet> {
             name: "select-dataset",
             loading: loading,
             disabled: loading === "loading" || dataSets.length === 0,
+            allOption: {
+                value: allValue,
+                text: i18n.t("ALL"),
+            },
+            allSelected: selected.includes(allValue),
+            selectedItems: selected.includes(allValue)
+                ? dataSets
+                : dataSets.filter(i => selected.includes(i.id)),
         }),
         [selected, onChange, dataSets, loading]
     );
@@ -257,7 +237,8 @@ function useDataSetSelector(): SelectorProps<BasicDataSet> {
 
 function useLanguagesSelector(
     availableLocales: string[],
-    preferredLocale: string
+    preferredLocale: string,
+    canSelectAllLocales: boolean
 ): SelectorProps<Locale> {
     const { compositionRoot } = useAppContext();
 
@@ -283,6 +264,8 @@ function useLanguagesSelector(
         setSelected(values);
     }, []);
 
+    const allValue = "all-languages";
+
     const props: SelectorProps<Locale> = React.useMemo(
         () => ({
             items: items,
@@ -293,8 +276,18 @@ function useLanguagesSelector(
             loading: loading,
             allItems: available,
             disabled: loading === "loading" || _c(available).isEmpty(),
+            allOption: canSelectAllLocales
+                ? {
+                      value: allValue,
+                      text: i18n.t("ALL"),
+                  }
+                : undefined,
+            allSelected: selected.includes(allValue),
+            selectedItems: selected.includes(allValue)
+                ? available
+                : available.filter(i => selected.includes(i.code)),
         }),
-        [items, selected, onChange, loading, available]
+        [items, selected, onChange, loading, available, canSelectAllLocales]
     );
 
     React.useEffect(
