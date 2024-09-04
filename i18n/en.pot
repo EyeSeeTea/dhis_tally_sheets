@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-31T21:36:37.825Z\n"
-"PO-Revision-Date: 2024-08-31T21:36:37.825Z\n"
+"POT-Creation-Date: 2024-09-03T13:24:25.031Z\n"
+"PO-Revision-Date: 2024-09-03T13:24:25.031Z\n"
 
 msgid "Health facility"
 msgstr ""
@@ -26,12 +26,6 @@ msgstr ""
 msgid "Include headers"
 msgstr ""
 
-msgid "Select all languages"
-msgstr ""
-
-msgid "Select all datasets"
-msgstr ""
-
 msgid "Print"
 msgstr ""
 
@@ -39,6 +33,9 @@ msgid "Export to Excel"
 msgstr ""
 
 msgid "Select a dataset"
+msgstr ""
+
+msgid "ALL"
 msgstr ""
 
 msgid "Select a language"
