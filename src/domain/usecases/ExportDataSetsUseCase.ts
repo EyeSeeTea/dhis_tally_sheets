@@ -40,6 +40,7 @@ export class ExportDataSetsUseCase {
                         .map(translation => translation.locale.split("_")[0])
                         .concat("en") // Add English because it might not be in translations
                         .uniq()
+                        .compact()
                 );
 
             return [dataSet, translations];

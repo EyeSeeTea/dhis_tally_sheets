@@ -89,7 +89,7 @@ const Section: React.FC<SectionProps> = React.memo(props => {
                 >
                     <ClearIcon fontSize="small" />
                 </Button>
-                {section.name}
+                {section.displayName}
                 <Box
                     border={"1px solid #ddd"}
                     borderRadius={theme.shape.borderRadius}
