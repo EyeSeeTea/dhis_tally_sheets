@@ -1,42 +1,42 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-03T13:24:25.031Z\n"
-"PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"POT-Creation-Date: 2024-09-03T13:24:25.031Z\n"
+"PO-Revision-Date: 2024-09-03T13:24:25.031Z\n"
 
 msgid "Health facility"
-msgstr "Centro sanitario"
+msgstr "Structure de santé"
 
 msgid "Reporting period"
-msgstr "Periodo reportado"
+msgstr "Periode rapportée"
 
 msgid "Nothing selected"
 msgstr ""
 
 msgid "Back"
-msgstr "Volver"
+msgstr ""
 
 msgid "Help"
-msgstr "Ayuda"
+msgstr ""
 
 msgid "Include headers"
-msgstr "Incluir cabeceras"
+msgstr "Ajouter en-tête"
 
 msgid "Print"
-msgstr "Imprimir"
+msgstr "Imprimer"
 
 msgid "Export to Excel"
-msgstr "Exportar a Excel"
+msgstr "Exporter à Excel"
 
 msgid "Select a dataset"
-msgstr "Selecciona un set de datos"
+msgstr "Sélectionnez un ensemble de données"
 
 msgid "ALL"
 msgstr ""
 
 msgid "Select a language"
-msgstr "Selecciona un idioma"
+msgstr "Sélectionnez une langue"
