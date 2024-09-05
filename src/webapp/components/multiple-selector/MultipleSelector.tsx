@@ -73,7 +73,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                 {/* Material UI does not like React.Fragment as children inside the Menu component */}
                 {allOption && <MenuItem value={allOption.value}>{allOption.text}</MenuItem>}
                 {allOption && (
-                    <Box margin="0.75rem 1rem">
+                    <Box margin="0.5rem 0.75rem">
                         <Divider />
                     </Box>
                 )}
