@@ -1,61 +1,45 @@
 import JSZip from "jszip";
 import saveAs from "file-saver";
-import { FutureData } from "$/data/api-futures";
-import {
-    CategoryCombo,
-    CategoryOption,
-    DataSet,
-    DataSetAttrs,
-    ProcessedDataSet,
-    Section,
-} from "$/domain/entities/DataSet";
-import _c, { Collection } from "$/domain/entities/generic/Collection";
+import { CategoryCombo, DataSet, ProcessedDataSet, Section } from "$/domain/entities/DataSet";
 import { DataSetExportRepository } from "$/domain/repositories/DataSetExportRepository";
-import { D2Translation } from "$/domain/entities/BasicDataSet";
+import { FutureData } from "$/data/api-futures";
 import { HashMap } from "$/domain/entities/generic/HashMap";
 import { Locale } from "$/domain/entities/Locale";
-import { Maybe } from "$/utils/ts-utils";
 import { Future } from "$/domain/entities/generic/Future";
-import i18n from "$/utils/i18n";
+import { genericDataSet } from "$/data/repositories/__tests__/spreadsheet-fixtures/exportDataSetFixtures";
+import _c, { Collection } from "$/domain/entities/generic/Collection";
 
 export class ExportDataSetsUseCase {
     constructor(private exportRepository: DataSetExportRepository) {}
 
     //dataSets to load in LandingPage in order to have the removedSections already in use effect or something and later use it in the export directly
     public execute(dataSets: DataSet[], locales: Locale[]): FutureData<void> {
-        const translations = _c(locales).toHashMap(({ code }) => [
-            code,
-            {
-                facility: i18n.t("Health facility", { lng: code }),
-                period: i18n.t("Reporting period", { lng: code }),
-            },
-        ]);
-
         const pickedTranslations: PickedTranslations = _c(dataSets).toHashMap(dataSet => {
-            const translations = _c(locales)
-                .map(({ code }) => code)
-                .intersection(
-                    _c(dataSet.translations)
-                        .filter(translation => translation.property === "NAME")
-                        .map(translation => translation.locale.split("_")[0])
-                        .concat("en") // Add English because it might not be in translations
-                        .uniq()
-                        .compact()
-                );
+            const availableLocaleCodes = _c(dataSet.translations)
+                .filter(translation => translation.property === "NAME")
+                .map(translation => translation.locale.split("_")[0])
+                .concat("en") // Add English because it might not be in translations
+                .uniq()
+                .compact();
 
-            return [dataSet, translations];
+            const availableLocales = _c(locales).filter(({ code }) =>
+                availableLocaleCodes.includes(code)
+            );
+
+            return [dataSet, availableLocales];
         });
 
-        const translatedDatasets: HashMap<DataSet, TranslatedDataSets> =
-            pickedTranslations.mapValues(([dataSet, locales]) =>
-                translateDataSet(dataSet, locales)
-            );
+        const translatedDatasets: HashMap<
+            DataSet,
+            Collection<DataSet>
+        > = pickedTranslations.mapValues(([dataSet, locales]) =>
+            locales.map(locale => dataSet.applyLocale(locale))
+        );
 
         const mappedDatasets = translatedDatasets.mapValues(([_dataSet, dataSets]) => {
             return dataSets.map(dataSet => {
                 return {
                     ...dataSet,
-                    // dataSetElements: dataSet.dataSetElements.map(({ dataElement }) => dataElement),
                     sections: dataSet.sections.map(mapSection),
                 };
             });
@@ -63,30 +47,14 @@ export class ExportDataSetsUseCase {
 
         /* Headers to be included in own domain -> dataSet... */
         const dataSetsWithHeaders: ProcessedDataSet[] = mappedDatasets
-            .mapValues(([_k, translatedDataSets]) =>
-                translatedDataSets
-                    .map(dataSet => {
-                        const healthFacility =
-                            (dataSet.locale && translations.get(dataSet.locale)?.facility) ??
-                            i18n.t("Health facility");
-                        const reportingPeriod =
-                            (dataSet.locale && translations.get(dataSet.locale)?.period) ??
-                            i18n.t("Reporting period");
-                        return {
-                            ...dataSet,
-                            headers: {
-                                healthFacility: healthFacility ? healthFacility + ": " : "",
-                                reportingPeriod: reportingPeriod ? reportingPeriod + ": " : "",
-                            },
-                        };
-                    })
-                    .value()
-            )
+            .mapValues(([_k, translatedDataSets]) => translatedDataSets.value())
             .values()
             .flat();
 
         const downloadFiles$ = Future.sequential(
-            dataSetsWithHeaders.map(dataSet => this.exportRepository.exportDataSet(dataSet))
+            [...dataSetsWithHeaders, genericDataSet].map(dataSet =>
+                this.exportRepository.exportDataSet(dataSet)
+            )
         ).map(blobFiles => {
             if (blobFiles.length > 1) {
                 const zip = new JSZip();
@@ -159,10 +127,10 @@ function mapSection(section: Section): Section<NewCategories> {
 
             return {
                 ...categoryCombo,
-                categoryOptionCombos,
-                categories,
-                dataElements,
-                greyedFields,
+                categoryOptionCombos: categoryOptionCombos,
+                categories: categories,
+                dataElements: dataElements,
+                greyedFields: greyedFields,
             };
         }
     );
@@ -212,100 +180,4 @@ function sanitizeFileName(str: string): string {
         .replace(/[^\p{L}\s\d\-_~,;[\]().'{}]/gisu, "");
 }
 
-function getTranslationValue(
-    translations: D2Translation[],
-    locale: string,
-    property = "NAME"
-): Maybe<string> {
-    return translations.find(
-        translation => translation.locale === locale && translation.property === property
-    )?.value;
-}
-
-function mapCategoryOption(categoryOption: CategoryOption, locale: string) {
-    return {
-        ...categoryOption,
-        displayFormName:
-            getTranslationValue(categoryOption.translations, locale, "FORM_NAME") ??
-            getTranslationValue(categoryOption.translations, locale, "NAME") ??
-            (locale === "en" ? categoryOption.name : categoryOption.displayFormName),
-    };
-}
-
-type TranslatedDataSets = Collection<DataSetAttrs>;
-
-/* TO BE REVIEWED THE SYSTEM OF TRANSLATING AND ORDER */
-function translateDataSet(dataSet: DataSet, locales: Collection<string>): TranslatedDataSets {
-    return locales.map(locale => {
-        const translatedDataSet = {
-            ...dataSet,
-            displayFormName:
-                getTranslationValue(dataSet.translations, locale) ??
-                (locale === "en" ? dataSet.formName ?? dataSet.name : dataSet.displayFormName),
-            sections: dataSet.sections.map(section => ({
-                ...section,
-                //section does not have description available to translate??
-                displayName:
-                    getTranslationValue(section.translations, locale) ??
-                    (locale === "en" ? section.name : section.displayName),
-                categoryCombos: section.categoryCombos.map(categoryCombo => ({
-                    ...categoryCombo,
-                    categories: categoryCombo.categories.map(category => ({
-                        categoryOptions: category.categoryOptions.map(co =>
-                            mapCategoryOption(co, locale)
-                        ),
-                    })),
-                    categoryOptionCombos: categoryCombo.categoryOptionCombos.map(coc => {
-                        const categoryOptions = coc.categoryOptions.map(co =>
-                            mapCategoryOption(co, locale)
-                        );
-                        const ids = (locale === "en" ? coc.name : coc.displayFormName)
-                            .split(", ")
-                            .map(
-                                dco =>
-                                    coc.categoryOptions.find(
-                                        co =>
-                                            (locale === "en" ? co.name : co.displayFormName) === dco
-                                    )?.id
-                            );
-                        const displayFormName = ids
-                            .map(id => {
-                                const co = categoryOptions.find(co => co.id === id);
-                                return locale === "en" ? co?.name : co?.displayFormName;
-                            })
-                            .join(", ");
-
-                        return {
-                            ...coc,
-                            displayFormName,
-                            categoryOptions,
-                        };
-                    }),
-                })),
-                dataElements: section.dataElements.map(de => ({
-                    ...de,
-                    displayFormName:
-                        getTranslationValue(de.translations, locale, "FORM_NAME") ??
-                        getTranslationValue(de.translations, locale, "NAME") ??
-                        (locale === "en" ? de.formName ?? de.name : de.displayFormName),
-                })),
-            })),
-            dataSetElements: dataSet.dataSetElements.map(dse => ({
-                ...dse,
-                dataElement: {
-                    ...dse.dataElement,
-                    displayFormName:
-                        getTranslationValue(dse.dataElement.translations, locale, "FORM_NAME") ??
-                        getTranslationValue(dse.dataElement.translations, locale, "NAME") ??
-                        (locale === "en"
-                            ? dse.dataElement.formName ?? dse.dataElement.name
-                            : dse.dataElement.displayFormName),
-                },
-            })),
-        };
-
-        return { ...translatedDataSet, locale: locale };
-    });
-}
-
-type PickedTranslations = HashMap<DataSet, Collection<string>>;
+type PickedTranslations = HashMap<DataSet, Collection<Locale>>;

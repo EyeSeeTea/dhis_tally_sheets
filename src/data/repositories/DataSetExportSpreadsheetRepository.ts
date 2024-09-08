@@ -11,7 +11,7 @@ export class DataSetExportSpreadsheetRepository implements DataSetExportReposito
             XlsxPopulate.fromBlankAsync().then(workbook => {
                 exportDataSet(workbook, dataSet)
                     .then(blob => {
-                        resolve({ name: `${dataSet.displayFormName.trim()}`, blob });
+                        resolve({ name: `${dataSet.displayName.trim()}`, blob });
                     })
                     .catch(reject);
             });
@@ -80,8 +80,8 @@ function populateHeaders(sheet: Sheet, header: Headers, title: string) {
 }
 
 function populateDefault(sheet: Sheet, dataSet: ProcessedDataSet) {
-    if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayFormName);
-    sheet.cell("A4").value(dataSet.displayFormName).style(styles.titleStyle);
+    if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayName);
+    sheet.cell("A4").value(dataSet.displayName).style(styles.titleStyle);
     sheet.cell("B6").value("Value");
     sheet.row(6).style(styles.categoryHeaderStyle);
     dataSet.dataSetElements.forEach((dse, idx) =>
@@ -99,7 +99,7 @@ function populateDefault(sheet: Sheet, dataSet: ProcessedDataSet) {
 }
 
 function populateSections(sheet: Sheet, dataSet: ProcessedDataSet) {
-    if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayFormName);
+    if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayName);
     const row = Collection.range(0, dataSet.sections.length).reduce((row, v) => {
         const section = dataSet.sections[v];
         if (!section) return row;

@@ -1,41 +1,39 @@
 import { Id, Ref } from "$/domain/entities/Ref";
 import { BasicDataSet, BasicDataSetAttrs, D2Translation } from "$/domain/entities/BasicDataSet";
+import { Maybe } from "$/utils/ts-utils";
+import { Locale } from "$/domain/entities/Locale";
+import i18n from "$/utils/i18n";
 
 export interface DataSetAttrs extends BasicDataSetAttrs {
     name: string;
-    displayFormName: string;
-    formName: string;
+    displayName: string;
     sections: Section[];
     dataSetElements: DataSetElement[];
-    locale?: string /* To be removed */;
+}
+
+interface EnhancedDataSetAttrs extends DataSetAttrs {
+    locale?: Locale;
     headers?: Headers;
 }
 
-export type Headers = {
-    healthFacility: string;
-    reportingPeriod: string;
-};
-
-/* TO REMOVE */
-export interface ProcessedDataSet extends BasicDataSetAttrs {
+export interface ProcessedDataSet {
+    id: Id;
+    translations: D2Translation[];
+    displayName: string;
     name: string;
-    displayFormName: string;
-    formName: string;
     sections: Section<string[][]>[];
     dataSetElements: DataSetElement[];
-    locale?: string /* To be removed */;
-    headers?: {
-        healthFacility: string;
-        reportingPeriod: string;
-    };
+    locale?: Locale;
+    headers?: Headers;
 }
 
 export class DataSet extends BasicDataSet {
     name: string;
-    displayFormName: string;
-    formName: string;
+    displayName: string;
     sections: Section[];
     dataSetElements: DataSetElement[];
+    locale?: Locale;
+    headers?: Headers;
 
     constructor(attrs: DataSetAttrs) {
         super(attrs);
@@ -44,17 +42,16 @@ export class DataSet extends BasicDataSet {
         const overridedSections = this.assignCategoryCombos(attrs.dataSetElements, sections);
 
         this.name = attrs.name;
-        this.displayFormName = attrs.displayFormName;
-        this.formName = attrs.formName;
+        this.displayName = attrs.displayName;
         this.sections = overridedSections;
         this.dataSetElements = attrs.dataSetElements;
     }
 
-    _getAttributes(): DataSetAttrs {
-        return this._getAttributes() as DataSetAttrs;
+    _getAttributes(): EnhancedDataSetAttrs {
+        return this._getAttributes() as EnhancedDataSetAttrs;
     }
 
-    protected _update(partialAttrs: Partial<DataSetAttrs>): this {
+    protected _update(partialAttrs: Partial<EnhancedDataSetAttrs>): this {
         Object.assign(this, partialAttrs);
         return this;
     }
@@ -70,6 +67,86 @@ export class DataSet extends BasicDataSet {
         return this._update({
             sections: this.sections.filter(section => section.id !== sectionId),
         });
+    }
+
+    /* Default display fields on DataSet before method is called, are the fields to use in Presentation layer */
+    applyLocale(locale: Locale): DataSet {
+        const defaultHeaders = {
+            healthFacility: i18n.t("Health facility", { lng: this.locale?.code ?? "en" }),
+            reportingPeriod: i18n.t("Reporting period", { lng: this.locale?.code ?? "en" }),
+        };
+
+        // Is _update really just returning a new instance without modifying the original one?
+        return this._update({
+            ...this,
+            locale: locale,
+            headers: defaultHeaders,
+            displayName: this.getDisplayName(this, locale.code),
+            sections: this.sections.map(section => ({
+                ...section,
+                displayName: this.getDisplayName(section, locale.code),
+                categoryCombos: section.categoryCombos.map(categoryCombo => ({
+                    ...categoryCombo,
+                    categories: categoryCombo.categories.map(category => ({
+                        categoryOptions: category.categoryOptions.map(co => ({
+                            ...co,
+                            displayFormName: this.getDisplayFormName(co, locale.code),
+                        })),
+                    })),
+                    categoryOptionCombos: categoryCombo.categoryOptionCombos.map(coc => ({
+                        ...coc,
+                        categoryOptions: coc.categoryOptions.map(co => ({
+                            ...co,
+                            displayFormName: this.getDisplayFormName(co, locale.code),
+                        })),
+                    })),
+                })),
+                dataElements: section.dataElements.map(de => ({
+                    ...de,
+                    displayFormName: this.getDisplayFormName(de, locale.code),
+                })),
+            })),
+            dataSetElements: this.dataSetElements.map(dse => ({
+                ...dse,
+                dataElement: {
+                    ...dse.dataElement,
+                    displayFormName: this.getDisplayFormName(dse.dataElement, locale.code),
+                },
+            })),
+        });
+    }
+
+    updateHeaders(headers: Headers) {
+        return this._update({ headers });
+    }
+
+    private translateProperty(
+        property: string,
+        locale: string,
+        translations: D2Translation[]
+    ): Maybe<string> {
+        return translations.find(
+            translation => translation.locale === locale && translation.property === property
+        )?.value;
+    }
+
+    private getDisplayName(
+        metadata: { translations: D2Translation[]; name: string },
+        locale: string
+    ) {
+        return this.translateProperty("NAME", locale, metadata.translations) ?? metadata.name;
+    }
+
+    private getDisplayFormName(
+        metadata: { translations: D2Translation[]; name: string; formName?: string },
+        locale: string
+    ) {
+        return (
+            this.translateProperty("FORM_NAME", locale, metadata.translations) ??
+            this.translateProperty("NAME", locale, metadata.translations) ??
+            metadata.formName ??
+            metadata.name
+        );
     }
 
     private excludeCommentsSection(sections: DataSet["sections"]) {
@@ -118,13 +195,20 @@ export class DataSet extends BasicDataSet {
     }
 }
 
+/* Metadata with formName: CategoryOption, DataElement
+ * formName might be undefined even though displayFormName is defined,
+ * because it will be autogenerated picking the name even if formName
+ * is not defined. So the best flow for picking the "display" field would be:
+ * formName -> name (both in translations), -> formName -> name
+ * (without translations) */
+
 /* To remove Categories*/
 export type Section<Categories = Category[]> = {
     id: Id;
     translations: D2Translation[];
     name: string;
     displayName: string;
-    description: string;
+    description?: string; // Description cannot be translated
     categoryCombos: CategoryCombo<Categories>[];
     dataElements: SectionDataElement[];
     greyedFields: GreyedField[];
@@ -138,9 +222,9 @@ type DataSetElement = {
 type DataElement = {
     id: Id;
     name: string;
+    formName?: string;
     displayFormName: string;
     translations: D2Translation[];
-    formName: string;
 };
 
 type SectionDataElement = DataElement & {
@@ -150,7 +234,6 @@ type SectionDataElement = DataElement & {
 /* To remove Categories*/
 export type CategoryCombo<Categories = Category[]> = {
     id: Id;
-    displayName: string;
     categories: Categories;
     categoryOptionCombos: CategoryOptionCombo[];
     dataElements?: SectionDataElement[] /* To remove */;
@@ -164,16 +247,20 @@ type Category = {
 export type CategoryOption = {
     id: Id;
     name: string;
+    formName?: string;
     displayFormName: string;
     translations: D2Translation[];
 };
 
 type CategoryOptionCombo = {
     id: Id;
-    name: string;
-    displayFormName: string;
     categoryOptions: CategoryOption[];
     categories?: string[] /* To Remove*/;
 };
 
 type GreyedField = { dataElement: Ref; categoryOptionCombo: Ref };
+
+export type Headers = {
+    healthFacility: string;
+    reportingPeriod: string;
+};

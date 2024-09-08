@@ -54,7 +54,7 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
             )}
             <Box>
                 <Typography className={[classes.headers, classes.title].join(" ")} variant="h4">
-                    {dataSet.displayFormName}
+                    {dataSet.displayName}
                 </Typography>
                 {dataSet.sections.map(section => (
                     <Section key={section.id} section={section} onDelete={deleteSection} />
