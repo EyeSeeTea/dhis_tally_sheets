@@ -320,6 +320,18 @@ export class Collection<T> {
         return _c(pairs);
     }
 
+    unzip<U>(): Collection<U[]> {
+        if (this.xs.length === 0 || !Array.isArray(this.xs[0])) {
+            return _c<U[]>([]);
+        }
+
+        const unzipped = (this.xs[0] as U[]).map((_, i) =>
+            this.xs.map(tuple => (tuple as U[])[i] as U)
+        );
+
+        return Collection.from(unzipped);
+    }
+
     /* Methods that return HashMap */
 
     indexBy<U>(grouperFn: (x: T) => U): HashMap<U, T> {

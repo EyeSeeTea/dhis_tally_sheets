@@ -339,6 +339,17 @@ describe("Collection", () => {
         ]);
     });
 
+    test("unzip", () => {
+        const unzipped: Collection<any[]> = _([
+            [1, "a"],
+            [2, "b"],
+        ]).unzip();
+
+        expectTypeOf(unzipped).toEqualTypeOf<Collection<any[]>>();
+        expect(unzipped.get(0)).toEqual([1, 2]);
+        expect(unzipped.get(1)).toEqual(["a", "b"]);
+    });
+
     test("prepend", () => {
         expect(_([2, 3]).prepend(1).toArray()).toEqual([1, 2, 3]);
     });
