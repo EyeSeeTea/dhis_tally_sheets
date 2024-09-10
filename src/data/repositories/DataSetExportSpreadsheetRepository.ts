@@ -1,11 +1,20 @@
 import _c, { Collection } from "$/domain/entities/generic/Collection";
-import { Headers, ProcessedDataSet, Section } from "$/domain/entities/DataSet";
+import {
+    CategoryCombo,
+    GreyedField,
+    Headers,
+    ProcessedDataSet,
+    Section,
+} from "$/domain/entities/DataSet";
 import { DataSetExportRepository, ExportFile } from "$/domain/repositories/DataSetExportRepository";
 import XlsxPopulate, { Sheet, Workbook } from "@eyeseetea/xlsx-populate";
 import { FutureData } from "$/data/api-futures";
 import { Future } from "$/domain/entities/generic/Future";
+import i18n from "$/utils/i18n";
+import { Maybe } from "$/utils/ts-utils";
 
 export class DataSetExportSpreadsheetRepository implements DataSetExportRepository {
+    // refactor "export" to "save" so DataSetExportRepo would be DataSetSpreadsheetRepo and save is the method
     exportDataSet(dataSet: ProcessedDataSet): FutureData<ExportFile> {
         return Future.fromComputation((resolve, reject) => {
             XlsxPopulate.fromBlankAsync().then(workbook => {
@@ -73,9 +82,9 @@ const styles = {
     },
 };
 
-function populateHeaders(sheet: Sheet, header: Headers, title: string) {
-    sheet.cell("A1").value(header.healthFacility).style(styles.titleStyle);
-    sheet.cell("A2").value(header.reportingPeriod).style({ bold: true, fontSize: 18 });
+function populateHeaders(sheet: Sheet, headers: Headers, title: string) {
+    sheet.cell("A1").value(headers.healthFacility).style(styles.titleStyle);
+    sheet.cell("A2").value(headers.reportingPeriod).style({ bold: true, fontSize: 18 });
     sheet.cell("A3").value(title).style(styles.titleStyle);
 }
 
@@ -109,70 +118,117 @@ function populateSections(sheet: Sheet, dataSet: ProcessedDataSet) {
     return row - 1;
 }
 
-function addSection(sheet: Sheet, section: Section<NewCategory>, row: RowNumber): RowNumber {
-    sheet.row(++row).cell(1).value(section.displayName).style(styles.titleStyle);
-    if (section.description) sheet.row(++row).cell(1).value(section.description);
-    ++row;
+function markGreyedFields(columns: number[], length: number): (string | undefined)[] {
+    return Array.from({ length: length }, (_, i) => (columns.includes(i) ? "X" : undefined));
+}
 
-    section.categoryCombos.forEach(categoryCombo => {
-        const combinations = categoryCombo.categories.map(cg => cg.length).reduce((a, b) => a * b);
-        let categoryWidth = combinations;
-        let loops = 1;
-        const firstRow = row;
-        categoryCombo.categories.forEach((categoryGroup, cgIdx) => {
-            ++row;
-            categoryWidth = categoryWidth / categoryGroup.length;
-            loops = loops * categoryGroup.length;
-            categoryCombo.categoryOptionCombos.forEach((categoryOptionCombo, idx) => {
-                const value = categoryOptionCombo.categories?.at(cgIdx) ?? "";
-                sheet
-                    .row(row)
-                    .cell(idx + 2) //(1 + 1) starts at B and starts from 1 not 0
-                    .value(value === "default" ? "Value" : value);
-            });
-            if (categoryWidth > 1) {
-                Collection.range(0, loops).map(i => {
-                    const start = i * categoryWidth + 2; //(1 + 1) starts at B and starts from 1 not 0
-                    const end = start + categoryWidth - 1;
-                    const startCell = sheet.row(row).cell(start);
-                    const endCell = sheet.row(row).cell(end);
-                    const range = startCell.rangeTo(endCell);
-                    range.merged(true);
-                });
-            }
-            sheet.row(row).style(styles.categoryHeaderStyle);
-        });
+function getSectionTables(
+    categoryCombos: CategoryCombo<NewCategory>[],
+    greyedFields: GreyedField[]
+): Table[] {
+    return categoryCombos.map(categoryCombo => {
+        const thead = (_c(categoryCombo.categories).cartesian().unzip().value() as string[][]).map(
+            row => [undefined, ...row] //add an empty cell for the data elements column
+        );
 
         const cocIds = categoryCombo.categoryOptionCombos.map(({ id }) => id);
+        const combinations = (_c(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
 
-        categoryCombo.dataElements?.forEach(de => {
-            sheet.row(++row).cell(1).value(de.displayFormName).style(styles.dataElementStyle);
+        const tbody =
+            categoryCombo.dataElements?.map(de => {
+                const gfs = greyedFields
+                    .filter(gf => gf.dataElement.id === de.id)
+                    .map(gf => cocIds.indexOf(gf.categoryOptionCombo.id))
+                    .filter(idx => idx >= 0);
 
-            if (categoryCombo.greyedFields && _c(categoryCombo.greyedFields).isNotEmpty()) {
-                const applicableGF = section.greyedFields.filter(gf => gf.dataElement.id === de.id);
-                applicableGF.forEach(gf => {
-                    const idx = cocIds.indexOf(gf.categoryOptionCombo.id);
-                    if (idx >= 0)
-                        sheet
-                            .row(row)
-                            .cell(idx + 2) //(1 + 1)
-                            .value("X");
-                });
-            }
+                return [de.displayFormName, ...markGreyedFields(gfs, combinations)];
+            }) ?? [];
+
+        return { thead, tbody };
+    });
+}
+
+function getMergeRanges(row: Row): MergeRange[] {
+    return row
+        .reduce<MergeRange[]>((acc, v, idx, arr) => {
+            const last = acc.slice(-1);
+            const rest = acc.slice(0, -1);
+            if (!last || arr.at(idx - 1) !== v) return acc.concat([[idx, idx]]);
+            else return rest.concat(last.map(([start, _end]) => [start, idx]));
+        }, [])
+        .filter(([start, end]) => start !== end);
+}
+
+function addSection(sheet: Sheet, section: Section<NewCategory>, rowNum: RowNumber): RowNumber {
+    sheet.row(++rowNum).cell(START_COLUMN).value(section.displayName).style(styles.titleStyle);
+    if (section.description) sheet.row(++rowNum).cell(START_COLUMN).value(section.description);
+    ++rowNum;
+
+    const tables = getSectionTables(section.categoryCombos, section.greyedFields);
+
+    const rowsNum = tables.reduce<number>((rowNum, { thead, tbody }) => {
+        const num = rowNum + LINE_BREAK;
+
+        const _headRows = thead.map((row, rIdx) => {
+            const r = num + rIdx;
+
+            //to add value translated with i18n by dataset locale
+            const _cells = _c(row)
+                .map((v, cIdx) => {
+                    if (!v) return;
+                    return sheet
+                        .row(r)
+                        .cell(cIdx + DATA_ELEMENTS_OFFSET)
+                        .value(v === "default" ? i18n.t("Value") : v);
+                })
+                .compact()
+                .value();
+
+            const mergeRanges = getMergeRanges(row);
+            mergeRanges.forEach(([start, end]) => {
+                const startCell = sheet.row(r).cell(start + DATA_ELEMENTS_OFFSET);
+                const endCell = sheet.row(r).cell(end + DATA_ELEMENTS_OFFSET);
+                const range = startCell.rangeTo(endCell);
+                range.merged(true);
+            });
+
+            sheet.row(num + rIdx).style(styles.categoryHeaderStyle);
         });
 
-        const lastCell = sheet.row(row).cell(combinations + 1);
-        sheet
-            .row(firstRow + 1)
-            .cell(1)
-            .rangeTo(lastCell)
-            .style(styles.borders);
+        const _bodyRows = tbody.map((row, rIdx) => {
+            const r = num + rIdx + thead.length;
 
-        ++row;
-    });
+            const _cells = _c(row)
+                .map((v, cIdx) => {
+                    if (!v) return;
+                    return sheet
+                        .row(r)
+                        .cell(cIdx + 1)
+                        .value(v)
+                        .style(styles.dataElementStyle);
+                })
+                .compact()
+                .value();
+        });
 
-    return row;
+        const columnsLength = _c(thead).first()?.length ?? 1;
+        const lastRow = rowNum + thead.length + tbody.length;
+        const lastCell = sheet.row(lastRow).cell(columnsLength);
+        sheet.row(num).cell(START_COLUMN).rangeTo(lastCell).style(styles.borders);
+
+        return lastRow + LINE_BREAK;
+    }, rowNum);
+
+    return rowsNum;
 }
 
 type RowNumber = number;
 type NewCategory = string[][];
+type MergeRange = [number, number];
+
+type Row = Maybe<string>[];
+type Table = { thead: Row[]; tbody: Row[] };
+
+const START_COLUMN = 1;
+const LINE_BREAK = 1;
+const DATA_ELEMENTS_OFFSET = 1;
