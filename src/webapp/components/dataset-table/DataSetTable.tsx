@@ -9,11 +9,17 @@ import {
     useTheme,
 } from "@material-ui/core";
 import { Clear as ClearIcon } from "@material-ui/icons";
-import { DataSet, Section as SectionType } from "$/domain/entities/DataSet";
+import {
+    CategoryCombo,
+    DataSet,
+    GreyedField,
+    Section as SectionType,
+} from "$/domain/entities/DataSet";
 import { Id } from "$/domain/entities/Ref";
 import i18n from "$/utils/i18n";
 import { styled } from "styled-components";
-import _c, { Collection } from "$/domain/entities/generic/Collection";
+import { Maybe } from "$/utils/ts-utils";
+import _c from "$/domain/entities/generic/Collection";
 
 interface DataSetTableProps {
     dataSet: DataSet;
@@ -105,27 +111,95 @@ const Section: React.FC<SectionProps> = React.memo(props => {
 const SectionTable: React.FC<{ section: SectionType }> = React.memo(props => {
     const { section } = props;
 
-    const table = React.useMemo(() => {
-        return section.categoryCombos.map(categoryCombo => {
-            return _c(
-                categoryCombo.categories.map(c => c.categoryOptions.map(co => co.displayFormName))
-            )
-                .cartesian()
-                .value();
-        });
-    }, []);
-
-    React.useEffect(() => {
-        console.log(table);
-    }, [table]);
+    const tables = React.useMemo(() => {
+        return getSectionTables(section.categoryCombos, section.greyedFields);
+    }, [section.categoryCombos, section.greyedFields]);
 
     return (
-        <DisplayTable>
-            {/* <thead></thead>
-            <tbody></tbody> */}
-        </DisplayTable>
+        <Box>
+            {tables.map((table, idx) => (
+                <DisplayTable table={table} key={idx} />
+            ))}
+        </Box>
     );
 });
+
+const DisplayTable: React.FC<{ table: Table }> = React.memo(props => {
+    const {
+        table: { thead, tbody },
+    } = props;
+
+    return (
+        <Table>
+            <thead>
+                {thead.map((row, rIdx) => (
+                    <tr key={rIdx}>
+                        {row.map((cell, cIdx) => (
+                            <th key={cIdx}>{cell}</th>
+                        ))}
+                    </tr>
+                ))}
+            </thead>
+            <tbody>
+                {tbody.map((row, rIdx) => (
+                    <tr key={rIdx}>
+                        {row.map((cell, cIdx) => (
+                            <td key={cIdx}>{cell}</td>
+                        ))}
+                    </tr>
+                ))}
+            </tbody>
+        </Table>
+    );
+});
+
+function getSectionTables(categoryCombos: CategoryCombo[], greyedFields: GreyedField[]): Table[] {
+    return categoryCombos.map(categoryCombo => {
+        const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
+            categoryOptions.map(({ displayFormName }) => displayFormName)
+        );
+        const thead = (_c(optionNames).cartesian().unzip().value() as string[][]).map(
+            row => [undefined, ...row] //add an empty cell for the data elements column
+        );
+
+        const cocIds = categoryCombo.categoryOptionCombos.map(({ id }) => id);
+        const combinations = (_c(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
+
+        const tbody =
+            categoryCombo.dataElements?.map(de => {
+                const gfs = greyedFields
+                    .filter(gf => gf.dataElement.id === de.id)
+                    .map(gf => cocIds.indexOf(gf.categoryOptionCombo.id))
+                    .filter(idx => idx >= 0);
+
+                return [de.displayFormName, ...markGreyedFields(gfs, combinations)];
+            }) ?? [];
+
+        return { thead, tbody };
+    });
+}
+
+function getMergeRanges(row: Row): MergeRange[] {
+    return row
+        .reduce<MergeRange[]>((acc, v, idx, arr) => {
+            const last = acc.slice(-1);
+            const rest = acc.slice(0, -1);
+            if (!last || arr.at(idx - 1) !== v) return acc.concat([[idx, idx]]);
+            else return rest.concat(last.map(([start, _end]) => [start, idx]));
+        }, [])
+        .filter(([start, end]) => start !== end);
+}
+
+function markGreyedFields(columns: number[], length: number): (string | undefined)[] {
+    return Array.from({ length: length }, (_, i) => (columns.includes(i) ? "X" : undefined));
+}
+
+const DATA_ELEMENTS_OFFSET = 1;
+
+type MergeRange = [number, number];
+
+type Row = Maybe<string>[];
+type Table = { thead: Row[]; tbody: Row[] };
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -149,7 +223,7 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
-const DisplayTable = styled.table`
+const Table = styled.table`
     font-size: 1rem;
     border-collapse: collapse;
     td,

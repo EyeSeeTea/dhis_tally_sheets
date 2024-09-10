@@ -72,10 +72,16 @@ export class DataSet extends BasicDataSet {
                 categoryCombos: section.categoryCombos.map(categoryCombo => ({
                     ...categoryCombo,
                     categories: categoryCombo.categories.map(category => ({
-                        categoryOptions: category.categoryOptions.map(co => ({
-                            ...co,
-                            displayFormName: this.getDisplayFormName(co, locale.code),
-                        })),
+                        categoryOptions: category.categoryOptions.map(co => {
+                            const displayFormName = this.getDisplayFormName(co, locale.code);
+                            return {
+                                ...co,
+                                displayFormName:
+                                    displayFormName === "default"
+                                        ? i18n.t("Value")
+                                        : displayFormName,
+                            };
+                        }),
                     })),
                     categoryOptionCombos: categoryCombo.categoryOptionCombos.map(coc => ({
                         ...coc,
@@ -185,10 +191,19 @@ export class DataSet extends BasicDataSet {
                     deIds.includes(gf.dataElement.id) && cocIds.includes(gf.categoryOptionCombo?.id)
             );
 
+            const modifiedCategoryOptions = categoryCombo.categories.map(c => ({
+                ...c,
+                categoryOptions: c.categoryOptions.map(co => ({
+                    ...co,
+                    displayFormName:
+                        co.displayFormName === "default" ? i18n.t("Value") : co.displayFormName,
+                })),
+            }));
+
             return {
                 ...categoryCombo,
                 categoryOptionCombos: categoryOptionCombos,
-                categories: categoryCombo.categories,
+                categories: modifiedCategoryOptions,
                 dataElements: dataElements,
                 greyedFields: greyedFields,
             };

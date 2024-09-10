@@ -166,14 +166,13 @@ function addSection(sheet: Sheet, section: Section, rowNum: RowNumber): RowNumbe
         const _headRows = thead.map((row, rIdx) => {
             const r = num + rIdx;
 
-            //to add value translated with i18n by dataset locale
             const _cells = _c(row)
                 .map((v, cIdx) => {
                     if (!v) return;
                     return sheet
                         .row(r)
                         .cell(cIdx + DATA_ELEMENTS_OFFSET)
-                        .value(v === "default" ? i18n.t("Value") : v);
+                        .value(v);
                 })
                 .compact()
                 .value();
