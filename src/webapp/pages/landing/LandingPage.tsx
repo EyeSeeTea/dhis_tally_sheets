@@ -44,19 +44,13 @@ export const LandingPage: React.FC = React.memo(() => {
     const selectedDatasets = dataSetSelectorProps.selectedItems;
 
     const availableLocales = React.useMemo(() => {
-        return _c(selectedDatasets).isEmpty()
-            ? []
-            : _c(
-                  selectedDatasets.flatMap(dataSet =>
-                      dataSet.translations.flatMap(t =>
-                          t.property === "NAME" ? [t.locale.split("_")[0]] : []
-                      )
-                  )
-              )
-                  .concat("en")
-                  .uniq()
-                  .compact()
-                  .value(); // Add English because is not included in translations
+        const avail = _c(selectedDatasets.map(ds => ds.getAvailableLocaleCodes()))
+            .flatten()
+            .concat("en") // Add English because is not included in translations
+            .uniq()
+            .compact()
+            .value();
+        return _c(selectedDatasets).isEmpty() ? [] : avail;
     }, [selectedDatasets]);
 
     const languageSelectorProps = useLanguagesSelector(
@@ -98,8 +92,8 @@ export const LandingPage: React.FC = React.memo(() => {
     return (
         <Box margin={theme.spacing(0.5)}>
             <Paper>
-                <Box display="flex" justifyContent="space-between" padding={theme.spacing(0.5)}>
-                    <Box display="flex" flexDirection="column">
+                <Box padding={theme.spacing(0.5)}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -111,6 +105,26 @@ export const LandingPage: React.FC = React.memo(() => {
                             }
                             label={i18n.t("Include headers")}
                         />
+                        <Box display="flex" gridColumnGap={theme.spacing(3)}>
+                            <Button variant="contained" color="default" startIcon={<PrintIcon />}>
+                                {i18n.t("Print")}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<DownloadIcon />}
+                                onClick={exportToExcel}
+                                disabled={
+                                    _c(selectedDatasets).isEmpty() ||
+                                    _c(selectedLocales).isEmpty() ||
+                                    loading
+                                }
+                            >
+                                {i18n.t("Export to Excel")}
+                            </Button>
+                        </Box>
+                    </Box>
+                    <Box display="flex" flexDirection="column">
                         <Box
                             display="flex"
                             marginTop={theme.spacing(0.25)}
@@ -126,24 +140,6 @@ export const LandingPage: React.FC = React.memo(() => {
                                 </Box>
                             )}
                         </Box>
-                    </Box>
-                    <Box display="flex" gridColumnGap={theme.spacing(3)} alignItems="flex-start">
-                        <Button variant="contained" color="default" startIcon={<PrintIcon />}>
-                            {i18n.t("Print")}
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<DownloadIcon />}
-                            onClick={exportToExcel}
-                            disabled={
-                                _c(selectedDatasets).isEmpty() ||
-                                _c(selectedLocales).isEmpty() ||
-                                loading
-                            }
-                        >
-                            {i18n.t("Export to Excel")}
-                        </Button>
                     </Box>
                 </Box>
             </Paper>

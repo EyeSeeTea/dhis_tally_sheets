@@ -1,11 +1,5 @@
 import _c, { Collection } from "$/domain/entities/generic/Collection";
-import {
-    CategoryCombo,
-    GreyedField,
-    Headers,
-    ProcessedDataSet,
-    Section,
-} from "$/domain/entities/DataSet";
+import { CategoryCombo, GreyedField, Headers, DataSet, Section } from "$/domain/entities/DataSet";
 import { DataSetExportRepository, ExportFile } from "$/domain/repositories/DataSetExportRepository";
 import XlsxPopulate, { Sheet, Workbook } from "@eyeseetea/xlsx-populate";
 import { FutureData } from "$/data/api-futures";
@@ -15,7 +9,7 @@ import { Maybe } from "$/utils/ts-utils";
 
 export class DataSetExportSpreadsheetRepository implements DataSetExportRepository {
     // refactor "export" to "save" so DataSetExportRepo would be DataSetSpreadsheetRepo and save is the method
-    exportDataSet(dataSet: ProcessedDataSet): FutureData<ExportFile> {
+    exportDataSet(dataSet: DataSet): FutureData<ExportFile> {
         return Future.fromComputation((resolve, reject) => {
             XlsxPopulate.fromBlankAsync().then(workbook => {
                 exportDataSet(workbook, dataSet)
@@ -30,7 +24,7 @@ export class DataSetExportSpreadsheetRepository implements DataSetExportReposito
     }
 }
 
-function exportDataSet(workbook: Workbook, dataSet: ProcessedDataSet) {
+function exportDataSet(workbook: Workbook, dataSet: DataSet) {
     const sheet = workbook.sheet(0);
     sheet.name("MSF-OCBA HMIS");
 
@@ -88,7 +82,7 @@ function populateHeaders(sheet: Sheet, headers: Headers, title: string) {
     sheet.cell("A3").value(title).style(styles.titleStyle);
 }
 
-function populateDefault(sheet: Sheet, dataSet: ProcessedDataSet) {
+function populateDefault(sheet: Sheet, dataSet: DataSet) {
     if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayName);
     sheet.cell("A4").value(dataSet.displayName).style(styles.titleStyle);
     sheet.cell("B6").value("Value");
@@ -107,7 +101,7 @@ function populateDefault(sheet: Sheet, dataSet: ProcessedDataSet) {
     return dataSet.dataSetElements.length + 6;
 }
 
-function populateSections(sheet: Sheet, dataSet: ProcessedDataSet) {
+function populateSections(sheet: Sheet, dataSet: DataSet) {
     if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayName);
     const row = Collection.range(0, dataSet.sections.length).reduce((row, v) => {
         const section = dataSet.sections[v];
@@ -122,12 +116,12 @@ function markGreyedFields(columns: number[], length: number): (string | undefine
     return Array.from({ length: length }, (_, i) => (columns.includes(i) ? "X" : undefined));
 }
 
-function getSectionTables(
-    categoryCombos: CategoryCombo<NewCategory>[],
-    greyedFields: GreyedField[]
-): Table[] {
+function getSectionTables(categoryCombos: CategoryCombo[], greyedFields: GreyedField[]): Table[] {
     return categoryCombos.map(categoryCombo => {
-        const thead = (_c(categoryCombo.categories).cartesian().unzip().value() as string[][]).map(
+        const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
+            categoryOptions.map(({ displayFormName }) => displayFormName)
+        );
+        const thead = (_c(optionNames).cartesian().unzip().value() as string[][]).map(
             row => [undefined, ...row] //add an empty cell for the data elements column
         );
 
@@ -159,7 +153,7 @@ function getMergeRanges(row: Row): MergeRange[] {
         .filter(([start, end]) => start !== end);
 }
 
-function addSection(sheet: Sheet, section: Section<NewCategory>, rowNum: RowNumber): RowNumber {
+function addSection(sheet: Sheet, section: Section, rowNum: RowNumber): RowNumber {
     sheet.row(++rowNum).cell(START_COLUMN).value(section.displayName).style(styles.titleStyle);
     if (section.description) sheet.row(++rowNum).cell(START_COLUMN).value(section.description);
     ++rowNum;
@@ -223,7 +217,6 @@ function addSection(sheet: Sheet, section: Section<NewCategory>, rowNum: RowNumb
 }
 
 type RowNumber = number;
-type NewCategory = string[][];
 type MergeRange = [number, number];
 
 type Row = Maybe<string>[];

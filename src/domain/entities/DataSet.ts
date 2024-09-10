@@ -2,26 +2,13 @@ import { Id, Ref } from "$/domain/entities/Ref";
 import { BasicDataSet, BasicDataSetAttrs, D2Translation } from "$/domain/entities/BasicDataSet";
 import { Maybe } from "$/utils/ts-utils";
 import { Locale } from "$/domain/entities/Locale";
+import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 
 export interface DataSetAttrs extends BasicDataSetAttrs {
     name: string;
     displayName: string;
     sections: Section[];
-    dataSetElements: DataSetElement[];
-}
-
-interface EnhancedDataSetAttrs extends DataSetAttrs {
-    locale?: Locale;
-    headers?: Headers;
-}
-
-export interface ProcessedDataSet {
-    id: Id;
-    translations: D2Translation[];
-    displayName: string;
-    name: string;
-    sections: Section<string[][]>[];
     dataSetElements: DataSetElement[];
     locale?: Locale;
     headers?: Headers;
@@ -43,17 +30,14 @@ export class DataSet extends BasicDataSet {
 
         this.name = attrs.name;
         this.displayName = attrs.displayName;
-        this.sections = overridedSections;
+        this.sections = overridedSections.map(this.orderSectionContent);
         this.dataSetElements = attrs.dataSetElements;
+        this.locale = attrs.locale;
+        this.headers = attrs.headers;
     }
 
-    _getAttributes(): EnhancedDataSetAttrs {
-        return this._getAttributes() as EnhancedDataSetAttrs;
-    }
-
-    protected _update(partialAttrs: Partial<EnhancedDataSetAttrs>): this {
-        Object.assign(this, partialAttrs);
-        return this;
+    _getAttributes(): DataSetAttrs {
+        return this._getAttributes() as DataSetAttrs;
     }
 
     static create<DataSet>(
@@ -64,7 +48,8 @@ export class DataSet extends BasicDataSet {
     }
 
     removeSection(sectionId: Id): DataSet {
-        return this._update({
+        return new DataSet({
+            ...this,
             sections: this.sections.filter(section => section.id !== sectionId),
         });
     }
@@ -72,12 +57,11 @@ export class DataSet extends BasicDataSet {
     /* Default display fields on DataSet before method is called, are the fields to use in Presentation layer */
     applyLocale(locale: Locale): DataSet {
         const defaultHeaders = {
-            healthFacility: i18n.t("Health facility", { lng: this.locale?.code ?? "en" }),
-            reportingPeriod: i18n.t("Reporting period", { lng: this.locale?.code ?? "en" }),
+            healthFacility: `${i18n.t("Health facility", { lng: locale.code })}: `,
+            reportingPeriod: `${i18n.t("Reporting period", { lng: locale.code })}: `,
         };
 
-        // Is _update really just returning a new instance without modifying the original one?
-        return this._update({
+        return new DataSet({
             ...this,
             locale: locale,
             headers: defaultHeaders,
@@ -116,8 +100,8 @@ export class DataSet extends BasicDataSet {
         });
     }
 
-    updateHeaders(headers: Headers) {
-        return this._update({ headers });
+    updateHeaders(headers: Headers): DataSet {
+        return new DataSet({ ...this, headers });
     }
 
     private translateProperty(
@@ -163,6 +147,97 @@ export class DataSet extends BasicDataSet {
         );
     }
 
+    private orderSectionContent(section: Section): Section {
+        const mappedCategoryCombos = section.categoryCombos.map((categoryCombo): CategoryCombo => {
+            const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
+                categoryOptions.map(({ displayFormName }) => displayFormName)
+            );
+
+            const categoriesOrder = categoryCombo.categories.map(({ categoryOptions }) =>
+                categoryOptions.map(({ id }) => id)
+            );
+
+            const categoryOptionCombos = categoryCombo.categoryOptionCombos
+                .map(categoryOptionCombo => ({
+                    id: categoryOptionCombo.id,
+                    categoryOptions: _c(categoryOptionCombo.categoryOptions)
+                        .sortBy(({ id }) => categoriesOrder.findIndex(c => c.includes(id)))
+                        .value(),
+                }))
+                .filter(categoryOptionCombo => {
+                    const flatCategories = optionNames.flat();
+                    const includesInCategories = categoryOptionCombo.categoryOptions
+                        .map(({ displayFormName }) => displayFormName)
+                        .every(category => flatCategories.includes(category));
+
+                    return includesInCategories;
+                });
+
+            const dataElements = section.dataElements.filter(
+                de => de.categoryCombo.id === categoryCombo.id
+            );
+
+            const deIds = dataElements.map(({ id }) => id);
+            const cocIds = categoryOptionCombos.map(({ id }) => id);
+
+            const greyedFields = section.greyedFields.filter(
+                gf =>
+                    deIds.includes(gf.dataElement.id) && cocIds.includes(gf.categoryOptionCombo?.id)
+            );
+
+            return {
+                ...categoryCombo,
+                categoryOptionCombos: categoryOptionCombos,
+                categories: categoryCombo.categories,
+                dataElements: dataElements,
+                greyedFields: greyedFields,
+            };
+        });
+
+        //Order category combos by the ones that comes first on the dataset dataElements
+        //Needed when multiple dataElements differ on categoryCombo
+        const orderedCategoryCombos = _c(mappedCategoryCombos).sortBy(categoryCombo =>
+            section.dataElements.findIndex(de => de.categoryCombo.id === categoryCombo.id)
+        );
+
+        const categoryCombos = orderedCategoryCombos
+            .map(categoryCombo => {
+                return {
+                    ...categoryCombo,
+                    categoryOptionCombos: _c(categoryCombo.categoryOptionCombos)
+                        .sortBy(categoryOptionCombo => {
+                            //Assign to each word of the (displayFormName) the index where it appears on categoryCombo.categories[]
+                            //Output: [1, 2, 0]
+                            const prio = categoryOptionCombo.categoryOptions
+                                .map(({ displayFormName }) => displayFormName)
+                                .map(category => {
+                                    const optionNames = categoryCombo.categories
+                                        .map(({ categoryOptions }) =>
+                                            categoryOptions.map(
+                                                ({ displayFormName }) => displayFormName
+                                            )
+                                        )
+                                        .flat();
+                                    return optionNames.indexOf(category);
+                                });
+
+                            //Gives lower priority as [N] increases and does a sum of all values
+                            //[1, 2, 0] -> [100, 20, 0] -> 120
+                            return prio
+                                .map((v, idx) => v * Math.pow(10, prio.length - 1 - idx))
+                                .reduce((a, b) => a + b, 0);
+                        })
+                        .value(),
+                };
+            })
+            .value();
+
+        return {
+            ...section,
+            categoryCombos,
+        };
+    }
+
     /**
      * Reassigns the `categoryCombo` of the `dataElements` in the `dataSet` based on the `dataSetElements`.
      * The `dataElements` in the `dataSet` may have a `categoryCombo` that doesn't correspond with the relationship `dataSet-dataElement-categoryCombo`.
@@ -202,14 +277,13 @@ export class DataSet extends BasicDataSet {
  * formName -> name (both in translations), -> formName -> name
  * (without translations) */
 
-/* To remove Categories*/
-export type Section<Categories = Category[]> = {
+export type Section = {
     id: Id;
     translations: D2Translation[];
     name: string;
     displayName: string;
     description?: string; // Description cannot be translated
-    categoryCombos: CategoryCombo<Categories>[];
+    categoryCombos: CategoryCombo[];
     dataElements: SectionDataElement[];
     greyedFields: GreyedField[];
 };
@@ -231,13 +305,12 @@ type SectionDataElement = DataElement & {
     categoryCombo: Ref;
 };
 
-/* To remove Categories*/
-export type CategoryCombo<Categories = Category[]> = {
+export type CategoryCombo = {
     id: Id;
-    categories: Categories;
+    categories: Category[];
     categoryOptionCombos: CategoryOptionCombo[];
-    dataElements?: SectionDataElement[] /* To remove */;
-    greyedFields?: GreyedField[] /* To remove */;
+    dataElements: SectionDataElement[];
+    greyedFields: GreyedField[];
 };
 
 type Category = {
@@ -255,10 +328,9 @@ export type CategoryOption = {
 type CategoryOptionCombo = {
     id: Id;
     categoryOptions: CategoryOption[];
-    categories?: string[] /* To Remove*/;
 };
 
-type GreyedField = { dataElement: Ref; categoryOptionCombo: Ref };
+export type GreyedField = { dataElement: Ref; categoryOptionCombo: Ref };
 
 export type Headers = {
     healthFacility: string;
