@@ -1,12 +1,15 @@
 import React from "react";
-import { GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
+import { Clear as ClearIcon, GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
 import {
     Box,
     Button,
     Checkbox,
     CircularProgress,
+    createStyles,
     FormControlLabel,
+    makeStyles,
     Paper,
+    Theme,
     useTheme,
 } from "@material-ui/core";
 import {
@@ -21,9 +24,12 @@ import { DataSetTable } from "$/webapp/components/dataset-table/DataSetTable";
 import { Id } from "$/domain/entities/Ref";
 import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
+import "./landing-page.css";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
+    const classes = useStyles();
+
     const { compositionRoot, currentUser } = useAppContext();
 
     const [options, setOptions] = React.useState({
@@ -37,9 +43,13 @@ export const LandingPage: React.FC = React.memo(() => {
         [options]
     );
 
-    const dataSetSelectorProps = useDataSetSelector();
+    const { props: dataSetSelectorProps, resetSelected: resetSelectedDataSets } =
+        useDataSetSelector();
 
-    const resetView = React.useCallback(() => {}, []);
+    const resetView = React.useCallback(() => {
+        resetSelectedDataSets();
+        setOptions({ includeHeaders: true });
+    }, [resetSelectedDataSets]);
 
     const selectedDatasets = dataSetSelectorProps.selectedItems;
 
@@ -106,7 +116,12 @@ export const LandingPage: React.FC = React.memo(() => {
                             label={i18n.t("Include headers")}
                         />
                         <Box display="flex" gridColumnGap={theme.spacing(3)}>
-                            <Button variant="contained" color="default" startIcon={<PrintIcon />}>
+                            <Button
+                                variant="contained"
+                                color="default"
+                                startIcon={<PrintIcon />}
+                                onClick={window.print}
+                            >
                                 {i18n.t("Print")}
                             </Button>
                             <Button
@@ -133,6 +148,15 @@ export const LandingPage: React.FC = React.memo(() => {
                         >
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
+                            <Button
+                                className={classes.resetButton}
+                                aria-label="delete"
+                                size="small"
+                                variant="outlined"
+                                onClick={resetView}
+                            >
+                                <ClearIcon fontSize="medium" />
+                            </Button>
 
                             {loading && (
                                 <Box display="flex" alignItems="center">
@@ -145,7 +169,7 @@ export const LandingPage: React.FC = React.memo(() => {
             </Paper>
 
             {!dataSetSelectorProps.allSelected && _c(dataSets).isNotEmpty() && (
-                <Paper>
+                <Paper className="print-zone">
                     <Box
                         marginTop={theme.spacing(0.5)}
                         padding={theme.spacing(0.5)}
@@ -176,12 +200,16 @@ type SelectorProps<Item> = MultipleSelectorProps & {
     allSelected: boolean;
 };
 
-function useDataSetSelector(): SelectorProps<BasicDataSet> {
+function useDataSetSelector() {
     const { compositionRoot } = useAppContext();
 
     const [dataSets, setDataSets] = React.useState<BasicDataSet[]>([]);
     const [selected, setSelected] = React.useState<string[]>([]);
     const [loading, setLoading] = React.useState<LoadingState>("loading");
+
+    const resetSelected = React.useCallback(() => {
+        setSelected([]);
+    }, []);
 
     const onChange = React.useCallback((values: string[]) => {
         setSelected(values);
@@ -228,7 +256,7 @@ function useDataSetSelector(): SelectorProps<BasicDataSet> {
         [compositionRoot.dataSets.getBasicList]
     );
 
-    return props;
+    return { props: props, resetSelected: resetSelected };
 }
 
 function useLanguagesSelector(
@@ -408,3 +436,14 @@ function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) 
 function getId(dataSet: BasicDataSet) {
     return dataSet.id;
 }
+
+const useStyles = makeStyles((_theme: Theme) =>
+    createStyles({
+        resetButton: {
+            marginTop: 3,
+            maxWidth: "3rem",
+            minWidth: "unset",
+            height: "2.5rem",
+        },
+    })
+);

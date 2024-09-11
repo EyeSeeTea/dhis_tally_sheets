@@ -124,7 +124,7 @@ const SectionTable: React.FC<{ section: SectionType }> = React.memo(props => {
     );
 });
 
-const DisplayTable: React.FC<{ table: Table }> = React.memo(props => {
+const DisplayTable: React.FC<{ table: TableProps }> = React.memo(props => {
     const {
         table: { thead, tbody },
     } = props;
@@ -132,19 +132,39 @@ const DisplayTable: React.FC<{ table: Table }> = React.memo(props => {
     return (
         <Table>
             <thead>
-                {thead.map((row, rIdx) => (
-                    <tr key={rIdx}>
-                        {row.map((cell, cIdx) => (
-                            <th key={cIdx}>{cell}</th>
-                        ))}
-                    </tr>
-                ))}
+                {thead.map((row, rIdx) => {
+                    const mergeRange = getMergeRanges(row);
+
+                    return (
+                        <tr key={rIdx}>
+                            {row
+                                .map((v, cIdx) => ({
+                                    v: v,
+                                    show: !mergeRange.some(
+                                        ([start, end]) => start < cIdx && cIdx <= end
+                                    ),
+                                }))
+                                .map(
+                                    ({ v, show }, cIdx) =>
+                                        show && (
+                                            <th
+                                                key={cIdx}
+                                                className={v === undefined ? "no-border" : ""}
+                                                colSpan={getColSpan(cIdx, mergeRange)}
+                                            >
+                                                {v}
+                                            </th>
+                                        )
+                                )}
+                        </tr>
+                    );
+                })}
             </thead>
             <tbody>
                 {tbody.map((row, rIdx) => (
                     <tr key={rIdx}>
-                        {row.map((cell, cIdx) => (
-                            <td key={cIdx}>{cell}</td>
+                        {row.map((v, cIdx) => (
+                            <td key={cIdx}>{v}</td>
                         ))}
                     </tr>
                 ))}
@@ -153,7 +173,15 @@ const DisplayTable: React.FC<{ table: Table }> = React.memo(props => {
     );
 });
 
-function getSectionTables(categoryCombos: CategoryCombo[], greyedFields: GreyedField[]): Table[] {
+function getColSpan(idx: number, mergeRanges: MergeRange[]): Maybe<number> {
+    const range = _c(mergeRanges.filter(([start, _end]) => start === idx)).first();
+    return range ? range[1] - range[0] + 1 : undefined;
+}
+
+function getSectionTables(
+    categoryCombos: CategoryCombo[],
+    greyedFields: GreyedField[]
+): TableProps[] {
     return categoryCombos.map(categoryCombo => {
         const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
             categoryOptions.map(({ displayFormName }) => displayFormName)
@@ -199,13 +227,13 @@ const DATA_ELEMENTS_OFFSET = 1;
 type MergeRange = [number, number];
 
 type Row = Maybe<string>[];
-type Table = { thead: Row[]; tbody: Row[] };
+type TableProps = { thead: Row[]; tbody: Row[] };
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         headers: {
             border: "1px solid black",
-            padding: "0.0625rem 0.25rem",
+            padding: "0 0.25rem",
             fontWeight: 400,
         },
         title: {
@@ -226,8 +254,23 @@ const useStyles = makeStyles((theme: Theme) =>
 const Table = styled.table`
     font-size: 1rem;
     border-collapse: collapse;
+    border-spacing: 0px 1px;
+    width: 100%;
+
     td,
     th {
+        font-size: 14px;
+        padding: 0.1rem 0.3rem 0;
+        box-sizing: border-box;
+        vertical-align: middle;
+    }
+
+    td:not(:first-child) {
+        text-align: center;
+    }
+
+    td,
+    th:not(.no-border) {
         border: 1px solid #000;
     }
 `;

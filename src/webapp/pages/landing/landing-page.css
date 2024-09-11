@@ -1,0 +1,19 @@
+@media print {
+    body * {
+        display: none;
+    }
+
+    #root,
+    #app,
+    #app * {
+        display: inherit;
+    }
+
+    div {
+        display: none;
+    }
+
+    .print-zone div {
+        display: inherit;
+    }
+}
