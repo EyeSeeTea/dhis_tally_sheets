@@ -14,12 +14,15 @@ import { Router } from "$/webapp/pages/Router";
 import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
+import { D2Api } from "$/types/d2-api";
+import { useConfig } from "@dhis2/app-runtime";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
 }
 
 function App(props: AppProps) {
+    const { baseUrl } = useConfig();
     const { compositionRoot } = props;
     const [showShareButton, setShowShareButton] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -27,16 +30,17 @@ function App(props: AppProps) {
 
     useEffect(() => {
         async function setup() {
+            const api = new D2Api({ baseUrl, backend: "fetch" });
             const isShareButtonVisible = appConfig.appearance.showShareButton;
             const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
 
-            setAppContext({ currentUser, compositionRoot });
+            setAppContext({ api, currentUser, compositionRoot });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
         }
         setup();
-    }, [compositionRoot]);
+    }, [baseUrl, compositionRoot]);
 
     if (loading) return null;
 
