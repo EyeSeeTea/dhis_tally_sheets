@@ -1,11 +1,10 @@
-import _c, { Collection } from "$/domain/entities/generic/Collection";
+import XlsxPopulate, { Sheet, Workbook } from "@eyeseetea/xlsx-populate";
 import { CategoryCombo, GreyedField, Headers, DataSet, Section } from "$/domain/entities/DataSet";
 import { DataSetExportRepository, ExportFile } from "$/domain/repositories/DataSetExportRepository";
-import XlsxPopulate, { Sheet, Workbook } from "@eyeseetea/xlsx-populate";
 import { FutureData } from "$/data/api-futures";
 import { Future } from "$/domain/entities/generic/Future";
-import i18n from "$/utils/i18n";
 import { Maybe } from "$/utils/ts-utils";
+import _c, { Collection } from "$/domain/entities/generic/Collection";
 
 export class DataSetExportSpreadsheetRepository implements DataSetExportRepository {
     // refactor "export" to "save" so DataSetExportRepo would be DataSetSpreadsheetRepo and save is the method

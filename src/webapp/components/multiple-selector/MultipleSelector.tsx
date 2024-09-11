@@ -9,7 +9,6 @@ import {
     MenuItem,
     Select,
     Theme,
-    useTheme,
 } from "@material-ui/core";
 import { MultipleDropdownProps } from "@eyeseetea/d2-ui-components";
 import i18n from "$/utils/i18n";
