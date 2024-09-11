@@ -25,6 +25,7 @@ import { Id } from "$/domain/entities/Ref";
 import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 import "./landing-page.css";
+import { OrgUnitFilter } from "$/webapp/components/org-unit-filter/OrgUnitFilter";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
@@ -141,6 +142,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             gridColumnGap={theme.spacing(3)}
                             alignItems="center"
                         >
+                            <OrgUnitFilter />
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
                             <Button
