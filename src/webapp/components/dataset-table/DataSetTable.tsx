@@ -4,6 +4,7 @@ import {
     Button,
     createStyles,
     makeStyles,
+    Paper,
     Theme,
     Typography,
     useTheme,
@@ -41,32 +42,34 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
     );
 
     return (
-        <Box>
-            {includeHeaders && (
-                <Box
-                    display="flex"
-                    flexDirection="column"
-                    gridRowGap={theme.spacing(2)}
-                    marginBottom={theme.spacing(0.25)}
-                >
-                    {/* TO ADD HEADERS BY DATASET DIRECTLY */}
-                    <Typography className={classes.headers} variant="h6">
-                        {i18n.t("Health facility")}:
+        <Paper>
+            <Box padding={theme.spacing(0.5)}>
+                {includeHeaders && (
+                    <Box
+                        display="flex"
+                        flexDirection="column"
+                        gridRowGap={theme.spacing(2)}
+                        marginBottom={theme.spacing(0.25)}
+                    >
+                        {/* TO ADD HEADERS BY DATASET DIRECTLY */}
+                        <Typography className={classes.headers} variant="h6">
+                            {i18n.t("Health facility")}:
+                        </Typography>
+                        <Typography className={classes.headers} variant="h6">
+                            {i18n.t("Reporting period")}:
+                        </Typography>
+                    </Box>
+                )}
+                <Box>
+                    <Typography className={[classes.headers, classes.title].join(" ")} variant="h4">
+                        {dataSet.displayName}
                     </Typography>
-                    <Typography className={classes.headers} variant="h6">
-                        {i18n.t("Reporting period")}:
-                    </Typography>
+                    {dataSet.sections.map(section => (
+                        <Section key={section.id} section={section} onDelete={deleteSection} />
+                    ))}
                 </Box>
-            )}
-            <Box>
-                <Typography className={[classes.headers, classes.title].join(" ")} variant="h4">
-                    {dataSet.displayName}
-                </Typography>
-                {dataSet.sections.map(section => (
-                    <Section key={section.id} section={section} onDelete={deleteSection} />
-                ))}
             </Box>
-        </Box>
+        </Paper>
     );
 });
 

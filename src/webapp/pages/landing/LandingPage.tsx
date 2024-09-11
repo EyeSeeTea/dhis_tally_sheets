@@ -88,20 +88,15 @@ export const LandingPage: React.FC = React.memo(() => {
     );
 
     const exportToExcel = React.useCallback(() => {
-        compositionRoot.dataSets.export
-            .execute(dataSets, selectedLocales)
-            .run(console.log, console.error);
+        if (_c(dataSets).isNotEmpty() && _c(selectedLocales).isNotEmpty())
+            compositionRoot.dataSets.export.execute(dataSets, selectedLocales).run(() => {
+                console.debug(`Exported to Excel ${dataSets.length} datasets`);
+            }, console.error); //change to snackbar
     }, [compositionRoot, dataSets, selectedLocales]);
-
-    // React.useEffect(() => {
-    //     if (options.allDatasets === false) {
-    //         resetView();
-    //     }
-    // }, [options.allDatasets, resetView]);
 
     return (
         <Box margin={theme.spacing(0.5)}>
-            <Paper>
+            <Paper elevation={2}>
                 <Box padding={theme.spacing(0.5)}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                         <FormControlLabel
@@ -169,24 +164,22 @@ export const LandingPage: React.FC = React.memo(() => {
             </Paper>
 
             {!dataSetSelectorProps.allSelected && _c(dataSets).isNotEmpty() && (
-                <Paper className="print-zone">
-                    <Box
-                        marginTop={theme.spacing(0.5)}
-                        padding={theme.spacing(0.5)}
-                        display="flex"
-                        flexDirection="column"
-                        gridRowGap={theme.spacing(8)}
-                    >
-                        {dataSets.map(ds => (
-                            <DataSetTable
-                                includeHeaders={options.includeHeaders}
-                                key={ds.id}
-                                dataSet={ds}
-                                onRemoveSection={onRemoveSection(ds.id)}
-                            />
-                        ))}
-                    </Box>
-                </Paper>
+                <Box
+                    className="print-zone"
+                    marginTop={theme.spacing(0.5)}
+                    display="flex"
+                    flexDirection="column"
+                    gridRowGap={theme.spacing(2)}
+                >
+                    {dataSets.map(ds => (
+                        <DataSetTable
+                            includeHeaders={options.includeHeaders}
+                            key={ds.id}
+                            dataSet={ds}
+                            onRemoveSection={onRemoveSection(ds.id)}
+                        />
+                    ))}
+                </Box>
             )}
         </Box>
     );
@@ -371,7 +364,10 @@ function useDataSets(selectedDataSets: BasicDataSet[]) {
     /* ALSO NOW REMOVE SECTION IS NOT RESTORING AFTER UNSELECT, SELECT */
     React.useEffect(() => {
         const { added, removed } = diffDataSets(selectedDataSets, dataSets);
-        console.log("updated");
+
+        console.debug("Added DataSets", added);
+        console.debug("Removed DataSets", removed);
+
         if (_c(added).isNotEmpty()) {
             const cached = cachedDataSets.filter(ds => added.map(getId).includes(ds.id));
             const toRequest = added.filter(ds => !cached.map(getId).includes(ds.id));
