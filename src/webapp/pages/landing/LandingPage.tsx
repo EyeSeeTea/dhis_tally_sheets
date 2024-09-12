@@ -26,6 +26,7 @@ import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 import "./landing-page.css";
 import { OrgUnitFilter } from "$/webapp/components/org-unit-filter/OrgUnitFilter";
+import { Maybe } from "$/utils/ts-utils";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
@@ -44,13 +45,12 @@ export const LandingPage: React.FC = React.memo(() => {
         [options]
     );
 
-    const { props: dataSetSelectorProps, resetSelected: resetSelectedDataSets } =
-        useDataSetSelector();
-
-    const resetView = React.useCallback(() => {
-        resetSelectedDataSets();
-        setOptions({ includeHeaders: true });
-    }, [resetSelectedDataSets]);
+    const {
+        props: dataSetSelectorProps,
+        resetSelected: resetSelectedDataSets,
+        orgUnitPaths,
+        setOrgUnitPaths,
+    } = useDataSetSelector();
 
     const selectedDatasets = dataSetSelectorProps.selectedItems;
 
@@ -94,6 +94,12 @@ export const LandingPage: React.FC = React.memo(() => {
                 console.debug(`Exported to Excel ${dataSets.length} datasets`);
             }, console.error); //change to snackbar
     }, [compositionRoot, dataSets, selectedLocales]);
+
+    const resetView = React.useCallback(() => {
+        resetSelectedDataSets();
+        setOptions({ includeHeaders: true });
+        setOrgUnitPaths([]);
+    }, [resetSelectedDataSets, setOrgUnitPaths]);
 
     return (
         <Box margin={theme.spacing(0.5)}>
@@ -142,7 +148,10 @@ export const LandingPage: React.FC = React.memo(() => {
                             gridColumnGap={theme.spacing(3)}
                             alignItems="center"
                         >
-                            <OrgUnitFilter />
+                            <OrgUnitFilter
+                                onChange={setOrgUnitPaths}
+                                selectedPaths={orgUnitPaths}
+                            />
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
                             <Button
@@ -198,6 +207,7 @@ type SelectorProps<Item> = MultipleSelectorProps & {
 function useDataSetSelector() {
     const { compositionRoot } = useAppContext();
 
+    const [orgUnitPaths, setOrgUnitPaths] = React.useState<string[]>([]);
     const [dataSets, setDataSets] = React.useState<BasicDataSet[]>([]);
     const [selected, setSelected] = React.useState<string[]>([]);
     const [loading, setLoading] = React.useState<LoadingState>("loading");
@@ -236,22 +246,34 @@ function useDataSetSelector() {
         [selected, onChange, dataSets, loading]
     );
 
-    React.useEffect(
-        () =>
-            compositionRoot.dataSets.getBasicList.execute().run(
-                dataSets => {
-                    setDataSets(dataSets);
-                    setLoading("loaded");
-                },
-                err => {
-                    console.error(err);
-                    setLoading("error");
-                }
-            ),
-        [compositionRoot.dataSets.getBasicList]
-    );
+    React.useEffect(() => {
+        const orgUnits = _c(orgUnitPaths)
+            .map(path => _c(path.split("/")).last())
+            .compact()
+            .value();
 
-    return { props: props, resetSelected: resetSelected };
+        compositionRoot.dataSets.getBasicList.execute(orgUnits).run(
+            dataSets => {
+                setDataSets(dataSets);
+                setLoading("loaded");
+            },
+            err => {
+                console.error(err);
+                setLoading("error");
+            }
+        );
+
+        return () => {
+            setLoading("loading");
+        };
+    }, [compositionRoot.dataSets.getBasicList, orgUnitPaths]);
+
+    return {
+        props: props,
+        resetSelected: resetSelected,
+        orgUnitPaths: orgUnitPaths,
+        setOrgUnitPaths: setOrgUnitPaths,
+    };
 }
 
 function useLanguagesSelector(
@@ -367,8 +389,7 @@ function useDataSets(selectedDataSets: BasicDataSet[]) {
     React.useEffect(() => {
         const { added, removed } = diffDataSets(selectedDataSets, dataSets);
 
-        console.debug("Added DataSets", added);
-        console.debug("Removed DataSets", removed);
+        console.debug("Added DataSets", added, "Removed DataSets", removed);
 
         if (_c(added).isNotEmpty()) {
             const cached = cachedDataSets.filter(ds => added.map(getId).includes(ds.id));

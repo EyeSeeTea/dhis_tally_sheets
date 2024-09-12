@@ -1,9 +1,11 @@
 import { DataSetD2Repository } from "$/data/repositories/DataSetD2Repository";
-import { DataSetExportSpreadsheetRepository } from "$/data/repositories/DataSetExportSpreadsheetRepository";
+import { DataSetSpreadsheetRepository } from "$/data/repositories/DataSetSpreadsheetRepository";
 import { LocaleD2Repository } from "$/data/repositories/LocaleD2Repository";
+import { OrgUnitD2Repository } from "$/data/repositories/OrgUnitD2Repository";
 import { DataSetExportRepository } from "$/domain/repositories/DataSetExportRepository";
 import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
 import { LocaleRepository } from "$/domain/repositories/LocaleRepository";
+import { OrgUnitRepository } from "$/domain/repositories/OrgUnitRepository";
 import { ExportDataSetsUseCase } from "$/domain/usecases/ExportDataSetsUseCase";
 import { GetAllBasicDataSetsInfoUseCase } from "$/domain/usecases/GetAllBasicDataSetsInfoUseCase";
 import { GetDataSetsByIdsUseCase } from "$/domain/usecases/GetDataSetsByIdsUseCase";
@@ -20,6 +22,7 @@ type Repositories = {
     usersRepository: UserRepository;
     dataSetRepository: DataSetRepository;
     dataSetExportRepository: DataSetExportRepository;
+    orgUnitRepository: OrgUnitRepository;
     localeRepository: LocaleRepository;
 };
 
@@ -29,7 +32,10 @@ function getCompositionRoot(repositories: Repositories) {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
         dataSets: {
-            getBasicList: new GetAllBasicDataSetsInfoUseCase(repositories.dataSetRepository),
+            getBasicList: new GetAllBasicDataSetsInfoUseCase(
+                repositories.dataSetRepository,
+                repositories.orgUnitRepository
+            ),
             getByIds: new GetDataSetsByIdsUseCase(repositories.dataSetRepository),
             export: new ExportDataSetsUseCase(repositories.dataSetExportRepository),
         },
@@ -44,7 +50,8 @@ export function getWebappCompositionRoot(api: D2Api) {
         usersRepository: new UserD2Repository(api),
         dataSetRepository: new DataSetD2Repository(api),
         localeRepository: new LocaleD2Repository(api),
-        dataSetExportRepository: new DataSetExportSpreadsheetRepository(),
+        orgUnitRepository: new OrgUnitD2Repository(api),
+        dataSetExportRepository: new DataSetSpreadsheetRepository(),
     };
 
     return getCompositionRoot(repositories);
@@ -53,6 +60,11 @@ export function getWebappCompositionRoot(api: D2Api) {
 export function getTestCompositionRoot() {
     const repositories: Repositories = {
         usersRepository: new UserTestRepository(),
+        orgUnitRepository: {
+            getWithChildren: () => {
+                throw new Error("Not implemented");
+            },
+        },
         dataSetRepository: {
             getByIds: () => {
                 throw new Error("Not implemented");
@@ -65,7 +77,7 @@ export function getTestCompositionRoot() {
             },
         },
         dataSetExportRepository: {
-            exportDataSet: () => {
+            save: () => {
                 throw new Error("Not implemented");
             },
         },

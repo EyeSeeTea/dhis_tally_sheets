@@ -6,5 +6,5 @@ import { Id } from "$/domain/entities/Ref";
 export interface DataSetRepository {
     getByIds(ids: Id[]): FutureData<DataSet[]>;
     get(): FutureData<DataSet[]>;
-    getBasic(): FutureData<BasicDataSet[]>;
+    getBasic(orgUnitIds?: Id[]): FutureData<BasicDataSet[]>;
 }

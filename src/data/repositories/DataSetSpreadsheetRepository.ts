@@ -6,9 +6,8 @@ import { Future } from "$/domain/entities/generic/Future";
 import { Maybe } from "$/utils/ts-utils";
 import _c, { Collection } from "$/domain/entities/generic/Collection";
 
-export class DataSetExportSpreadsheetRepository implements DataSetExportRepository {
-    // refactor "export" to "save" so DataSetExportRepo would be DataSetSpreadsheetRepo and save is the method
-    exportDataSet(dataSet: DataSet): FutureData<ExportFile> {
+export class DataSetSpreadsheetRepository implements DataSetExportRepository {
+    save(dataSet: DataSet): FutureData<ExportFile> {
         return Future.fromComputation((resolve, reject) => {
             XlsxPopulate.fromBlankAsync().then(workbook => {
                 exportDataSet(workbook, dataSet)

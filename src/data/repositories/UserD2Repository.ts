@@ -55,6 +55,7 @@ export class UserD2Repository implements UserRepository {
             userGroups: d2User.userGroups,
             canSelectAllLocales: canSelectAllLocales,
             preferredLocale: d2User.settings.keyUiLocale,
+            organisationUnits: d2User.organisationUnits,
             ...d2User.userCredentials,
         });
     }
@@ -71,6 +72,7 @@ const userFields = {
     settings: {
         keyUiLocale: true,
     },
+    organisationUnits: { id: true, name: true, displayName: true, path: true },
 } as const;
 
 const constantFields = {

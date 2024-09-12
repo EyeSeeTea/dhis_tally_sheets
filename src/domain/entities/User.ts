@@ -1,3 +1,4 @@
+import { OrgUnit } from "$/domain/entities/OrgUnit";
 import { Struct } from "./generic/Struct";
 import { NamedRef } from "./Ref";
 
@@ -9,6 +10,7 @@ export interface UserAttrs {
     userGroups: NamedRef[];
     canSelectAllLocales: boolean;
     preferredLocale: string;
+    organisationUnits: OrgUnit[];
 }
 
 export interface UserRole extends NamedRef {

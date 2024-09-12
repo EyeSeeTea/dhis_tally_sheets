@@ -5,19 +5,30 @@ import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
 import { D2Api } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { filterValidInstances } from "$/utils/instance-utils";
+import { Future } from "$/domain/entities/generic/Future";
+import _c from "$/domain/entities/generic/Collection";
 
 export class DataSetD2Repository implements DataSetRepository {
+    basicDataSets: BasicDataSet[] = [];
+
     constructor(private api: D2Api) {}
 
-    public getBasic(): FutureData<BasicDataSet[]> {
-        return apiToFuture(
-            this.api.models.dataSets.get({
-                fields: partialDataSetFields,
-                filter: { formType: { "!eq": "CUSTOM" } },
-                translate: "true",
-                paging: false,
-            })
-        ).map(res => this.createBasicDataSets(res.objects));
+    public getBasic(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
+        if (_c(orgUnitIds).isEmpty()) return this.getSmallBasicChunk([]);
+
+        const basicDataSets$ = Future.sequential(
+            _c(orgUnitIds)
+                .chunk(500)
+                .map(ids => this.getSmallBasicChunk(ids))
+                .value()
+        );
+
+        return basicDataSets$.map(basicDataSets =>
+            _c(basicDataSets)
+                .flatten()
+                .uniqBy(({ id }) => id)
+                .value()
+        );
     }
 
     public getByIds(ids: Id[]): FutureData<DataSet[]> {
@@ -25,7 +36,6 @@ export class DataSetD2Repository implements DataSetRepository {
             this.api.models.dataSets.get({
                 fields: dataSetFields,
                 filter: { id: { in: ids }, formType: { "!eq": "CUSTOM" } },
-                translate: "true",
                 paging: false,
             })
         ).map(res => this.createDataSets(res.objects));
@@ -36,10 +46,22 @@ export class DataSetD2Repository implements DataSetRepository {
             this.api.models.dataSets.get({
                 fields: dataSetFields,
                 filter: { formType: { "!eq": "CUSTOM" } },
-                translate: "true",
                 paging: false,
             })
         ).map(res => this.createDataSets(res.objects));
+    }
+
+    private getSmallBasicChunk(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
+        return apiToFuture(
+            this.api.models.dataSets.get({
+                fields: partialDataSetFields,
+                filter: {
+                    formType: { "!eq": "CUSTOM" },
+                    "organisationUnits.id": { in: orgUnitIds },
+                },
+                paging: false,
+            })
+        ).map(res => this.createBasicDataSets(res.objects));
     }
 
     private createBasicDataSets(attrs: BasicDataSetAttrs[]): BasicDataSet[] {
@@ -51,7 +73,6 @@ export class DataSetD2Repository implements DataSetRepository {
     }
 }
 
-//CHECK DISPLAY NAMES ARE NOW AUTO TRANSLATED
 const dataSetFields = {
     id: true,
     name: true,

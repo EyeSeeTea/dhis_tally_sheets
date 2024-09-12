@@ -29,7 +29,7 @@ export class ExportDataSetsUseCase {
             .flat();
 
         const downloadFiles$ = Future.sequential(
-            translatedDatasets.map(dataSet => this.exportRepository.exportDataSet(dataSet))
+            translatedDatasets.map(dataSet => this.exportRepository.save(dataSet))
         ).map(blobFiles => {
             if (blobFiles.length > 1) {
                 const zip = new JSZip();
