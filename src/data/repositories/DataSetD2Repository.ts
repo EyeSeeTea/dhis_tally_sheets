@@ -55,7 +55,9 @@ export class DataSetD2Repository implements DataSetRepository {
                 fields: partialDataSetFields,
                 filter: {
                     formType: { "!eq": "CUSTOM" },
-                    "organisationUnits.id": { in: orgUnitIds },
+                    "organisationUnits.id": _c(orgUnitIds).isNotEmpty()
+                        ? { in: orgUnitIds }
+                        : undefined,
                 },
                 paging: false,
             })

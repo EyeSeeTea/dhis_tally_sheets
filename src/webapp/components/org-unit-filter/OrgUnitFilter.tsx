@@ -19,67 +19,80 @@ import i18n from "$/utils/i18n";
 import _c from "$/domain/entities/generic/Collection";
 
 interface OrgUnitFilterProps {
-    selectedPaths: string[];
+    selected: string[];
     onChange: (paths: string[]) => void;
 }
 
 export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
-    const { onChange, selectedPaths } = props;
+    const { onChange, selected } = props;
     const { api, currentUser } = useAppContext();
 
     const classes = useStyles();
 
     const [isOpen, { enable: open, disable: close }] = useBooleanState(false);
-    const [selected, setSelected] = React.useState<string[]>([]);
-    const [onlyCurrentUserOU, setOnlyCurrentUserOU] = React.useState(false);
+    const [onlyUserOU, setOnlyUserOU] = React.useState(false);
+    const [current, setCurrent] = React.useState<{ selected: string[]; onlyUserOU: boolean }>({
+        selected: [],
+        onlyUserOU: false,
+    });
 
-    const toggleUserDataSetsOnly = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setOnlyCurrentUserOU(e.target.checked);
+    const toggleUserDataSetsOnly = React.useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            setCurrent(({ selected }) => ({
+                selected: selected,
+                onlyUserOU: e.target.checked,
+            }));
+        },
+        [setCurrent]
+    );
+
+    const updateSelected = React.useCallback((paths: string[]) => {
+        setCurrent(({ onlyUserOU }) => ({ selected: paths, onlyUserOU: onlyUserOU }));
     }, []);
 
-    const update = React.useCallback((paths: string[]) => {
-        setSelected(paths);
-    }, []);
-
-    const reset = React.useCallback(() => {
-        setOnlyCurrentUserOU(false);
-        setSelected(selectedPaths);
+    const cancel = React.useCallback(() => {
+        setCurrent({ selected: selected, onlyUserOU: onlyUserOU });
         close();
-    }, [close, selectedPaths]);
+    }, [close, onlyUserOU, selected]);
 
     const apply = React.useCallback(() => {
         const userPaths = currentUser.organisationUnits.map(({ path }) => path);
-        onChange(onlyCurrentUserOU ? userPaths : selected);
+        onChange(current.onlyUserOU ? userPaths : current.selected);
+        setOnlyUserOU(current.onlyUserOU);
         close();
-    }, [close, currentUser.organisationUnits, onChange, onlyCurrentUserOU, selected]);
+    }, [currentUser.organisationUnits, onChange, current.onlyUserOU, current.selected, close]);
 
     const initiallyExpanded = React.useMemo(() => {
-        const orgUnitPath = _c(selectedPaths).first();
+        const orgUnitPath = _c(selected).first();
         const parent = orgUnitPath?.split("/").slice(0, -1).join("/");
         return parent ? [parent] : undefined;
-    }, [selectedPaths]);
+    }, [selected]);
 
-    React.useEffect(() => {
-        if (_c(selectedPaths).isEmpty()) {
-            console.log("huhhh");
-            reset();
-        }
-    }, [reset, selectedPaths]);
+    const openDialog = React.useCallback(() => {
+        open();
+        setCurrent({ selected: onlyUserOU ? [] : selected, onlyUserOU: onlyUserOU });
+    }, [onlyUserOU, open, selected]);
+
+    const clear = React.useCallback(() => {
+        if (_c(selected).isEmpty()) cancel();
+    }, [selected, cancel]);
+
+    React.useEffect(clear, [clear]);
 
     const label = i18n.t("Filter by Organisation Unit");
 
     return (
         <>
-            <Button variant="outlined" color="primary" onClick={open}>
+            <Button variant="outlined" color="primary" onClick={openDialog}>
                 Open Org Unit Selector
             </Button>
-            <Dialog open={isOpen} onClose={reset} fullWidth aria-label={label}>
+            <Dialog open={isOpen} onClose={cancel} fullWidth aria-label={label}>
                 <DialogTitle>{label}</DialogTitle>
                 <DialogContent>
                     <FormControlLabel
                         control={
                             <Switch
-                                checked={onlyCurrentUserOU}
+                                checked={current.onlyUserOU}
                                 onChange={toggleUserDataSetsOnly}
                                 name="userDataSetsOnly"
                                 color="primary"
@@ -90,11 +103,11 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
                     {/* Prevent flashing the User on switch is toggled */}
                     <Box
                         height={ORG_UNIT_SELECTOR_HEIGHT + 84}
-                        className={onlyCurrentUserOU ? classes.show : classes.hide}
+                        className={current.onlyUserOU ? classes.show : classes.hide}
                         component="span"
                         role="presentation"
                     />
-                    <Box className={onlyCurrentUserOU ? classes.hide : classes.show}>
+                    <Box className={current.onlyUserOU ? classes.hide : classes.show}>
                         <OrgUnitsSelector
                             api={api}
                             withElevation={false}
@@ -102,8 +115,8 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
                             hideMemberCount={false}
                             fullWidth={false}
                             height={ORG_UNIT_SELECTOR_HEIGHT}
-                            onChange={update}
-                            selected={selected}
+                            onChange={updateSelected}
+                            selected={current.selected}
                             singleSelection={true}
                             selectOnClick={true}
                             initiallyExpanded={initiallyExpanded}
@@ -112,7 +125,7 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={reset} color="primary">
+                    <Button onClick={cancel} color="primary">
                         {i18n.t("Cancel")}
                     </Button>
                     <Button onClick={apply} color="primary">

@@ -148,10 +148,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             gridColumnGap={theme.spacing(3)}
                             alignItems="center"
                         >
-                            <OrgUnitFilter
-                                onChange={setOrgUnitPaths}
-                                selectedPaths={orgUnitPaths}
-                            />
+                            <OrgUnitFilter onChange={setOrgUnitPaths} selected={orgUnitPaths} />
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
                             <Button

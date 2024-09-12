@@ -7,12 +7,17 @@ import { OrgUnit } from "$/domain/entities/OrgUnit";
 export class OrgUnitD2Repository implements OrgUnitRepository {
     constructor(private api: D2Api) {}
 
-    public getWithChildren(orgUnitId: Id): FutureData<OrgUnit[]> {
+    public getWithChildren(orgUnitIds: Id[]): FutureData<OrgUnit[]> {
         return apiToFuture(
             this.api.models.organisationUnits.get({
                 fields: orgUnitFields,
-                filter: { path: { like: orgUnitId } },
+                filter: {
+                    path: orgUnitIds.map(id => ({
+                        like: id,
+                    })),
+                },
                 paging: false,
+                rootJunction: "OR",
             })
         ).map(res => res.objects);
     }
@@ -22,4 +27,5 @@ const orgUnitFields = {
     id: true,
     name: true,
     displayName: true,
+    path: true,
 } as const;
