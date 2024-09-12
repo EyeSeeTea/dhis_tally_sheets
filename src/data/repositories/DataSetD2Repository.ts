@@ -9,17 +9,15 @@ import { Future } from "$/domain/entities/generic/Future";
 import _c from "$/domain/entities/generic/Collection";
 
 export class DataSetD2Repository implements DataSetRepository {
-    basicDataSets: BasicDataSet[] = [];
-
     constructor(private api: D2Api) {}
 
     public getBasic(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
-        if (_c(orgUnitIds).isEmpty()) return this.getSmallBasicChunk([]);
+        if (_c(orgUnitIds).isEmpty()) return this.getBasicDataSets([]);
 
         const basicDataSets$ = Future.sequential(
             _c(orgUnitIds)
                 .chunk(500)
-                .map(ids => this.getSmallBasicChunk(ids))
+                .map(ids => this.getBasicDataSets(ids))
                 .value()
         );
 
@@ -51,7 +49,7 @@ export class DataSetD2Repository implements DataSetRepository {
         ).map(res => this.createDataSets(res.objects));
     }
 
-    private getSmallBasicChunk(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
+    private getBasicDataSets(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
         return apiToFuture(
             this.api.models.dataSets.get({
                 fields: partialDataSetFields,
