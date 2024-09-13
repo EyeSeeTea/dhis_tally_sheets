@@ -102,6 +102,14 @@ export const LandingPage: React.FC = React.memo(() => {
         setOrgUnits([]);
     }, [resetSelectedDataSets, setOrgUnits]);
 
+    const setSelectedOrgUnits = React.useCallback(
+        (orgUnits: OrgUnit[]) => {
+            resetSelectedDataSets();
+            setOrgUnits(orgUnits);
+        },
+        [resetSelectedDataSets, setOrgUnits]
+    );
+
     return (
         <Box margin={theme.spacing(0.5)}>
             <Paper elevation={2}>
@@ -150,7 +158,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             alignItems="center"
                         >
                             <OrgUnitSelector
-                                onChange={setOrgUnits}
+                                onChange={setSelectedOrgUnits}
                                 selected={orgUnits}
                                 disabled={loading}
                             />
