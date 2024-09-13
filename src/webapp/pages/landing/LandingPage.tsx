@@ -29,13 +29,14 @@ import { Locale } from "$/domain/entities/Locale";
 import { DataSet } from "$/domain/entities/DataSet";
 import { DataSetTable } from "$/webapp/components/dataset-table/DataSetTable";
 import { Id } from "$/domain/entities/Ref";
-import { OrgUnitSelector } from "$/webapp/components/org-unit-filter/OrgUnitSelector";
+import { OrgUnitSelector } from "$/webapp/components/org-unit-selector/OrgUnitSelector";
 import { OrgUnit } from "$/domain/entities/OrgUnit";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
 import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 import "./landing-page.css";
+import { SettingsDialog } from "$/webapp/components/settings-dialog/SettingsDialog";
 
 export const LandingPage: React.FC = React.memo(() => {
     const { config, compositionRoot, currentUser } = useAppContext();
@@ -44,6 +45,8 @@ export const LandingPage: React.FC = React.memo(() => {
     const classes = useStyles();
     const snackbar = useSnackbar();
 
+    const [isSettingsOpen, { enable: openSettings, disable: closeSettings }] =
+        useBooleanState(false);
     const [options, setOptions] = React.useState({
         includeHeaders: true,
     });
@@ -172,17 +175,19 @@ export const LandingPage: React.FC = React.memo(() => {
                         </Box>
 
                         <Box display="flex" gridColumnGap={theme.spacing(2)}>
-                            <Tooltip title={i18n.t("Settings")}>
-                                <Button
-                                    className={classes.iconButton}
-                                    aria-label="settings"
-                                    size="small"
-                                    variant="outlined"
-                                    onClick={() => {}}
-                                >
-                                    <SettingsIcon fontSize="medium" />
-                                </Button>
-                            </Tooltip>
+                            {currentUser.isAdmin() && (
+                                <Tooltip title={i18n.t("Settings")}>
+                                    <Button
+                                        className={classes.iconButton}
+                                        aria-label="settings"
+                                        size="small"
+                                        variant="outlined"
+                                        onClick={openSettings}
+                                    >
+                                        <SettingsIcon fontSize="medium" />
+                                    </Button>
+                                </Tooltip>
+                            )}
                             <Button
                                 className={classes.actionButton}
                                 variant="outlined"
@@ -243,6 +248,8 @@ export const LandingPage: React.FC = React.memo(() => {
                     ))}
                 </Box>
             )}
+
+            <SettingsDialog open={isSettingsOpen} onClose={closeSettings} />
         </Box>
     );
 });
