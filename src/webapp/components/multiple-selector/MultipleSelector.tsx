@@ -75,9 +75,14 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
             : undefined;
     }, [allOption, isAllSelected, items.length, pluralType, selected, type]);
 
-    const virtualValues = React.useMemo(() => {
-        return customMenu?.onOpen && selected.length > 500 ? selected.slice(0, 10) : selected;
-    }, [customMenu?.onOpen, selected]);
+    const virtualValues = React.useMemo(
+        () => (customMenu?.onOpen && selected.length > 500 ? selected.slice(0, 10) : selected),
+        [customMenu?.onOpen, selected]
+    );
+
+    const renderItems = React.useMemo(() => {
+        return customMenu?.onOpen && items.length > 500 ? items.slice(0, 10) : items;
+    }, [customMenu?.onOpen, items]);
 
     return (
         <FormControl
@@ -111,7 +116,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                         <Divider />
                     </Box>
                 )}
-                {items.map(item => (
+                {renderItems.map(item => (
                     <MenuItem key={item.value} value={item.value} disabled={isAllSelected}>
                         {item.text}
                     </MenuItem>
