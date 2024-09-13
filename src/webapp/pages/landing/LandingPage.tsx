@@ -28,12 +28,14 @@ import i18n from "$/utils/i18n";
 import _c from "$/domain/entities/generic/Collection";
 import "./landing-page.css";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { useBooleanState } from "$/webapp/utils/use-boolean";
 
 export const LandingPage: React.FC = React.memo(() => {
+    const { compositionRoot, currentUser } = useAppContext();
+
     const theme = useTheme();
     const classes = useStyles();
-
-    const { compositionRoot, currentUser } = useAppContext();
+    const snackbar = useSnackbar();
 
     const [options, setOptions] = React.useState({
         includeHeaders: true,
@@ -53,17 +55,17 @@ export const LandingPage: React.FC = React.memo(() => {
         setOrgUnits,
     } = useDataSetSelector();
 
-    const selectedDatasets = dataSetSelectorProps.selectedItems;
+    const selectedDataSets = dataSetSelectorProps.selectedItems;
 
     const availableLocales = React.useMemo(() => {
-        const avail = _c(selectedDatasets.map(ds => ds.getAvailableLocaleCodes()))
+        const avail = _c(selectedDataSets.map(ds => ds.getAvailableLocaleCodes()))
             .flatten()
             .concat("en") // Add English because is not included in translations
             .uniq()
             .compact()
             .value();
-        return _c(selectedDatasets).isEmpty() ? [] : avail;
-    }, [selectedDatasets]);
+        return _c(selectedDataSets).isEmpty() ? [] : avail;
+    }, [selectedDataSets]);
 
     const languageSelectorProps = useLanguagesSelector(
         availableLocales,
@@ -73,14 +75,15 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const selectedLocales = languageSelectorProps.selectedItems;
 
+    const { dataSets, removeSection, loadingDataSets } = useDataSets(selectedDataSets);
+
     const loading = React.useMemo(
         () =>
             dataSetSelectorProps.loading === "loading" ||
-            languageSelectorProps.loading === "loading",
-        [dataSetSelectorProps.loading, languageSelectorProps.loading]
+            languageSelectorProps.loading === "loading" ||
+            loadingDataSets,
+        [dataSetSelectorProps.loading, languageSelectorProps.loading, loadingDataSets]
     );
-
-    const { dataSets, removeSection } = useDataSets(selectedDatasets);
 
     const onRemoveSection = React.useMemo(
         () => (dataSetId: Id) => (sectionId: Id) => {
@@ -91,10 +94,16 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const exportToExcel = React.useCallback(() => {
         if (_c(dataSets).isNotEmpty() && _c(selectedLocales).isNotEmpty())
-            compositionRoot.dataSets.export.execute(dataSets, selectedLocales).run(() => {
-                console.debug(`Exported to Excel ${dataSets.length} datasets`);
-            }, console.error); //change to snackbar
-    }, [compositionRoot, dataSets, selectedLocales]);
+            compositionRoot.dataSets.export.execute(dataSets, selectedLocales).run(
+                () => {
+                    console.debug(`Exported to Excel ${dataSets.length} datasets`);
+                },
+                err => {
+                    snackbar.error(i18n.t("Something went wrong while creating the Excel file"));
+                    console.error(err);
+                }
+            );
+    }, [compositionRoot.dataSets.export, dataSets, selectedLocales, snackbar]);
 
     const resetView = React.useCallback(() => {
         resetSelectedDataSets();
@@ -141,7 +150,7 @@ export const LandingPage: React.FC = React.memo(() => {
                                 startIcon={<DownloadIcon />}
                                 onClick={exportToExcel}
                                 disabled={
-                                    _c(selectedDatasets).isEmpty() ||
+                                    _c(selectedDataSets).isEmpty() ||
                                     _c(selectedLocales).isEmpty() ||
                                     loading
                                 }
@@ -268,7 +277,8 @@ function useDataSetSelector() {
                 setLoading("loaded");
             },
             err => {
-                snackbar.error(err.message);
+                snackbar.error(i18n.t("Unable to fetch Datasets list"));
+                console.error(err);
                 setLoading("error");
             }
         );
@@ -353,7 +363,8 @@ function useLanguagesSelector(
                     setLoading("loaded");
                 },
                 err => {
-                    snackbar.error(err.message);
+                    snackbar.error(i18n.t("Unable to fetch Languages list"));
+                    console.error(err);
                     setLoading("error");
                 }
             ),
@@ -379,8 +390,11 @@ function useLanguagesSelector(
 function useDataSets(selectedDataSets: BasicDataSet[]) {
     const { compositionRoot } = useAppContext();
 
+    const snackbar = useSnackbar();
+
     // Cache in useHook, to restore sections when a Data Set is added again and prevent quick
     const [cachedDataSets, setCachedDataSets] = React.useState<DataSet[]>([]);
+    const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
     const [dataSets, setDataSets] = React.useState<DataSet[]>([]);
 
     const removeSection = React.useCallback(
@@ -398,8 +412,7 @@ function useDataSets(selectedDataSets: BasicDataSet[]) {
         [setDataSets]
     );
 
-    /* REFACTOR TO BE DONE */
-    /* ALSO NOW REMOVE SECTION IS NOT RESTORING AFTER UNSELECT, SELECT */
+    /* This block is causing performance issues after deselecting ALL option */
     React.useEffect(() => {
         const { added, removed } = diffDataSets(selectedDataSets, dataSets);
 
@@ -409,36 +422,38 @@ function useDataSets(selectedDataSets: BasicDataSet[]) {
             const cached = cachedDataSets.filter(ds => added.map(getId).includes(ds.id));
             const toRequest = added.filter(ds => !cached.map(getId).includes(ds.id));
             if (_c(toRequest).isNotEmpty()) {
+                startLoading();
                 compositionRoot.dataSets.getByIds.execute(toRequest.map(getId)).run(
-                    addedDataSets =>
+                    addedDataSets => {
                         setDataSets(dataSets => {
                             setCachedDataSets(cachedDataSets => {
                                 const newCached = _c(cachedDataSets)
                                     .concat(_c(addedDataSets))
                                     .uniqBy(getId)
                                     .value();
-
                                 setCachedDataSets(newCached);
-
                                 return newCached;
                             });
-
                             const newDataSets = _c(dataSets)
                                 .concat(_c(addedDataSets))
                                 .concat(_c(cached))
                                 .uniqBy(getId)
                                 .value();
-
                             return _c(removed).isEmpty()
                                 ? newDataSets
                                 : excludeRemoved(newDataSets, removed);
-                        }),
-                    err => console.error(err)
+                        });
+                        stopLoading();
+                    },
+                    err => {
+                        snackbar.error(i18n.t("Unable to fetch Datasets"));
+                        console.error(err);
+                        stopLoading();
+                    }
                 );
             } else {
                 setDataSets(dataSets => {
                     const newDataSets = _c(dataSets).concat(_c(cached)).uniqBy(getId).value();
-
                     return _c(removed).isEmpty()
                         ? newDataSets
                         : excludeRemoved(newDataSets, removed);
@@ -447,9 +462,17 @@ function useDataSets(selectedDataSets: BasicDataSet[]) {
         } else if (_c(removed).isNotEmpty()) {
             setDataSets(dataSets => excludeRemoved(dataSets, removed));
         }
-    }, [cachedDataSets, compositionRoot, dataSets, selectedDataSets]);
+    }, [
+        cachedDataSets,
+        compositionRoot,
+        dataSets,
+        selectedDataSets,
+        snackbar,
+        startLoading,
+        stopLoading,
+    ]);
 
-    return { dataSets, removeSection };
+    return { dataSets, removeSection, loadingDataSets: loading };
 }
 
 function excludeRemoved(dataSets: DataSet[], removed: BasicDataSet[]) {

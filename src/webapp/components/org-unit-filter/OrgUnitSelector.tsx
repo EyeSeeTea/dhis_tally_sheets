@@ -89,7 +89,8 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                 close();
             },
             err => {
-                snackbar.error(err.message);
+                snackbar.error(i18n.t("Unable to fetch the Organisation Unit children"));
+                console.error(err);
                 stopLoading();
                 close();
             }
