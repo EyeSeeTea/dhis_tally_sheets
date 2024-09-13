@@ -1,15 +1,15 @@
 import JSZip from "jszip";
 import saveAs from "file-saver";
 import { DataSet } from "$/domain/entities/DataSet";
-import { DataSetExportRepository } from "$/domain/repositories/DataSetExportRepository";
 import { FutureData } from "$/data/api-futures";
 import { HashMap } from "$/domain/entities/generic/HashMap";
 import { Locale } from "$/domain/entities/Locale";
 import { Future } from "$/domain/entities/generic/Future";
+import { Repositories } from "$/CompositionRoot";
 import _c, { Collection } from "$/domain/entities/generic/Collection";
 
 export class ExportDataSetsUseCase {
-    constructor(private exportRepository: DataSetExportRepository) {}
+    constructor(private repositories: Repositories) {}
 
     public execute(dataSets: DataSet[], locales: Locale[]): FutureData<void> {
         const pickedTranslations: PickedTranslations = _c(dataSets).toHashMap(dataSet => {
@@ -21,7 +21,7 @@ export class ExportDataSetsUseCase {
             return [dataSet, availableLocales];
         });
 
-        const translatedDatasets: DataSet[] = pickedTranslations
+        const translatedDataSets: DataSet[] = pickedTranslations
             .mapValues(([dataSet, locales]) =>
                 locales.map(locale => dataSet.applyLocale(locale)).value()
             )
@@ -29,7 +29,9 @@ export class ExportDataSetsUseCase {
             .flat();
 
         const downloadFiles$ = Future.sequential(
-            translatedDatasets.map(dataSet => this.exportRepository.save(dataSet))
+            translatedDataSets.map(dataSet =>
+                this.repositories.dataSetExportRepository.save(dataSet)
+            )
         ).map(blobFiles => {
             if (blobFiles.length > 1) {
                 const zip = new JSZip();

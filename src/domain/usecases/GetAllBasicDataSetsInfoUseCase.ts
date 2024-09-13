@@ -1,17 +1,17 @@
 import { FutureData } from "$/data/api-futures";
 import { BasicDataSet } from "$/domain/entities/BasicDataSet";
-import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
 import { OrgUnit } from "$/domain/entities/OrgUnit";
+import { Repositories } from "$/CompositionRoot";
 import _c from "$/domain/entities/generic/Collection";
 
 export class GetAllBasicDataSetsInfoUseCase {
-    constructor(private dataSetRepository: DataSetRepository) {}
+    constructor(private repositories: Repositories) {}
 
     public execute(orgUnits: OrgUnit[]): FutureData<BasicDataSet[]> {
         if (_c(orgUnits).isEmpty()) {
-            return this.dataSetRepository.getBasic([]);
+            return this.repositories.dataSetRepository.getBasic([]);
         } else {
-            return this.dataSetRepository.getBasic(orgUnits.map(({ id }) => id));
+            return this.repositories.dataSetRepository.getBasic(orgUnits.map(({ id }) => id));
         }
     }
 }

@@ -1,11 +1,11 @@
+import { Repositories } from "$/CompositionRoot";
 import { FutureData } from "$/data/api-futures";
 import { User } from "$/domain/entities/User";
-import { UserRepository } from "$/domain/repositories/UserRepository";
 
 export class GetCurrentUserUseCase {
-    constructor(private usersRepository: UserRepository) {}
+    constructor(private repositories: Repositories) {}
 
     public execute(): FutureData<User> {
-        return this.usersRepository.getCurrent();
+        return this.repositories.usersRepository.getCurrent();
     }
 }

@@ -19,7 +19,7 @@ import { D2Api } from "./types/d2-api";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
-type Repositories = {
+export type Repositories = {
     usersRepository: UserRepository;
     dataSetRepository: DataSetRepository;
     dataSetExportRepository: DataSetExportRepository;
@@ -30,18 +30,18 @@ type Repositories = {
 function getCompositionRoot(repositories: Repositories) {
     return {
         users: {
-            getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
+            getCurrent: new GetCurrentUserUseCase(repositories),
         },
         dataSets: {
-            getBasicList: new GetAllBasicDataSetsInfoUseCase(repositories.dataSetRepository),
-            getByIds: new GetDataSetsByIdsUseCase(repositories.dataSetRepository),
-            export: new ExportDataSetsUseCase(repositories.dataSetExportRepository),
+            getBasicList: new GetAllBasicDataSetsInfoUseCase(repositories),
+            getByIds: new GetDataSetsByIdsUseCase(repositories),
+            export: new ExportDataSetsUseCase(repositories),
         },
         locales: {
-            get: new GetLocalesUseCase(repositories.localeRepository),
+            get: new GetLocalesUseCase(repositories),
         },
         orgUnits: {
-            getWithChildren: new GetOrgUnitsWithChildrenUseCase(repositories.orgUnitRepository),
+            getWithChildren: new GetOrgUnitsWithChildrenUseCase(repositories),
         },
     };
 }
