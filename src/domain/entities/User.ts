@@ -23,7 +23,6 @@ export class User extends Struct<UserAttrs>() {
     }
 
     isAdmin(): boolean {
-        /* Readded for next implementation Settings feature */
         return this.userRoles.some(({ authorities }) => authorities.includes("ALL"));
     }
 }

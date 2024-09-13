@@ -1,5 +1,11 @@
 import React from "react";
-import { Clear as ClearIcon, GetApp as DownloadIcon, Print as PrintIcon } from "@material-ui/icons";
+import {
+    GetApp as DownloadIcon,
+    Print as PrintIcon,
+    Restore as RestoreIcon,
+    Settings as SettingsIcon,
+} from "@material-ui/icons";
+import { Alert } from "@material-ui/lab";
 import {
     Box,
     Button,
@@ -10,6 +16,7 @@ import {
     makeStyles,
     Paper,
     Theme,
+    Tooltip,
     useTheme,
 } from "@material-ui/core";
 import {
@@ -24,14 +31,14 @@ import { DataSetTable } from "$/webapp/components/dataset-table/DataSetTable";
 import { Id } from "$/domain/entities/Ref";
 import { OrgUnitSelector } from "$/webapp/components/org-unit-filter/OrgUnitSelector";
 import { OrgUnit } from "$/domain/entities/OrgUnit";
-import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
-import "./landing-page.css";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
+import _c from "$/domain/entities/generic/Collection";
+import i18n from "$/utils/i18n";
+import "./landing-page.css";
 
 export const LandingPage: React.FC = React.memo(() => {
-    const { compositionRoot, currentUser } = useAppContext();
+    const { config, compositionRoot, currentUser } = useAppContext();
 
     const theme = useTheme();
     const classes = useStyles();
@@ -116,12 +123,27 @@ export const LandingPage: React.FC = React.memo(() => {
         [resetSelectedDataSets, setOrgUnits]
     );
 
+    const disabledRestore =
+        loading ||
+        (_c(selectedDataSets).isEmpty() && _c(selectedLocales).isEmpty() && _c(orgUnits).isEmpty());
+
     return (
         <Box margin={theme.spacing(0.5)}>
+            {config.infoPlaceholder && (
+                <Box
+                    marginBottom={theme.spacing(0.25)}
+                    border={`1px solid ${theme.palette.primary.light}`}
+                    borderRadius={theme.shape.borderRadius}
+                >
+                    <Alert severity="info" variant="standard">
+                        {config.infoPlaceholder}
+                    </Alert>
+                </Box>
+            )}
             <Paper elevation={2}>
-                <Box padding={theme.spacing(0.5)}>
+                <Box padding={`${theme.spacing(0.175)}em ${theme.spacing(0.25)}em`}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Box display="flex" gridColumnGap={theme.spacing(3)} alignItems="center">
+                        <Box display="flex" gridColumnGap={theme.spacing(2)} alignItems="center">
                             <OrgUnitSelector
                                 onChange={setSelectedOrgUnits}
                                 selected={orgUnits}
@@ -129,16 +151,18 @@ export const LandingPage: React.FC = React.memo(() => {
                             />
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
-                            <Button
-                                className={classes.resetButton}
-                                aria-label="delete"
-                                size="small"
-                                variant="outlined"
-                                disabled={loading}
-                                onClick={resetView}
-                            >
-                                <ClearIcon fontSize="medium" />
-                            </Button>
+                            <Tooltip title={i18n.t("Restore changes")}>
+                                <Button
+                                    className={classes.iconButton}
+                                    aria-label="restore"
+                                    size="small"
+                                    variant="outlined"
+                                    disabled={disabledRestore}
+                                    onClick={resetView}
+                                >
+                                    <RestoreIcon fontSize="medium" />
+                                </Button>
+                            </Tooltip>
 
                             {loading && (
                                 <Box display="flex" alignItems="center">
@@ -147,9 +171,21 @@ export const LandingPage: React.FC = React.memo(() => {
                             )}
                         </Box>
 
-                        <Box display="flex" gridColumnGap={theme.spacing(3)}>
+                        <Box display="flex" gridColumnGap={theme.spacing(2)}>
+                            <Tooltip title={i18n.t("Settings")}>
+                                <Button
+                                    className={classes.iconButton}
+                                    aria-label="settings"
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => {}}
+                                >
+                                    <SettingsIcon fontSize="medium" />
+                                </Button>
+                            </Tooltip>
                             <Button
-                                variant="contained"
+                                className={classes.actionButton}
+                                variant="outlined"
                                 color="default"
                                 startIcon={<PrintIcon />}
                                 onClick={window.print}
@@ -157,10 +193,12 @@ export const LandingPage: React.FC = React.memo(() => {
                                 {i18n.t("Print")}
                             </Button>
                             <Button
+                                className={classes.actionButton}
                                 variant="contained"
                                 color="primary"
                                 startIcon={<DownloadIcon />}
                                 onClick={exportToExcel}
+                                disableElevation
                                 disabled={
                                     _c(selectedDataSets).isEmpty() ||
                                     _c(selectedLocales).isEmpty() ||
@@ -488,9 +526,14 @@ function getId(dataSet: BasicDataSet) {
 
 const useStyles = makeStyles((_theme: Theme) =>
     createStyles({
-        resetButton: {
+        iconButton: {
             marginTop: 3,
             maxWidth: "3rem",
+            minWidth: "unset",
+            height: "2.5rem",
+        },
+        actionButton: {
+            marginTop: 3,
             minWidth: "unset",
             height: "2.5rem",
         },

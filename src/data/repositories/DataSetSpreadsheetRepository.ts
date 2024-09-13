@@ -6,6 +6,8 @@ import { Future } from "$/domain/entities/generic/Future";
 import { Maybe } from "$/utils/ts-utils";
 import _c, { Collection } from "$/domain/entities/generic/Collection";
 
+/* Note: Shouldn't be the implemented repository DataSetRepository itself, instead of the "export"?
+ * Right? And save method inside DataSetRepository */
 export class DataSetSpreadsheetRepository implements DataSetExportRepository {
     save(dataSet: DataSet): FutureData<ExportFile> {
         return Future.fromComputation((resolve, reject) => {

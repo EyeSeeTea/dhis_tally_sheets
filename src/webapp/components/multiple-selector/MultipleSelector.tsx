@@ -9,6 +9,7 @@ import {
     MenuItem,
     Select,
     Theme,
+    Tooltip,
 } from "@material-ui/core";
 import { MultipleDropdownProps } from "@eyeseetea/d2-ui-components";
 import i18n from "$/utils/i18n";
@@ -46,8 +47,16 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
 
     const classes = useStyles();
 
-    const [isOpen, { enable: open, disable: close }] = useBooleanState(false);
+    const [menuIsOpen, { enable: openMenu, disable: closeMenu }] = useBooleanState(false);
+    const [tooltipIsOpen, { enable: openTooltip, disable: closeTooltip }] = useBooleanState(false);
     const mergedClasses = [className, classes.formControl].join(" ");
+
+    const notifyChange = React.useCallback(
+        (event: React.ChangeEvent<{ value: unknown }>) => {
+            onChange((event.target.value as string[]).filter(s => s !== "multiple-selector-void"));
+        },
+        [onChange]
+    );
 
     const isAllSelected = React.useMemo(
         () => (allOption ? values.includes(allOption.value) : false),
@@ -58,13 +67,6 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
         if (isAllSelected && allOption) return [allOption.value];
         else return _c(values).isEmpty() ? ["multiple-selector-void"] : values;
     }, [allOption, isAllSelected, values]);
-
-    const notifyChange = React.useCallback(
-        (event: React.ChangeEvent<{ value: unknown }>) => {
-            onChange((event.target.value as string[]).filter(s => s !== "multiple-selector-void"));
-        },
-        [onChange]
-    );
 
     const helperText = React.useMemo(() => {
         if (allOption && isAllSelected)
@@ -85,44 +87,50 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
     }, [customMenu?.onOpen, items]);
 
     return (
-        <FormControl
-            variant="outlined"
-            className={mergedClasses}
-            fullWidth
-            margin="dense"
-            disabled={disabled}
-            title={helperText}
+        <Tooltip
+            title={helperText ?? ""}
+            open={!menuIsOpen && tooltipIsOpen}
+            onOpen={openTooltip}
+            onClose={closeTooltip}
         >
-            <InputLabel htmlFor={name}>{label}</InputLabel>
-            <Select
-                id={name}
-                label={label}
-                name={name}
-                value={virtualValues}
-                open={customMenu?.onOpen ? false : isOpen}
-                onOpen={customMenu?.onOpen ?? open}
-                onClose={close}
-                onChange={notifyChange}
-                MenuProps={MenuProps}
-                multiple
+            <FormControl
+                margin="dense"
+                variant="outlined"
+                className={mergedClasses}
+                disabled={disabled}
+                fullWidth
             >
-                <MenuItem value="multiple-selector-void" disabled>
-                    {i18n.t("Nothing selected")}
-                </MenuItem>
-                {/* Material UI does not like React.Fragment as children inside the Menu component */}
-                {allOption && <MenuItem value={allOption.value}>{allOption.text}</MenuItem>}
-                {allOption && (
-                    <Box margin="0.5rem 0.75rem">
-                        <Divider />
-                    </Box>
-                )}
-                {renderItems.map(item => (
-                    <MenuItem key={item.value} value={item.value} disabled={isAllSelected}>
-                        {item.text}
+                <InputLabel htmlFor={name}>{label}</InputLabel>
+                <Select
+                    id={name}
+                    label={label}
+                    name={name}
+                    value={virtualValues}
+                    open={customMenu?.onOpen ? false : menuIsOpen}
+                    onOpen={customMenu?.onOpen ?? openMenu}
+                    onClose={closeMenu}
+                    onChange={notifyChange}
+                    MenuProps={MenuProps}
+                    multiple
+                >
+                    <MenuItem value="multiple-selector-void" disabled>
+                        {i18n.t("Nothing selected")}
                     </MenuItem>
-                ))}
-            </Select>
-        </FormControl>
+                    {/* Material UI does not like React.Fragment as children inside the Menu component */}
+                    {allOption && <MenuItem value={allOption.value}>{allOption.text}</MenuItem>}
+                    {allOption && (
+                        <Box margin="0.5rem 0.75rem">
+                            <Divider />
+                        </Box>
+                    )}
+                    {renderItems.map(item => (
+                        <MenuItem key={item.value} value={item.value} disabled={isAllSelected}>
+                            {item.text}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        </Tooltip>
     );
 });
 

@@ -12,9 +12,11 @@ import { LocaleRepository } from "$/domain/repositories/LocaleRepository";
 import { OrgUnitRepository } from "$/domain/repositories/OrgUnitRepository";
 import { ExportDataSetsUseCase } from "$/domain/usecases/ExportDataSetsUseCase";
 import { GetAllBasicDataSetsInfoUseCase } from "$/domain/usecases/GetAllBasicDataSetsInfoUseCase";
+import { GetConfigUseCase } from "$/domain/usecases/GetConfigUseCase";
 import { GetDataSetsByIdsUseCase } from "$/domain/usecases/GetDataSetsByIdsUseCase";
 import { GetLocalesUseCase } from "$/domain/usecases/GetLocalesUseCase";
 import { GetOrgUnitsWithChildrenUseCase } from "$/domain/usecases/GetOrgUnitsWithChildrenUseCase";
+import { UpdateConfigUseCase } from "$/domain/usecases/UpdateConfigUseCase";
 import { UserD2Repository } from "./data/repositories/UserD2Repository";
 import { UserTestRepository } from "./data/repositories/UserTestRepository";
 import { UserRepository } from "./domain/repositories/UserRepository";
@@ -35,8 +37,8 @@ export type Repositories = {
 function getCompositionRoot(repositories: Repositories) {
     return {
         config: {
-            get: () => {},
-            update: () => {},
+            get: new GetConfigUseCase(repositories),
+            update: new UpdateConfigUseCase(repositories),
         },
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories),
