@@ -5,8 +5,8 @@ import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
 import { D2Api } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { Future } from "$/domain/entities/generic/Future";
-import _c from "$/domain/entities/generic/Collection";
 import { filterValidInstances } from "$/domain/entities/generic/Struct";
+import _c from "$/domain/entities/generic/Collection";
 
 export class DataSetD2Repository implements DataSetRepository {
     constructor(private api: D2Api) {}
