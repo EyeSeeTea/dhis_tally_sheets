@@ -19,6 +19,7 @@ export const appConfig: AppConfig = {
             buttonPosition: "bottom-end",
         },
     },
+    storage: "constants",
 };
 
 export interface AppConfig {
@@ -27,4 +28,7 @@ export interface AppConfig {
         showShareButton: boolean;
     };
     feedback?: FeedbackOptions;
+    storage: "constants" | "dataStore";
 }
+
+export type StorageSource = AppConfig["storage"];
