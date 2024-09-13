@@ -10,6 +10,7 @@ import { ExportDataSetsUseCase } from "$/domain/usecases/ExportDataSetsUseCase";
 import { GetAllBasicDataSetsInfoUseCase } from "$/domain/usecases/GetAllBasicDataSetsInfoUseCase";
 import { GetDataSetsByIdsUseCase } from "$/domain/usecases/GetDataSetsByIdsUseCase";
 import { GetLocalesUseCase } from "$/domain/usecases/GetLocalesUseCase";
+import { GetOrgUnitsWithChildrenUseCase } from "$/domain/usecases/GetOrgUnitsWithChildrenUseCase";
 import { UserD2Repository } from "./data/repositories/UserD2Repository";
 import { UserTestRepository } from "./data/repositories/UserTestRepository";
 import { UserRepository } from "./domain/repositories/UserRepository";
@@ -32,15 +33,15 @@ function getCompositionRoot(repositories: Repositories) {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
         dataSets: {
-            getBasicList: new GetAllBasicDataSetsInfoUseCase(
-                repositories.dataSetRepository,
-                repositories.orgUnitRepository
-            ),
+            getBasicList: new GetAllBasicDataSetsInfoUseCase(repositories.dataSetRepository),
             getByIds: new GetDataSetsByIdsUseCase(repositories.dataSetRepository),
             export: new ExportDataSetsUseCase(repositories.dataSetExportRepository),
         },
         locales: {
             get: new GetLocalesUseCase(repositories.localeRepository),
+        },
+        orgUnits: {
+            getWithChildren: new GetOrgUnitsWithChildrenUseCase(repositories.orgUnitRepository),
         },
     };
 }

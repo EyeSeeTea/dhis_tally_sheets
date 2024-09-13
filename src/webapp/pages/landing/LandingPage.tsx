@@ -22,11 +22,12 @@ import { Locale } from "$/domain/entities/Locale";
 import { DataSet } from "$/domain/entities/DataSet";
 import { DataSetTable } from "$/webapp/components/dataset-table/DataSetTable";
 import { Id } from "$/domain/entities/Ref";
-import _c from "$/domain/entities/generic/Collection";
+import { OrgUnitSelector } from "$/webapp/components/org-unit-filter/OrgUnitSelector";
+import { OrgUnit } from "$/domain/entities/OrgUnit";
 import i18n from "$/utils/i18n";
+import _c from "$/domain/entities/generic/Collection";
 import "./landing-page.css";
-import { OrgUnitFilter } from "$/webapp/components/org-unit-filter/OrgUnitFilter";
-import { Maybe } from "$/utils/ts-utils";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
@@ -48,8 +49,8 @@ export const LandingPage: React.FC = React.memo(() => {
     const {
         props: dataSetSelectorProps,
         resetSelected: resetSelectedDataSets,
-        orgUnitPaths,
-        setOrgUnitPaths,
+        orgUnits,
+        setOrgUnits,
     } = useDataSetSelector();
 
     const selectedDatasets = dataSetSelectorProps.selectedItems;
@@ -98,8 +99,8 @@ export const LandingPage: React.FC = React.memo(() => {
     const resetView = React.useCallback(() => {
         resetSelectedDataSets();
         setOptions({ includeHeaders: true });
-        setOrgUnitPaths([]);
-    }, [resetSelectedDataSets, setOrgUnitPaths]);
+        setOrgUnits([]);
+    }, [resetSelectedDataSets, setOrgUnits]);
 
     return (
         <Box margin={theme.spacing(0.5)}>
@@ -148,7 +149,11 @@ export const LandingPage: React.FC = React.memo(() => {
                             gridColumnGap={theme.spacing(3)}
                             alignItems="center"
                         >
-                            <OrgUnitFilter onChange={setOrgUnitPaths} selected={orgUnitPaths} />
+                            <OrgUnitSelector
+                                onChange={setOrgUnits}
+                                selected={orgUnits}
+                                disabled={loading}
+                            />
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
                             <Button
@@ -156,6 +161,7 @@ export const LandingPage: React.FC = React.memo(() => {
                                 aria-label="delete"
                                 size="small"
                                 variant="outlined"
+                                disabled={loading}
                                 onClick={resetView}
                             >
                                 <ClearIcon fontSize="medium" />
@@ -204,7 +210,9 @@ type SelectorProps<Item> = MultipleSelectorProps & {
 function useDataSetSelector() {
     const { compositionRoot } = useAppContext();
 
-    const [orgUnitPaths, setOrgUnitPaths] = React.useState<string[]>([]);
+    const snackbar = useSnackbar();
+
+    const [orgUnits, setOrgUnits] = React.useState<OrgUnit[]>([]);
     const [dataSets, setDataSets] = React.useState<BasicDataSet[]>([]);
     const [selected, setSelected] = React.useState<string[]>([]);
     const [loading, setLoading] = React.useState<LoadingState>("loading");
@@ -226,6 +234,8 @@ function useDataSetSelector() {
                 .value(),
             allItems: dataSets,
             values: selected,
+            type: "dataset",
+            pluralType: "datasets",
             onChange: onChange,
             label: i18n.t("Select a dataset"),
             name: "select-dataset",
@@ -244,18 +254,13 @@ function useDataSetSelector() {
     );
 
     React.useEffect(() => {
-        const orgUnits = _c(orgUnitPaths)
-            .map(path => _c(path.split("/")).last())
-            .compact()
-            .value();
-
         compositionRoot.dataSets.getBasicList.execute(orgUnits).run(
             dataSets => {
                 setDataSets(dataSets);
                 setLoading("loaded");
             },
             err => {
-                console.error(err);
+                snackbar.error(err.message);
                 setLoading("error");
             }
         );
@@ -263,13 +268,13 @@ function useDataSetSelector() {
         return () => {
             setLoading("loading");
         };
-    }, [compositionRoot.dataSets.getBasicList, orgUnitPaths]);
+    }, [compositionRoot, orgUnits, snackbar]);
 
     return {
         props: props,
         resetSelected: resetSelected,
-        orgUnitPaths: orgUnitPaths,
-        setOrgUnitPaths: setOrgUnitPaths,
+        orgUnits: orgUnits,
+        setOrgUnits: setOrgUnits,
     };
 }
 
@@ -279,6 +284,8 @@ function useLanguagesSelector(
     canSelectAllLocales: boolean
 ): SelectorProps<Locale> {
     const { compositionRoot } = useAppContext();
+
+    const snackbar = useSnackbar();
 
     const [locales, setLocales] = React.useState<Locale[]>([]);
     const [loading, setLoading] = React.useState<LoadingState>("loading");
@@ -312,6 +319,8 @@ function useLanguagesSelector(
             label: i18n.t("Select a language"),
             name: "select-language",
             loading: loading,
+            type: "language",
+            pluralType: "languages",
             allItems: available,
             disabled: loading === "loading" || _c(available).isEmpty(),
             allOption: canSelectAllLocales
@@ -336,11 +345,11 @@ function useLanguagesSelector(
                     setLoading("loaded");
                 },
                 err => {
-                    console.error(err);
+                    snackbar.error(err.message);
                     setLoading("error");
                 }
             ),
-        [compositionRoot.locales.get]
+        [compositionRoot, snackbar]
     );
 
     React.useEffect(() => {

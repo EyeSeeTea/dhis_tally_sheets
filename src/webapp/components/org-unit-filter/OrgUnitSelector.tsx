@@ -11,35 +11,50 @@ import {
     createStyles,
     makeStyles,
     Theme,
+    LinearProgress,
 } from "@material-ui/core";
-import { OrgUnitsSelector } from "@eyeseetea/d2-ui-components";
+import { OrgUnitsSelector, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
+import { OrgUnit } from "$/domain/entities/OrgUnit";
+import {
+    MultipleSelector,
+    MultipleSelectorProps,
+} from "$/webapp/components/multiple-selector/MultipleSelector";
 import i18n from "$/utils/i18n";
 import _c from "$/domain/entities/generic/Collection";
 
-interface OrgUnitFilterProps {
-    selected: string[];
-    onChange: (paths: string[]) => void;
+interface OrgUnitSelectorProps {
+    selected: OrgUnit[];
+    onChange: (orgUnits: OrgUnit[]) => void;
+    disabled?: boolean;
 }
 
-export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
-    const { onChange, selected } = props;
-    const { api, currentUser } = useAppContext();
+export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props => {
+    const { onChange, selected, disabled } = props;
+    const { api, currentUser, compositionRoot } = useAppContext();
 
     const classes = useStyles();
+    const snackbar = useSnackbar();
 
     const [isOpen, { enable: open, disable: close }] = useBooleanState(false);
+    const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
     const [onlyUserOU, setOnlyUserOU] = React.useState(false);
-    const [current, setCurrent] = React.useState<{ selected: string[]; onlyUserOU: boolean }>({
-        selected: [],
+    const [current, setCurrent] = React.useState<{ selectedPaths: string[]; onlyUserOU: boolean }>({
+        selectedPaths: [],
         onlyUserOU: false,
     });
 
+    const selectedPaths = React.useMemo(() => {
+        const paths = selected.map(({ path }) => path);
+        const deepestCommonRoot = findCommonRoot(paths);
+        return deepestCommonRoot === "" ? [] : [deepestCommonRoot];
+    }, [selected]);
+
     const toggleUserDataSetsOnly = React.useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
-            setCurrent(({ selected }) => ({
-                selected: selected,
+            setCurrent(({ selectedPaths }) => ({
+                selectedPaths: selectedPaths,
                 onlyUserOU: e.target.checked,
             }));
         },
@@ -47,31 +62,60 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
     );
 
     const updateSelected = React.useCallback((paths: string[]) => {
-        setCurrent(({ onlyUserOU }) => ({ selected: paths, onlyUserOU: onlyUserOU }));
+        setCurrent(({ onlyUserOU }) => ({ selectedPaths: paths, onlyUserOU: onlyUserOU }));
     }, []);
 
     const cancel = React.useCallback(() => {
-        setCurrent({ selected: selected, onlyUserOU: onlyUserOU });
+        setCurrent({ selectedPaths: selectedPaths, onlyUserOU: onlyUserOU });
         close();
-    }, [close, onlyUserOU, selected]);
+    }, [close, onlyUserOU, selectedPaths]);
 
     const apply = React.useCallback(() => {
-        const userPaths = currentUser.organisationUnits.map(({ path }) => path);
-        onChange(current.onlyUserOU ? userPaths : current.selected);
-        setOnlyUserOU(current.onlyUserOU);
-        close();
-    }, [currentUser.organisationUnits, onChange, current.onlyUserOU, current.selected, close]);
+        startLoading();
+        const userOrgUnitIds = currentUser.organisationUnits.map(({ id }) => id);
+        const orgUnitIds = _c(current.selectedPaths)
+            .map(path => path.split("/").slice(-1))
+            .flatten()
+            .value();
+
+        const ids = current.onlyUserOU ? userOrgUnitIds : orgUnitIds;
+        const getOrgUnits$ = compositionRoot.orgUnits.getWithChildren.execute(ids);
+
+        getOrgUnits$.run(
+            orgUnits => {
+                onChange(orgUnits);
+                setOnlyUserOU(current.onlyUserOU);
+                stopLoading();
+                close();
+            },
+            err => {
+                snackbar.error(err.message);
+                stopLoading();
+                close();
+            }
+        );
+    }, [
+        startLoading,
+        currentUser.organisationUnits,
+        current.selectedPaths,
+        current.onlyUserOU,
+        compositionRoot.orgUnits.getWithChildren,
+        onChange,
+        stopLoading,
+        close,
+        snackbar,
+    ]);
 
     const initiallyExpanded = React.useMemo(() => {
-        const orgUnitPath = _c(selected).first();
+        const orgUnitPath = _c(selectedPaths).first();
         const parent = orgUnitPath?.split("/").slice(0, -1).join("/");
         return parent ? [parent] : undefined;
-    }, [selected]);
+    }, [selectedPaths]);
 
     const openDialog = React.useCallback(() => {
         open();
-        setCurrent({ selected: onlyUserOU ? [] : selected, onlyUserOU: onlyUserOU });
-    }, [onlyUserOU, open, selected]);
+        setCurrent({ selectedPaths: onlyUserOU ? [] : selectedPaths, onlyUserOU: onlyUserOU });
+    }, [onlyUserOU, open, selectedPaths]);
 
     const clear = React.useCallback(() => {
         if (_c(selected).isEmpty()) cancel();
@@ -81,14 +125,27 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
 
     const label = i18n.t("Filter by Organisation Unit");
 
+    const selectorProps: MultipleSelectorProps = React.useMemo(
+        () => ({
+            items: selected.map(({ id, displayName }) => ({ value: id, text: displayName })),
+            values: selected.map(({ id }) => id),
+            onChange: () => {},
+            label: i18n.t("Select an organisation unit"),
+            name: "select-organisation-unit",
+            type: "organisation unit",
+            pluralType: "organisation units",
+            disabled: disabled,
+            customMenu: { onOpen: openDialog },
+        }),
+        [selected, disabled, openDialog]
+    );
+
     return (
         <>
-            <Button variant="outlined" color="primary" onClick={openDialog}>
-                Open Org Unit Selector
-            </Button>
+            <MultipleSelector {...selectorProps} />
             <Dialog open={isOpen} onClose={cancel} fullWidth aria-label={label}>
                 <DialogTitle>{label}</DialogTitle>
-                <DialogContent>
+                <DialogContent dividers>
                     <FormControlLabel
                         control={
                             <Switch
@@ -116,7 +173,7 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
                             fullWidth={false}
                             height={ORG_UNIT_SELECTOR_HEIGHT}
                             onChange={updateSelected}
-                            selected={current.selected}
+                            selected={current.selectedPaths}
                             singleSelection={true}
                             selectOnClick={true}
                             initiallyExpanded={initiallyExpanded}
@@ -124,8 +181,9 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
                         />
                     </Box>
                 </DialogContent>
+                <LinearProgress hidden={!loading} />
                 <DialogActions>
-                    <Button onClick={cancel} color="primary">
+                    <Button onClick={cancel} color="default">
                         {i18n.t("Cancel")}
                     </Button>
                     <Button onClick={apply} color="primary">
@@ -136,6 +194,14 @@ export const OrgUnitFilter: React.FC<OrgUnitFilterProps> = React.memo(props => {
         </>
     );
 });
+
+function findCommonRoot(arr: string[]) {
+    return arr.reduce(
+        (prefix, str) =>
+            prefix.split("").reduce((acc, char, i) => acc + (char === str[i] ? char : ""), ""),
+        arr[0] ?? ""
+    );
+}
 
 const ORG_UNIT_SELECTOR_HEIGHT = 500;
 

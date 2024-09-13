@@ -13,22 +13,40 @@ import {
 import { MultipleDropdownProps } from "@eyeseetea/d2-ui-components";
 import i18n from "$/utils/i18n";
 import _c from "$/domain/entities/generic/Collection";
+import { useBooleanState } from "$/webapp/utils/use-boolean";
 
 export interface MultipleSelectorProps extends MultipleDropdownProps {
-    /* Select doesn't support variant="outlined" https://github.com/mui/material-ui/issues/14203 */
     name: string;
+    type?: string;
+    pluralType?: string;
     disabled?: boolean;
     allOption?: {
         value: string;
         text: string;
     };
+    customMenu?: {
+        onOpen: () => void;
+    };
 }
 
 export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(props => {
-    const { items, values, onChange, label, className, name, disabled, allOption } = props;
+    const {
+        items,
+        values,
+        onChange,
+        label,
+        className,
+        name,
+        disabled,
+        allOption,
+        customMenu,
+        type = "item",
+        pluralType = "items",
+    } = props;
 
     const classes = useStyles();
 
+    const [isOpen, { enable: open, disable: close }] = useBooleanState(false);
     const mergedClasses = [className, classes.formControl].join(" ");
 
     const isAllSelected = React.useMemo(
@@ -48,6 +66,19 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
         [onChange]
     );
 
+    const helperText = React.useMemo(() => {
+        if (allOption && isAllSelected)
+            return `${items.length} ${items.length > 1 ? pluralType : type} ` + i18n.t("selected");
+        const selectedCount = selected.filter(v => v !== "multiple-selector-void").length;
+        return selectedCount
+            ? `${selectedCount} ${selectedCount > 1 ? pluralType : type} ` + i18n.t("selected")
+            : undefined;
+    }, [allOption, isAllSelected, items.length, pluralType, selected, type]);
+
+    const virtualValues = React.useMemo(() => {
+        return customMenu?.onOpen && selected.length > 500 ? selected.slice(0, 10) : selected;
+    }, [customMenu?.onOpen, selected]);
+
     return (
         <FormControl
             variant="outlined"
@@ -55,6 +86,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
             fullWidth
             margin="dense"
             disabled={disabled}
+            title={helperText}
         >
             <InputLabel htmlFor={name}>{label}</InputLabel>
             <Select
@@ -62,7 +94,10 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                 label={label}
                 name={name}
                 multiple
-                value={selected}
+                value={virtualValues}
+                open={customMenu?.onOpen ? false : isOpen}
+                onOpen={customMenu?.onOpen ?? open}
+                onClose={close}
                 onChange={notifyChange}
                 MenuProps={MenuProps}
             >
