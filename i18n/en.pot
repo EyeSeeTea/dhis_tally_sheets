@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-03T13:24:25.031Z\n"
-"PO-Revision-Date: 2024-09-03T13:24:25.031Z\n"
+"POT-Creation-Date: 2024-09-13T03:36:45.637Z\n"
+"PO-Revision-Date: 2024-09-13T03:36:45.637Z\n"
 
 msgid "Health facility"
 msgstr ""
@@ -14,13 +14,40 @@ msgstr ""
 msgid "Reporting period"
 msgstr ""
 
+msgid "Value"
+msgstr ""
+
+msgid "selected"
+msgstr ""
+
 msgid "Nothing selected"
+msgstr ""
+
+msgid "Unable to fetch the Organisation Unit children"
+msgstr ""
+
+msgid "Filter by Organisation Unit"
+msgstr ""
+
+msgid "Select an organisation unit"
+msgstr ""
+
+msgid "Select current user's Organisation Units (and children)"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Apply"
 msgstr ""
 
 msgid "Back"
 msgstr ""
 
 msgid "Help"
+msgstr ""
+
+msgid "Something went wrong while creating the Excel file"
 msgstr ""
 
 msgid "Include headers"
@@ -38,5 +65,14 @@ msgstr ""
 msgid "ALL"
 msgstr ""
 
+msgid "Unable to fetch Datasets list"
+msgstr ""
+
 msgid "Select a language"
+msgstr ""
+
+msgid "Unable to fetch Languages list"
+msgstr ""
+
+msgid "Unable to fetch Datasets"
 msgstr ""
