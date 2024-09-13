@@ -77,13 +77,10 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const { dataSets, removeSection, loadingDataSets } = useDataSets(selectedDataSets);
 
-    const loading = React.useMemo(
-        () =>
-            dataSetSelectorProps.loading === "loading" ||
-            languageSelectorProps.loading === "loading" ||
-            loadingDataSets,
-        [dataSetSelectorProps.loading, languageSelectorProps.loading, loadingDataSets]
-    );
+    const loading =
+        dataSetSelectorProps.loading === "loading" ||
+        languageSelectorProps.loading === "loading" ||
+        loadingDataSets;
 
     const onRemoveSection = React.useMemo(
         () => (dataSetId: Id) => (sectionId: Id) => {
@@ -99,7 +96,7 @@ export const LandingPage: React.FC = React.memo(() => {
                     console.debug(`Exported to Excel ${dataSets.length} datasets`);
                 },
                 err => {
-                    snackbar.error(i18n.t("Something went wrong while creating the Excel file"));
+                    snackbar.error(i18n.t("Something went wrong while creating the excel file"));
                     console.error(err);
                 }
             );
@@ -124,48 +121,7 @@ export const LandingPage: React.FC = React.memo(() => {
             <Paper elevation={2}>
                 <Box padding={theme.spacing(0.5)}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={options.includeHeaders}
-                                    onChange={handleChange}
-                                    name="includeHeaders"
-                                    color="primary"
-                                />
-                            }
-                            label={i18n.t("Include headers")}
-                        />
-                        <Box display="flex" gridColumnGap={theme.spacing(3)}>
-                            <Button
-                                variant="contained"
-                                color="default"
-                                startIcon={<PrintIcon />}
-                                onClick={window.print}
-                            >
-                                {i18n.t("Print")}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                startIcon={<DownloadIcon />}
-                                onClick={exportToExcel}
-                                disabled={
-                                    _c(selectedDataSets).isEmpty() ||
-                                    _c(selectedLocales).isEmpty() ||
-                                    loading
-                                }
-                            >
-                                {i18n.t("Export to Excel")}
-                            </Button>
-                        </Box>
-                    </Box>
-                    <Box display="flex" flexDirection="column">
-                        <Box
-                            display="flex"
-                            marginTop={theme.spacing(0.25)}
-                            gridColumnGap={theme.spacing(3)}
-                            alignItems="center"
-                        >
+                        <Box display="flex" gridColumnGap={theme.spacing(3)} alignItems="center">
                             <OrgUnitSelector
                                 onChange={setSelectedOrgUnits}
                                 selected={orgUnits}
@@ -190,6 +146,43 @@ export const LandingPage: React.FC = React.memo(() => {
                                 </Box>
                             )}
                         </Box>
+
+                        <Box display="flex" gridColumnGap={theme.spacing(3)}>
+                            <Button
+                                variant="contained"
+                                color="default"
+                                startIcon={<PrintIcon />}
+                                onClick={window.print}
+                            >
+                                {i18n.t("Print")}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<DownloadIcon />}
+                                onClick={exportToExcel}
+                                disabled={
+                                    _c(selectedDataSets).isEmpty() ||
+                                    _c(selectedLocales).isEmpty() ||
+                                    loading
+                                }
+                            >
+                                {i18n.t("Export to Excel")}
+                            </Button>
+                        </Box>
+                    </Box>
+                    <Box display="flex" flexDirection="column" marginTop={theme.spacing(0.25)}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={options.includeHeaders}
+                                    onChange={handleChange}
+                                    name="includeHeaders"
+                                    color="primary"
+                                />
+                            }
+                            label={i18n.t("Include headers")}
+                        />
                     </Box>
                 </Box>
             </Paper>
@@ -277,7 +270,7 @@ function useDataSetSelector() {
                 setLoading("loaded");
             },
             err => {
-                snackbar.error(i18n.t("Unable to fetch Datasets list"));
+                snackbar.error(i18n.t("Unable to fetch datasets list"));
                 console.error(err);
                 setLoading("error");
             }
@@ -363,7 +356,7 @@ function useLanguagesSelector(
                     setLoading("loaded");
                 },
                 err => {
-                    snackbar.error(i18n.t("Unable to fetch Languages list"));
+                    snackbar.error(i18n.t("Unable to fetch languages list"));
                     console.error(err);
                     setLoading("error");
                 }
@@ -446,7 +439,7 @@ function useDataSets(selectedDataSets: BasicDataSet[]) {
                         stopLoading();
                     },
                     err => {
-                        snackbar.error(i18n.t("Unable to fetch Datasets"));
+                        snackbar.error(i18n.t("Unable to fetch datasets"));
                         console.error(err);
                         stopLoading();
                     }

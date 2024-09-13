@@ -72,7 +72,7 @@ const userFields = {
     settings: {
         keyUiLocale: true,
     },
-    organisationUnits: { id: true, name: true, displayName: true, path: true },
+    organisationUnits: { id: true, name: true, displayName: true, path: true, level: true },
 } as const;
 
 const constantFields = {

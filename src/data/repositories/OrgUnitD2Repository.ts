@@ -28,4 +28,5 @@ const orgUnitFields = {
     name: true,
     displayName: true,
     path: true,
+    level: true,
 } as const;

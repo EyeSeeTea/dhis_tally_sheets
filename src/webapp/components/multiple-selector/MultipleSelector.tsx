@@ -98,13 +98,13 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                 id={name}
                 label={label}
                 name={name}
-                multiple
                 value={virtualValues}
                 open={customMenu?.onOpen ? false : isOpen}
                 onOpen={customMenu?.onOpen ?? open}
                 onClose={close}
                 onChange={notifyChange}
                 MenuProps={MenuProps}
+                multiple
             >
                 <MenuItem value="multiple-selector-void" disabled>
                     {i18n.t("Nothing selected")}

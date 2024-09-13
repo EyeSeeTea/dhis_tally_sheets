@@ -12,6 +12,7 @@ import {
     makeStyles,
     Theme,
     LinearProgress,
+    Tooltip,
 } from "@material-ui/core";
 import { OrgUnitsSelector, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "$/webapp/contexts/app-context";
@@ -89,7 +90,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                 close();
             },
             err => {
-                snackbar.error(i18n.t("Unable to fetch the Organisation Unit children"));
+                snackbar.error(i18n.t("Unable to fetch the organisation unit children"));
                 console.error(err);
                 stopLoading();
                 close();
@@ -126,10 +127,14 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
 
     const label = i18n.t("Filter by Organisation Unit");
 
-    const selectorProps: MultipleSelectorProps = React.useMemo(
-        () => ({
-            items: selected.map(({ id, displayName }) => ({ value: id, text: displayName })),
-            values: selected.map(({ id }) => id),
+    const selectorProps: MultipleSelectorProps = React.useMemo(() => {
+        const sorted = _c(selected)
+            .sortBy(ou => ou.level)
+            .value();
+
+        return {
+            items: sorted.map(({ id, displayName }) => ({ value: id, text: displayName })),
+            values: sorted.map(({ id }) => id),
             onChange: () => {},
             label: i18n.t("Select an organisation unit"),
             name: "select-organisation-unit",
@@ -137,9 +142,23 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
             pluralType: "organisation units",
             disabled: disabled,
             customMenu: { onOpen: openDialog },
-        }),
-        [selected, disabled, openDialog]
+        };
+    }, [selected, disabled, openDialog]);
+
+    const illegalOrgUnits = React.useMemo(
+        () =>
+            currentUser.organisationUnits
+                .filter(({ level }) => level <= 2)
+                .map(({ displayName }) => displayName),
+        [currentUser.organisationUnits]
     );
+
+    const notAvailableText = _c(illegalOrgUnits).isNotEmpty()
+        ? i18n.t(
+              "Option not available for users assigned to organisation units: " +
+                  illegalOrgUnits.join(", ")
+          )
+        : "";
 
     return (
         <>
@@ -147,17 +166,22 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
             <Dialog open={isOpen} onClose={cancel} fullWidth aria-label={label}>
                 <DialogTitle>{label}</DialogTitle>
                 <DialogContent dividers>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={current.onlyUserOU}
-                                onChange={toggleUserDataSetsOnly}
-                                name="userDataSetsOnly"
-                                color="primary"
-                            />
-                        }
-                        label={i18n.t("Select current user's Organisation Units (and children)")}
-                    />
+                    <Tooltip title={notAvailableText}>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={current.onlyUserOU}
+                                    onChange={toggleUserDataSetsOnly}
+                                    name="userDataSetsOnly"
+                                    color="primary"
+                                    disabled={_c(illegalOrgUnits).isNotEmpty()}
+                                />
+                            }
+                            label={i18n.t(
+                                "Select current user's organisation units (and children)"
+                            )}
+                        />
+                    </Tooltip>
                     {/* Prevent flashing the User on switch is toggled */}
                     <Box
                         height={ORG_UNIT_SELECTOR_HEIGHT + 84}
@@ -178,6 +202,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                             singleSelection={true}
                             selectOnClick={true}
                             initiallyExpanded={initiallyExpanded}
+                            selectableLevels={[3, 4, 5, 6]}
                             typeInput="radio"
                         />
                     </Box>
