@@ -3,8 +3,6 @@ import { UserRepository } from "$/domain/repositories/UserRepository";
 import { D2Api, MetadataPick } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { array, Codec, string } from "purify-ts";
-import { Future } from "$/domain/entities/generic/Future";
-import { Id } from "$/domain/entities/Ref";
 import _c from "$/domain/entities/generic/Collection";
 
 export class UserD2Repository implements UserRepository {
@@ -17,7 +15,7 @@ export class UserD2Repository implements UserRepository {
                 filter: { code: { eq: "TALLY_SHEETS_STORAGE" } },
                 paging: false,
             })
-        ).flatMap(res => {
+        ).map(res => {
             const description = _c(res.objects).first()?.description;
 
             /* To pass beside not having the constant or not being valid */
@@ -25,13 +23,13 @@ export class UserD2Repository implements UserRepository {
                 return constantDescriptionCodec.decode(JSON.parse(description)).caseOf({
                     Left: _err => {
                         console.error(new Error(constantsErrMsg));
-                        return Future.success<Error, Id[]>([]);
+                        return [];
                     },
-                    Right: res => Future.success<Error, Id[]>(res.administratorGroups),
+                    Right: res => res.administratorGroups,
                 });
             } else {
                 console.error(new Error(constantsErrMsg));
-                return Future.success<Error, Id[]>([]);
+                return [];
             }
         });
 
@@ -47,13 +45,15 @@ export class UserD2Repository implements UserRepository {
     }
 
     private buildUser(d2User: D2User, adminGroups: string[]) {
-        const canSelectAllLocales = d2User.userGroups.some(group => adminGroups.includes(group.id));
+        const userBelongsToSomeAdminGroup = d2User.userGroups.some(group =>
+            adminGroups.includes(group.id)
+        );
 
         return new User({
             id: d2User.id,
             name: d2User.displayName,
             userGroups: d2User.userGroups,
-            canSelectAllLocales: canSelectAllLocales,
+            canSelectAllLocales: userBelongsToSomeAdminGroup,
             preferredLocale: d2User.settings.keyUiLocale,
             organisationUnits: d2User.organisationUnits,
             ...d2User.userCredentials,

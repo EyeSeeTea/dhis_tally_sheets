@@ -136,7 +136,9 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const ITEM_HEIGHT = 36; // line-height: 1.5 + padding: 6 * 2
+
 const ITEM_PADDING_TOP = 8;
+
 const MenuProps = {
     PaperProps: {
         style: {

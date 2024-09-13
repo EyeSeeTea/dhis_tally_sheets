@@ -4,7 +4,7 @@ import { Id, NamedRef } from "$/domain/entities/Ref";
 
 export interface BasicDataSetAttrs {
     id: Id;
-    translations: D2Translation[];
+    translations: Translation[];
     displayName: string;
     formType: DataSetFormType;
     attributeValues: AttributeValue[];
@@ -36,13 +36,11 @@ export function validateDataSetIsAllowed(basicDataSet: BasicDataSet): BasicDataS
 
     if (hasHideAttribute) {
         throw new Error(`DataSet ${basicDataSet.id} marked to be ignored in Tally Sheets`);
-    }
-
-    if (hasCustomFormType) {
+    } else if (hasCustomFormType) {
         throw new Error(`DataSet ${basicDataSet.id} has CUSTOM form type`);
+    } else {
+        return basicDataSet;
     }
-
-    return basicDataSet;
 }
 
 type AttributeValue = {
@@ -52,7 +50,7 @@ type AttributeValue = {
 
 export type DataSetFormType = "DEFAULT" | "CUSTOM" | "SECTION" | "SECTION_MULTIORG";
 
-export type D2Translation = {
+export type Translation = {
     property: string;
     locale: string;
     value: string;

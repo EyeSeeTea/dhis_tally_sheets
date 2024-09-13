@@ -2,17 +2,16 @@ import JSZip from "jszip";
 import saveAs from "file-saver";
 import { DataSet } from "$/domain/entities/DataSet";
 import { FutureData } from "$/data/api-futures";
-import { HashMap } from "$/domain/entities/generic/HashMap";
 import { Locale } from "$/domain/entities/Locale";
 import { Future } from "$/domain/entities/generic/Future";
 import { Repositories } from "$/CompositionRoot";
-import _c, { Collection } from "$/domain/entities/generic/Collection";
+import _c from "$/domain/entities/generic/Collection";
 
 export class ExportDataSetsUseCase {
     constructor(private repositories: Repositories) {}
 
     public execute(dataSets: DataSet[], locales: Locale[]): FutureData<void> {
-        const pickedTranslations: PickedTranslations = _c(dataSets).toHashMap(dataSet => {
+        const pickedTranslations = _c(dataSets).toHashMap(dataSet => {
             const availableLocaleCodes = dataSet.getAvailableLocaleCodes();
             const availableLocales = _c(locales).filter(({ code }) =>
                 availableLocaleCodes.includes(code)
@@ -21,7 +20,7 @@ export class ExportDataSetsUseCase {
             return [dataSet, availableLocales];
         });
 
-        const translatedDataSets: DataSet[] = pickedTranslations
+        const translatedDataSets = pickedTranslations
             .mapValues(([dataSet, locales]) =>
                 locales.map(locale => dataSet.applyLocale(locale)).value()
             )
@@ -64,5 +63,3 @@ function sanitizeFileName(str: string): string {
         .replaceAll(/[\\/]/g, "_")
         .replace(/[^\p{L}\s\d\-_~,;[\]().'{}]/gisu, "");
 }
-
-type PickedTranslations = HashMap<DataSet, Collection<Locale>>;

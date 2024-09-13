@@ -1,5 +1,5 @@
 import { Id, Ref } from "$/domain/entities/Ref";
-import { BasicDataSet, BasicDataSetAttrs, D2Translation } from "$/domain/entities/BasicDataSet";
+import { BasicDataSet, BasicDataSetAttrs, Translation } from "$/domain/entities/BasicDataSet";
 import { Maybe } from "$/utils/ts-utils";
 import { Locale } from "$/domain/entities/Locale";
 import _c from "$/domain/entities/generic/Collection";
@@ -113,7 +113,7 @@ export class DataSet extends BasicDataSet {
     private translateProperty(
         property: string,
         locale: string,
-        translations: D2Translation[]
+        translations: Translation[]
     ): Maybe<string> {
         return translations.find(
             translation => translation.locale === locale && translation.property === property
@@ -121,14 +121,14 @@ export class DataSet extends BasicDataSet {
     }
 
     private getDisplayName(
-        metadata: { translations: D2Translation[]; name: string },
+        metadata: { translations: Translation[]; name: string },
         locale: string
     ) {
         return this.translateProperty("NAME", locale, metadata.translations) ?? metadata.name;
     }
 
     private getDisplayFormName(
-        metadata: { translations: D2Translation[]; name: string; formName?: string },
+        metadata: { translations: Translation[]; name: string; formName?: string },
         locale: string
     ) {
         return (
@@ -154,7 +154,7 @@ export class DataSet extends BasicDataSet {
     }
 
     private orderSectionContent(section: Section): Section {
-        const mappedCategoryCombos = section.categoryCombos.map((categoryCombo): CategoryCombo => {
+        const mappedCategoryCombos = section.categoryCombos.map(categoryCombo => {
             const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
                 categoryOptions.map(({ displayFormName }) => displayFormName)
             );
@@ -294,7 +294,7 @@ export class DataSet extends BasicDataSet {
 
 export type Section = {
     id: Id;
-    translations: D2Translation[];
+    translations: Translation[];
     name: string;
     displayName: string;
     description?: string; // Description cannot be translated
@@ -313,7 +313,7 @@ type DataElement = {
     name: string;
     formName?: string;
     displayFormName: string;
-    translations: D2Translation[];
+    translations: Translation[];
 };
 
 type SectionDataElement = DataElement & {
@@ -337,7 +337,7 @@ export type CategoryOption = {
     name: string;
     formName?: string;
     displayFormName: string;
-    translations: D2Translation[];
+    translations: Translation[];
 };
 
 type CategoryOptionCombo = {
