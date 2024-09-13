@@ -37,7 +37,7 @@ export class ExportDataSetsUseCase {
                 blobFiles.reduce<string[]>((names, file) => {
                     const name = sanitizeFileName(file.name);
                     const idx = names.filter(s => s === name).length;
-                    zip.file(name + (idx ? ` (${idx})` : "") + ".xlsx", file.blob);
+                    zip.file(name + (idx ? ` (${idx})` : "") + ".xlsx", file.blob); // Avoids overwriting files with the same name
                     return names.concat(name);
                 }, []);
 
