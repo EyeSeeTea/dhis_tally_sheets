@@ -44,7 +44,7 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
     );
 
     return (
-        <Paper variant="outlined">
+        <Paper variant="outlined" className="dataset-container">
             <Box padding={theme.spacing(0.5)}>
                 {includeHeaders && (
                     <Box
