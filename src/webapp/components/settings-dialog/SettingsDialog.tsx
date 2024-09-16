@@ -9,10 +9,12 @@ import {
     Box,
     useTheme,
     LinearProgress,
+    Tooltip,
 } from "@material-ui/core";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { Config } from "$/domain/entities/Config";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
+import { useSnackbar } from "@eyeseetea/d2-ui-components/snackbar";
 import i18n from "$/utils/i18n";
 
 interface SettingsDialogProps {
@@ -21,24 +23,44 @@ interface SettingsDialogProps {
 }
 
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose }) => {
-    const { config } = useAppContext();
+    const { config, compositionRoot } = useAppContext();
 
     const theme = useTheme();
+    const snackbar = useSnackbar();
 
-    const [loading, { enable: _startLoading, disable: _stopLoading }] = useBooleanState(false);
+    const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
     const [settings, setSettings] = React.useState<Config>(config);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setSettings(prevSettings => ({ ...prevSettings, [name]: value }));
-    };
+        setSettings(prevSettings => ({
+            ...prevSettings,
+            [name]: name === "administratorGroups" ? value.split(",").map(v => v.trim()) : value,
+        }));
+    }, []);
 
-    const handleSave = () => {
+    const handleSave = React.useCallback(() => {
+        startLoading();
+        compositionRoot.config.update.execute(settings).run(
+            () => {
+                snackbar.success(i18n.t("Settings saved. Reloading page..."));
+                stopLoading();
+                setTimeout(() => window.location.reload(), 1000);
+            },
+            err => {
+                snackbar.error(err.message);
+                stopLoading();
+            }
+        );
+    }, [compositionRoot, settings, snackbar, startLoading, stopLoading]);
+
+    const close = React.useCallback(() => {
+        setSettings(config);
         onClose();
-    };
+    }, [config, onClose]);
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth>
+        <Dialog open={open} onClose={close} fullWidth>
             <DialogTitle>{i18n.t("Settings")}</DialogTitle>
             <DialogContent dividers>
                 <Box
@@ -53,7 +75,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         name="sheetName"
                         margin="dense"
                         variant="standard"
-                        value={settings.sheetName || ""}
+                        value={settings.sheetName}
                         onChange={handleChange}
                         fullWidth
                     />
@@ -62,16 +84,27 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         name="fileName"
                         margin="dense"
                         variant="standard"
-                        value={settings.fileName || ""}
+                        value={settings.fileName}
                         onChange={handleChange}
                         fullWidth
                     />
+                    <Tooltip title="User Group IDs separated by commas">
+                        <TextField
+                            label={i18n.t("Administrator Groups")}
+                            name="administratorGroups"
+                            margin="dense"
+                            variant="standard"
+                            value={settings.administratorGroups.join(", ")}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Tooltip>
                     <TextField
                         label={i18n.t("OU label")}
                         name="ouLabel"
                         margin="dense"
                         variant="standard"
-                        value={settings.ouLabel || ""}
+                        value={settings.ouLabel}
                         onChange={handleChange}
                         fullWidth
                     />
@@ -80,7 +113,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         name="periodLabel"
                         margin="dense"
                         variant="standard"
-                        value={settings.periodLabel || ""}
+                        value={settings.periodLabel}
                         onChange={handleChange}
                         fullWidth
                     />
@@ -89,7 +122,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         name="infoPlaceholder"
                         margin="dense"
                         variant="standard"
-                        value={settings.infoPlaceholder || ""}
+                        value={settings.infoPlaceholder}
                         onChange={handleChange}
                         minRows={4}
                         fullWidth
@@ -99,11 +132,11 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
             </DialogContent>
             <LinearProgress hidden={!loading} />
             <DialogActions>
-                <Button onClick={onClose} color="default">
-                    Cancel
+                <Button onClick={close} color="default">
+                    {i18n.t("Cancel")}
                 </Button>
                 <Button onClick={handleSave} color="primary">
-                    Save
+                    {i18n.t("Save")}
                 </Button>
             </DialogActions>
         </Dialog>

@@ -144,7 +144,7 @@ export const LandingPage: React.FC = React.memo(() => {
                 </Box>
             )}
             <Paper elevation={2}>
-                <Box padding={`${theme.spacing(0.175)}em ${theme.spacing(0.25)}em`}>
+                <Box padding={theme.spacing(3, 4)}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                         <Box display="flex" gridColumnGap={theme.spacing(2)} alignItems="center">
                             <OrgUnitSelector

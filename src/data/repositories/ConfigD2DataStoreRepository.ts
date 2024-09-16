@@ -11,7 +11,7 @@ export class ConfigD2DataStoreRepository implements ConfigRepository {
         return Future.error(new Error("Not implemented"));
     }
 
-    update(config: Config): FutureData<Config> {
+    update(config: Config): FutureData<void> {
         return Future.error(new Error("Not implemented"));
     }
 }

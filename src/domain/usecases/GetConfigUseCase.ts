@@ -6,7 +6,6 @@ export class GetConfigUseCase {
     constructor(private repositories: Repositories) {}
 
     public execute(): FutureData<Config> {
-        // handle not being set already
         return this.repositories.configRepository.get();
     }
 }

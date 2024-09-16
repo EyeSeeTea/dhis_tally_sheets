@@ -5,8 +5,7 @@ import { Config } from "$/domain/entities/Config";
 export class UpdateConfigUseCase {
     constructor(private repositories: Repositories) {}
 
-    public execute(config: Config): FutureData<Config> {
-        // handle not being set already
+    public execute(config: Config): FutureData<void> {
         return this.repositories.configRepository.update(config);
     }
 }

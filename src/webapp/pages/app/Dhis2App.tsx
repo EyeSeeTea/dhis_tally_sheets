@@ -17,7 +17,7 @@ export function Dhis2App(_props: {}) {
 
     switch (compositionRootRes.type) {
         case "loading":
-            return <h3>Loading...</h3>;
+            return null;
         case "error": {
             const { baseUrl, error } = compositionRootRes.error;
             return (

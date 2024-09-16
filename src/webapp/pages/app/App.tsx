@@ -6,6 +6,16 @@ import { MuiThemeProvider } from "@material-ui/core/styles";
 //@ts-ignore
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import React, { useEffect, useState } from "react";
+import { useConfig } from "@dhis2/app-runtime";
+import { red } from "@material-ui/core/colors";
+import {
+    createStyles,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    makeStyles,
+    Theme,
+} from "@material-ui/core";
 import { appConfig } from "$/app-config";
 import { CompositionRoot } from "$/CompositionRoot";
 import Share from "$/webapp/components/share/Share";
@@ -15,7 +25,7 @@ import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
 import { D2Api } from "$/types/d2-api";
-import { useConfig } from "@dhis2/app-runtime";
+import i18n from "$/utils/i18n";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
@@ -24,9 +34,13 @@ export interface AppProps {
 function App(props: AppProps) {
     const { baseUrl } = useConfig();
     const { compositionRoot } = props;
+
+    const styles = useStyles();
+
     const [showShareButton, setShowShareButton] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loader, setLoader] = useState("loading");
     const [appContext, setAppContext] = useState<AppContextState | null>(null);
+    const [err, setErr] = useState("");
 
     useEffect(() => {
         async function setup() {
@@ -39,38 +53,73 @@ function App(props: AppProps) {
 
             setAppContext({ api, config, currentUser, compositionRoot });
             setShowShareButton(isShareButtonVisible);
-            setLoading(false);
+            setLoader("loaded");
         }
-        setup();
+        setup().catch(err => {
+            setLoader("error");
+            setErr(err.message);
+        });
     }, [baseUrl, compositionRoot]);
 
-    if (loading) return null;
+    switch (loader) {
+        case "loading":
+            return null;
+        case "error":
+            return (
+                <Dialog open={true}>
+                    <DialogTitle>{i18n.t("Error")}</DialogTitle>
+                    <DialogContent dividers>
+                        <p className={styles.errorDescription}>
+                            {i18n.t(
+                                "An error occurred while loading the application. Please contact your administrator."
+                            )}
+                        </p>
+                        <pre className={styles.errorBlock}>{err}</pre>
+                    </DialogContent>
+                </Dialog>
+            );
+        case "loaded":
+            return (
+                <MuiThemeProvider theme={muiTheme}>
+                    <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
+                        <SnackbarProvider>
+                            <StyledHeaderBar appName="HMIS Tally sheets" />
 
-    return (
-        <MuiThemeProvider theme={muiTheme}>
-            <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
-                <SnackbarProvider>
-                    <StyledHeaderBar appName="HMIS Tally sheets" />
+                            {appConfig.feedback && appContext && (
+                                <Feedback
+                                    options={appConfig.feedback}
+                                    username={appContext.currentUser.username}
+                                />
+                            )}
 
-                    {appConfig.feedback && appContext && (
-                        <Feedback
-                            options={appConfig.feedback}
-                            username={appContext.currentUser.username}
-                        />
-                    )}
+                            <div id="app" className="content">
+                                <AppContext.Provider value={appContext}>
+                                    <Router />
+                                </AppContext.Provider>
+                            </div>
 
-                    <div id="app" className="content">
-                        <AppContext.Provider value={appContext}>
-                            <Router />
-                        </AppContext.Provider>
-                    </div>
-
-                    <Share visible={showShareButton} />
-                </SnackbarProvider>
-            </OldMuiThemeProvider>
-        </MuiThemeProvider>
-    );
+                            <Share visible={showShareButton} />
+                        </SnackbarProvider>
+                    </OldMuiThemeProvider>
+                </MuiThemeProvider>
+            );
+    }
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        errorDescription: {
+            margin: theme.spacing(1, 0, 2),
+        },
+        errorBlock: {
+            color: theme.palette.error.light,
+            backgroundColor: red[50],
+            borderRadius: theme.shape.borderRadius,
+            padding: theme.spacing(1),
+            border: `1px solid ${red[100]}`,
+        },
+    })
+);
 
 const StyledHeaderBar = styled(HeaderBar)`
     div:first-of-type {

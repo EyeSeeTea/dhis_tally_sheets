@@ -12,6 +12,8 @@ export function getModuleForNamespace(namespace: string) {
     };
 }
 
+export type I18n = typeof i18n;
+
 type I18nTArgs<Str extends string> = Interpolations<Str> extends Record<string, never>
     ? [Str] | [Str, Partial<Options>]
     : [Str, Interpolations<Str> & Partial<Options>];
