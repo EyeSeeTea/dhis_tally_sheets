@@ -9,12 +9,12 @@ import {
     MenuItem,
     Select,
     Theme,
-    Tooltip,
 } from "@material-ui/core";
 import { MultipleDropdownProps } from "@eyeseetea/d2-ui-components";
 import i18n from "$/utils/i18n";
 import _c from "$/domain/entities/generic/Collection";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
+import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 
 export interface MultipleSelectorProps extends MultipleDropdownProps {
     name: string;
@@ -38,9 +38,9 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
         label,
         className,
         name,
-        disabled,
         allOption,
         customMenu,
+        disabled = false,
         type = "item",
         pluralType = "items",
     } = props;
@@ -87,7 +87,8 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
     }, [customMenu?.onOpen, items]);
 
     return (
-        <Tooltip
+        <DisableableTooltip
+            disabled={disabled}
             title={helperText ?? ""}
             open={!menuIsOpen && tooltipIsOpen}
             onOpen={openTooltip}
@@ -130,7 +131,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                     ))}
                 </Select>
             </FormControl>
-        </Tooltip>
+        </DisableableTooltip>
     );
 });
 

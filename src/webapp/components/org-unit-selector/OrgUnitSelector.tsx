@@ -24,6 +24,7 @@ import {
 } from "$/webapp/components/multiple-selector/MultipleSelector";
 import i18n from "$/utils/i18n";
 import _c from "$/domain/entities/generic/Collection";
+import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 
 interface OrgUnitSelectorProps {
     selected: OrgUnit[];
@@ -166,7 +167,10 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
             <Dialog open={isOpen} onClose={cancel} fullWidth aria-label={label}>
                 <DialogTitle>{label}</DialogTitle>
                 <DialogContent dividers>
-                    <Tooltip title={notAvailableText}>
+                    <DisableableTooltip
+                        title={notAvailableText}
+                        disabled={_c(illegalOrgUnits).isNotEmpty()}
+                    >
                         <FormControlLabel
                             control={
                                 <Switch
@@ -181,7 +185,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                                 "Select current user's organisation units (and children)"
                             )}
                         />
-                    </Tooltip>
+                    </DisableableTooltip>
                     {/* Prevent flashing the User on switch is toggled */}
                     <Box
                         height={ORG_UNIT_SELECTOR_HEIGHT + 84}

@@ -20,6 +20,7 @@ import { Id } from "$/domain/entities/Ref";
 import i18n from "$/utils/i18n";
 import { styled } from "styled-components";
 import { Maybe } from "$/utils/ts-utils";
+import { useAppContext } from "$/webapp/contexts/app-context";
 import _c from "$/domain/entities/generic/Collection";
 
 interface DataSetTableProps {
@@ -30,6 +31,7 @@ interface DataSetTableProps {
 
 export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
     const { includeHeaders, dataSet, onRemoveSection } = props;
+    const { config } = useAppContext();
 
     const theme = useTheme();
     const classes = useStyles();
@@ -51,12 +53,11 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
                         gridRowGap={theme.spacing(2)}
                         marginBottom={theme.spacing(0.25)}
                     >
-                        {/* TO ADD HEADERS BY DATASET DIRECTLY */}
                         <Typography className={classes.headers} variant="h6">
-                            {i18n.t("Health facility")}:
+                            {i18n.t("Health facility")}: {config.ouLabel}
                         </Typography>
                         <Typography className={classes.headers} variant="h6">
-                            {i18n.t("Reporting period")}:
+                            {i18n.t("Reporting period")}: {config.periodLabel}
                         </Typography>
                     </Box>
                 )}

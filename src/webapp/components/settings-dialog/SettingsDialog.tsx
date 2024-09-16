@@ -128,7 +128,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                     <Tooltip
                         title={i18n.t(
                             "The placeholder label that will be added next to '{{healthFacility}}: '",
-                            { healthFacility: i18n.t("Health Facility") }
+                            { healthFacility: i18n.t("Health Facility"), nsSeparator: false }
                         )}
                         enterDelay={500}
                     >
@@ -145,7 +145,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                     <Tooltip
                         title={i18n.t(
                             "The placeholder label that will be added next to '{{reportingPeriod}}: '",
-                            { reportingPeriod: i18n.t("Reporting Period") }
+                            { reportingPeriod: i18n.t("Reporting Period"), nsSeparator: false }
                         )}
                         enterDelay={500}
                     >

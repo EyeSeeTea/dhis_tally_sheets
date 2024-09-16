@@ -37,6 +37,7 @@ import _c from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 import "./landing-page.css";
 import { SettingsDialog } from "$/webapp/components/settings-dialog/SettingsDialog";
+import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 
 export const LandingPage: React.FC = React.memo(() => {
     const { config, compositionRoot, currentUser } = useAppContext();
@@ -154,7 +155,10 @@ export const LandingPage: React.FC = React.memo(() => {
                             />
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
-                            <Tooltip title={i18n.t("Restore changes")}>
+                            <DisableableTooltip
+                                title={i18n.t("Restore changes")}
+                                disabled={disabledRestore}
+                            >
                                 <Button
                                     className={classes.iconButton}
                                     aria-label="restore"
@@ -165,7 +169,7 @@ export const LandingPage: React.FC = React.memo(() => {
                                 >
                                     <RestoreIcon fontSize="medium" />
                                 </Button>
-                            </Tooltip>
+                            </DisableableTooltip>
 
                             {loading && (
                                 <Box display="flex" alignItems="center">
