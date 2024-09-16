@@ -12,7 +12,6 @@ import {
     makeStyles,
     Theme,
     LinearProgress,
-    Tooltip,
 } from "@material-ui/core";
 import { OrgUnitsSelector, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "$/webapp/contexts/app-context";
@@ -22,9 +21,9 @@ import {
     MultipleSelector,
     MultipleSelectorProps,
 } from "$/webapp/components/multiple-selector/MultipleSelector";
+import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 import i18n from "$/utils/i18n";
 import _c from "$/domain/entities/generic/Collection";
-import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 
 interface OrgUnitSelectorProps {
     selected: OrgUnit[];
