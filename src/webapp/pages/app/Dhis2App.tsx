@@ -1,10 +1,10 @@
 import React from "react";
-import i18n from "@dhis2/d2-i18n";
 import { Provider } from "@dhis2/app-runtime";
 import { CompositionRoot, getWebappCompositionRoot } from "$/CompositionRoot";
 import { D2Api } from "$/types/d2-api";
 import { appConfig } from "$/app-config";
 import App from "./App";
+import i18n from "$/utils/i18n";
 
 export function Dhis2App(_props: {}) {
     const [compositionRootRes, setCompositionRootRes] = React.useState<CompositionRootResult>({

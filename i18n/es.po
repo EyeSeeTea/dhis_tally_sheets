@@ -36,7 +36,7 @@ msgid "selected"
 msgstr ""
 
 msgid "Nothing selected"
-msgstr ""
+msgstr "Nada seleccionado"
 
 msgid "Unable to fetch the organisation unit children"
 msgstr ""

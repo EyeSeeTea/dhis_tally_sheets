@@ -21,11 +21,11 @@ import { CompositionRoot } from "$/CompositionRoot";
 import Share from "$/webapp/components/share/Share";
 import { AppContext, AppContextState } from "$/webapp/contexts/app-context";
 import { Router } from "$/webapp/pages/Router";
-import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
 import { D2Api } from "$/types/d2-api";
 import i18n from "$/utils/i18n";
+import "./App.css";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
