@@ -12,10 +12,10 @@ import {
     Tooltip,
 } from "@material-ui/core";
 import { useAppContext } from "$/webapp/contexts/app-context";
-import { Config } from "$/domain/entities/Config";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
 import { useSnackbar } from "@eyeseetea/d2-ui-components/snackbar";
 import i18n from "$/utils/i18n";
+import { Maybe } from "$/utils/ts-utils";
 
 interface SettingsDialogProps {
     open: boolean;
@@ -29,19 +29,28 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
     const snackbar = useSnackbar();
 
     const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
-    const [settings, setSettings] = React.useState<Config>(config);
+    const [settings, setSettings] = React.useState<Settings>({
+        ...config,
+        administratorGroups: config.administratorGroups.join(", "),
+    });
 
     const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSettings(prevSettings => ({
             ...prevSettings,
-            [name]: name === "administratorGroups" ? value.split(",").map(v => v.trim()) : value,
+            [name]: value,
         }));
     }, []);
 
     const handleSave = React.useCallback(() => {
         startLoading();
-        compositionRoot.config.update.execute(settings).run(
+
+        const config = {
+            ...settings,
+            administratorGroups: settings.administratorGroups.split(",").map(id => id.trim()),
+        };
+
+        compositionRoot.config.update.execute(config).run(
             () => {
                 snackbar.success(i18n.t("Settings saved. Reloading page..."));
                 stopLoading();
@@ -55,8 +64,11 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
     }, [compositionRoot, settings, snackbar, startLoading, stopLoading]);
 
     const close = React.useCallback(() => {
-        setSettings(config);
         onClose();
+        setSettings({
+            ...config,
+            administratorGroups: config.administratorGroups.join(", "),
+        });
     }, [config, onClose]);
 
     return (
@@ -70,64 +82,101 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                     marginBottom={theme.spacing(0.125)}
                     gridRowGap={theme.spacing(1)}
                 >
-                    <TextField
-                        label={i18n.t("Sheet name")}
-                        name="sheetName"
-                        margin="dense"
-                        variant="standard"
-                        value={settings.sheetName}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label={i18n.t("Filename")}
-                        name="fileName"
-                        margin="dense"
-                        variant="standard"
-                        value={settings.fileName}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <Tooltip title="User Group IDs separated by commas">
+                    <Tooltip
+                        title={i18n.t(
+                            "The sheet name of the zip file that will be created when more than one dataset is selected"
+                        )}
+                        enterDelay={500}
+                    >
+                        <TextField
+                            label={i18n.t("Sheet name")}
+                            name="sheetName"
+                            margin="dense"
+                            variant="standard"
+                            value={settings.sheetName}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Tooltip>
+                    <Tooltip
+                        title={i18n.t(
+                            "The filename of the zip file that will be created when more than one dataset is selected"
+                        )}
+                        enterDelay={500}
+                    >
+                        <TextField
+                            label={i18n.t("Filename")}
+                            name="fileName"
+                            margin="dense"
+                            variant="standard"
+                            value={settings.fileName}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Tooltip>
+                    <Tooltip title={i18n.t("User Group IDs separated by commas")} enterDelay={500}>
                         <TextField
                             label={i18n.t("Administrator Groups")}
                             name="administratorGroups"
                             margin="dense"
                             variant="standard"
-                            value={settings.administratorGroups.join(", ")}
+                            value={settings.administratorGroups}
                             onChange={handleChange}
                             fullWidth
                         />
                     </Tooltip>
-                    <TextField
-                        label={i18n.t("OU label")}
-                        name="ouLabel"
-                        margin="dense"
-                        variant="standard"
-                        value={settings.ouLabel}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label={i18n.t("Period label")}
-                        name="periodLabel"
-                        margin="dense"
-                        variant="standard"
-                        value={settings.periodLabel}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label={i18n.t("Message placeholder")}
-                        name="infoPlaceholder"
-                        margin="dense"
-                        variant="standard"
-                        value={settings.infoPlaceholder}
-                        onChange={handleChange}
-                        minRows={4}
-                        fullWidth
-                        multiline
-                    />
+                    <Tooltip
+                        title={i18n.t(
+                            "The placeholder label that will be added next to '{{healthFacility}}: '",
+                            { healthFacility: i18n.t("Health Facility") }
+                        )}
+                        enterDelay={500}
+                    >
+                        <TextField
+                            label={i18n.t("OU label")}
+                            name="ouLabel"
+                            margin="dense"
+                            variant="standard"
+                            value={settings.ouLabel}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Tooltip>
+                    <Tooltip
+                        title={i18n.t(
+                            "The placeholder label that will be added next to '{{reportingPeriod}}: '",
+                            { reportingPeriod: i18n.t("Reporting Period") }
+                        )}
+                        enterDelay={500}
+                    >
+                        <TextField
+                            label={i18n.t("Period label")}
+                            name="periodLabel"
+                            margin="dense"
+                            variant="standard"
+                            value={settings.periodLabel}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Tooltip>
+                    <Tooltip
+                        title={i18n.t(
+                            "The placeholder message that will be shown to users at the top of the app. You can use this field to provide instructions or other information. To hide this message, leave this field empty."
+                        )}
+                        enterDelay={500}
+                    >
+                        <TextField
+                            label={i18n.t("Message placeholder")}
+                            name="infoPlaceholder"
+                            margin="dense"
+                            variant="standard"
+                            value={settings.infoPlaceholder}
+                            onChange={handleChange}
+                            minRows={4}
+                            fullWidth
+                            multiline
+                        />
+                    </Tooltip>
                 </Box>
             </DialogContent>
             <LinearProgress hidden={!loading} />
@@ -141,4 +190,13 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
             </DialogActions>
         </Dialog>
     );
+};
+
+type Settings = {
+    sheetName: string;
+    fileName: string;
+    administratorGroups: string;
+    ouLabel: string;
+    periodLabel: string;
+    infoPlaceholder: Maybe<string>;
 };

@@ -80,7 +80,7 @@ export const LandingPage: React.FC = React.memo(() => {
     const languageSelectorProps = useLanguagesSelector(
         availableLocales,
         currentUser.preferredLocale,
-        currentUser.canSelectAllLocales
+        currentUser.authorizations.canSelectAllLocales
     );
 
     const selectedLocales = languageSelectorProps.selectedItems;
@@ -101,7 +101,7 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const exportToExcel = React.useCallback(() => {
         if (_c(dataSets).isNotEmpty() && _c(selectedLocales).isNotEmpty())
-            compositionRoot.dataSets.export.execute(dataSets, selectedLocales).run(
+            compositionRoot.dataSets.export.execute(dataSets, selectedLocales, config).run(
                 () => {
                     console.debug(`Exported to Excel ${dataSets.length} datasets`);
                 },
@@ -110,7 +110,7 @@ export const LandingPage: React.FC = React.memo(() => {
                     console.error(err);
                 }
             );
-    }, [compositionRoot.dataSets.export, dataSets, selectedLocales, snackbar]);
+    }, [compositionRoot, config, dataSets, selectedLocales, snackbar]);
 
     const resetView = React.useCallback(() => {
         resetSelectedDataSets();

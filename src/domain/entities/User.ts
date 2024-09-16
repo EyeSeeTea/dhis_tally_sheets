@@ -8,9 +8,11 @@ export interface UserAttrs {
     username: string;
     userRoles: UserRole[];
     userGroups: NamedRef[];
-    canSelectAllLocales: boolean;
     preferredLocale: string;
     organisationUnits: OrgUnit[];
+    authorizations: {
+        canSelectAllLocales: boolean;
+    };
 }
 
 export interface UserRole extends NamedRef {

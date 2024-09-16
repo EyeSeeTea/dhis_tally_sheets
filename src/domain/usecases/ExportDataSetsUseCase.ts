@@ -5,12 +5,13 @@ import { FutureData } from "$/data/api-futures";
 import { Locale } from "$/domain/entities/Locale";
 import { Future } from "$/domain/entities/generic/Future";
 import { Repositories } from "$/CompositionRoot";
+import { Config } from "$/domain/entities/Config";
 import _c from "$/domain/entities/generic/Collection";
 
 export class ExportDataSetsUseCase {
     constructor(private repositories: Repositories) {}
 
-    public execute(dataSets: DataSet[], locales: Locale[]): FutureData<void> {
+    public execute(dataSets: DataSet[], locales: Locale[], config: Config): FutureData<void> {
         const pickedTranslations = _c(dataSets).toHashMap(dataSet => {
             const availableLocaleCodes = dataSet.getAvailableLocaleCodes();
             const availableLocales = _c(locales).filter(({ code }) =>
@@ -22,14 +23,32 @@ export class ExportDataSetsUseCase {
 
         const translatedDataSets = pickedTranslations
             .mapValues(([dataSet, locales]) =>
-                locales.map(locale => dataSet.applyLocale(locale)).value()
+                locales
+                    .map(locale => dataSet.applyLocale(locale))
+                    .map(ds => {
+                        const headers = ds.headers;
+                        if (!headers) return ds;
+                        const newHeaders = {
+                            healthFacility: config.ouLabel
+                                ? `${headers.healthFacility} ${config.ouLabel}`
+                                : headers.healthFacility,
+                            reportingPeriod: config.periodLabel
+                                ? `${headers.reportingPeriod} ${config.periodLabel}`
+                                : headers.reportingPeriod,
+                        };
+
+                        return ds.updateHeaders(newHeaders);
+                    })
+                    .value()
             )
             .values()
             .flat();
 
         const downloadFiles$ = Future.sequential(
             translatedDataSets.map(dataSet =>
-                this.repositories.dataSetExportRepository.save(dataSet)
+                this.repositories.dataSetExportRepository.save(dataSet, {
+                    sheetName: config.sheetName,
+                })
             )
         ).map(blobFiles => {
             if (blobFiles.length > 1) {
@@ -43,7 +62,7 @@ export class ExportDataSetsUseCase {
                 }, []);
 
                 zip.generateAsync({ type: "blob" }).then(blob => {
-                    saveAs(blob, "MSF-OCBA HMIS.zip");
+                    saveAs(blob, `${sanitizeFileName(config.fileName)}.zip`);
                 });
             } else if (blobFiles.length === 1) {
                 const file = blobFiles[0];

@@ -4,11 +4,13 @@ import { ReactNode } from "react";
 import { AppContext, AppContextState } from "$/webapp/contexts/app-context";
 import { getTestCompositionRoot } from "$/CompositionRoot";
 import { createAdminUser } from "$/domain/entities/__tests__/userFixtures";
-import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { defaultConfig } from "$/domain/entities/Config";
+import { D2Api } from "$/types/d2-api";
 
 export function getTestContext() {
     const context: AppContextState = {
         api: new D2Api(),
+        config: defaultConfig,
         currentUser: createAdminUser(),
         compositionRoot: getTestCompositionRoot(),
     };
