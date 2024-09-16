@@ -1,5 +1,6 @@
 import { Id } from "$/domain/entities/Ref";
 import { Maybe } from "$/utils/ts-utils";
+import i18n from "$/utils/i18n";
 
 export type Config = {
     sheetName: string;
@@ -16,6 +17,7 @@ export const defaultConfig: Config = {
     administratorGroups: [],
     ouLabel: "",
     periodLabel: "",
-    infoPlaceholder:
-        "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info message placeholder under settings options. For any questions or feedback, please contact us through the 'Send Feddback' button on the bottom right corner.",
+    infoPlaceholder: i18n.t(
+        "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info message placeholder under settings options. For any questions or feedback, please contact us through the 'Send Feddback' button on the bottom right corner."
+    ),
 };
