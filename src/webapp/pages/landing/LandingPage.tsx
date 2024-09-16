@@ -33,11 +33,11 @@ import { OrgUnitSelector } from "$/webapp/components/org-unit-selector/OrgUnitSe
 import { OrgUnit } from "$/domain/entities/OrgUnit";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
-import _c from "$/domain/entities/generic/Collection";
-import i18n from "$/utils/i18n";
-import "./landing-page.css";
 import { SettingsDialog } from "$/webapp/components/settings-dialog/SettingsDialog";
 import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
+import i18n from "$/utils/i18n";
+import _c from "$/domain/entities/generic/Collection";
+import "./landing-page.css";
 
 export const LandingPage: React.FC = React.memo(() => {
     const { config, compositionRoot, currentUser } = useAppContext();
@@ -145,7 +145,7 @@ export const LandingPage: React.FC = React.memo(() => {
                 </Box>
             )}
             <Paper elevation={2}>
-                <Box padding={theme.spacing(3, 4)}>
+                <Box padding={theme.spacing(3, 4, 2.5)}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                         <Box display="flex" gridColumnGap={theme.spacing(2)} alignItems="center">
                             <OrgUnitSelector
@@ -538,13 +538,13 @@ function getId(dataSet: BasicDataSet) {
 const useStyles = makeStyles((_theme: Theme) =>
     createStyles({
         iconButton: {
-            marginTop: 3,
+            marginTop: 3.5, // pixel distortion visual adjustment
             maxWidth: "3rem",
             minWidth: "unset",
             height: "2.5rem",
         },
         actionButton: {
-            marginTop: 3,
+            marginTop: 3.5, // pixel distortion visual adjustment
             minWidth: "unset",
             height: "2.5rem",
         },
