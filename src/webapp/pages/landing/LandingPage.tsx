@@ -218,7 +218,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             </Button>
                         </Box>
                     </Box>
-                    <Box display="flex" flexDirection="column" marginTop={theme.spacing(0.25)}>
+                    <Box marginTop={theme.spacing(0.25)}>
                         <FormControlLabel
                             control={
                                 <Checkbox
