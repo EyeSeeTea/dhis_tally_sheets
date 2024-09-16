@@ -25,20 +25,20 @@ export class ExportDataSetsUseCase {
             .mapValues(([dataSet, locales]) =>
                 locales
                     .map(locale => dataSet.applyLocale(locale))
-                    // .map(ds => {
-                    //     const headers = ds.headers;
-                    //     if (!headers) return ds;
-                    //     const newHeaders = {
-                    //         healthFacility: config.ouLabel
-                    //             ? `${headers.healthFacility} ${config.ouLabel}`
-                    //             : headers.healthFacility,
-                    //         reportingPeriod: config.periodLabel
-                    //             ? `${headers.reportingPeriod} ${config.periodLabel}`
-                    //             : headers.reportingPeriod,
-                    //     };
+                    .map(ds => {
+                        const headers = ds.headers;
+                        if (!headers) return ds;
+                        const newHeaders = {
+                            healthFacility: config.ouLabel
+                                ? `${headers.healthFacility} ${config.ouLabel}`
+                                : headers.healthFacility,
+                            reportingPeriod: config.periodLabel
+                                ? `${headers.reportingPeriod} ${config.periodLabel}`
+                                : headers.reportingPeriod,
+                        };
 
-                    //     return ds.updateHeaders(newHeaders);
-                    // })
+                        return ds.updateHeaders(newHeaders);
+                    })
                     .value()
             )
             .values()
