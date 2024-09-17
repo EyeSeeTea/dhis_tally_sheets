@@ -44,7 +44,7 @@ function createBasicAttrs(options?: {
     formType?: BasicDataSetAttrs["formType"];
     attributeValues?: BasicDataSetAttrs["attributeValues"];
 }): BasicDataSetAttrs {
-    const formType = options?.formType ?? "DEFAULT";
+    const formType = options?.formType ?? "SECTION";
     const attributeValues = options?.attributeValues ?? [];
 
     return {
