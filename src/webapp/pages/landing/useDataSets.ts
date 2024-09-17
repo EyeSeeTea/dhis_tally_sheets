@@ -5,7 +5,7 @@ import { DataSet } from "$/domain/entities/DataSet";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
 import { Id } from "$/domain/entities/Ref";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 
 export function useDataSets(selectedDataSets: BasicDataSet[]) {
@@ -39,28 +39,28 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
 
         console.debug("Added DataSets", added, "Removed DataSets", removed);
 
-        if (_c(added).isNotEmpty()) {
+        if (_(added).isNotEmpty()) {
             const cached = cachedDataSets.filter(ds => added.map(getId).includes(ds.id));
             const toRequest = added.filter(ds => !cached.map(getId).includes(ds.id));
-            if (_c(toRequest).isNotEmpty()) {
+            if (_(toRequest).isNotEmpty()) {
                 startLoading();
                 compositionRoot.dataSets.getByIds.execute(toRequest.map(getId)).run(
                     addedDataSets => {
                         setDataSets(dataSets => {
                             setCachedDataSets(cachedDataSets => {
-                                const newCached = _c(cachedDataSets)
-                                    .concat(_c(addedDataSets))
+                                const newCached = _(cachedDataSets)
+                                    .concat(_(addedDataSets))
                                     .uniqBy(getId)
                                     .value();
                                 setCachedDataSets(newCached);
                                 return newCached;
                             });
-                            const newDataSets = _c(dataSets)
-                                .concat(_c(addedDataSets))
-                                .concat(_c(cached))
+                            const newDataSets = _(dataSets)
+                                .concat(_(addedDataSets))
+                                .concat(_(cached))
                                 .uniqBy(getId)
                                 .value();
-                            return _c(removed).isEmpty()
+                            return _(removed).isEmpty()
                                 ? newDataSets
                                 : excludeRemoved(newDataSets, removed);
                         });
@@ -74,13 +74,13 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
                 );
             } else {
                 setDataSets(dataSets => {
-                    const newDataSets = _c(dataSets).concat(_c(cached)).uniqBy(getId).value();
-                    return _c(removed).isEmpty()
+                    const newDataSets = _(dataSets).concat(_(cached)).uniqBy(getId).value();
+                    return _(removed).isEmpty()
                         ? newDataSets
                         : excludeRemoved(newDataSets, removed);
                 });
             }
-        } else if (_c(removed).isNotEmpty()) {
+        } else if (_(removed).isNotEmpty()) {
             setDataSets(dataSets => excludeRemoved(dataSets, removed));
         }
     }, [
@@ -101,8 +101,8 @@ function excludeRemoved(dataSets: DataSet[], removed: BasicDataSet[]) {
 }
 
 function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) {
-    const newDS = _c(newDataSets);
-    const oldDS = _c(oldDataSets);
+    const newDS = _(newDataSets);
+    const oldDS = _(oldDataSets);
 
     const added = newDS.differenceBy(getId, oldDS);
     const removed = oldDS.differenceBy(getId, newDS);

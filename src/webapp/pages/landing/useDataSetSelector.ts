@@ -5,7 +5,7 @@ import { OrgUnit } from "$/domain/entities/OrgUnit";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { MultipleSelectorProps } from "$/webapp/components/multiple-selector/MultipleSelector";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 export type LoadingState = "loading" | "loaded" | "error";
 
@@ -38,7 +38,7 @@ export function useDataSetSelector() {
 
     const props: SelectorProps<BasicDataSet> = React.useMemo(
         () => ({
-            items: _c(dataSets.map(ds => ({ value: ds.id, text: ds.displayName })))
+            items: _(dataSets.map(ds => ({ value: ds.id, text: ds.displayName })))
                 .sortBy(i => i.text.toLowerCase())
                 .value(),
             allItems: dataSets,

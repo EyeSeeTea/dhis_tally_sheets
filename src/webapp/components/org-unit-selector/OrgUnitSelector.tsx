@@ -23,7 +23,7 @@ import {
 } from "$/webapp/components/multiple-selector/MultipleSelector";
 import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 interface OrgUnitSelectorProps {
     selected: OrgUnit[];
@@ -74,7 +74,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
     const apply = React.useCallback(() => {
         startLoading();
         const userOrgUnitIds = currentUser.organisationUnits.map(({ id }) => id);
-        const orgUnitIds = _c(current.selectedPaths)
+        const orgUnitIds = _(current.selectedPaths)
             .map(path => path.split("/").slice(-1))
             .flatten()
             .value();
@@ -109,7 +109,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
     ]);
 
     const initiallyExpanded = React.useMemo(() => {
-        const orgUnitPath = _c(selectedPaths).first();
+        const orgUnitPath = _(selectedPaths).first();
         const parent = orgUnitPath?.split("/").slice(0, -1).join("/");
         return parent ? [parent] : undefined;
     }, [selectedPaths]);
@@ -120,7 +120,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
     }, [onlyUserOU, open, selectedPaths]);
 
     const clear = React.useCallback(() => {
-        if (_c(selected).isEmpty()) cancel();
+        if (_(selected).isEmpty()) cancel();
     }, [selected, cancel]);
 
     React.useEffect(clear, [clear]);
@@ -128,7 +128,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
     const label = i18n.t("Filter by Organisation Unit");
 
     const selectorProps: MultipleSelectorProps = React.useMemo(() => {
-        const sorted = _c(selected)
+        const sorted = _(selected)
             .sortBy(ou => ou.level)
             .value();
 
@@ -153,7 +153,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
         [currentUser.organisationUnits]
     );
 
-    const notAvailableText = _c(illegalOrgUnits).isNotEmpty()
+    const notAvailableText = _(illegalOrgUnits).isNotEmpty()
         ? i18n.t(
               "Option not available for users assigned to organisation units: " +
                   illegalOrgUnits.join(", ")
@@ -168,7 +168,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                 <DialogContent dividers>
                     <DisableableTooltip
                         title={notAvailableText}
-                        disabled={_c(illegalOrgUnits).isNotEmpty()}
+                        disabled={_(illegalOrgUnits).isNotEmpty()}
                     >
                         <FormControlLabel
                             control={
@@ -177,7 +177,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                                     onChange={toggleUserDataSetsOnly}
                                     name="userDataSetsOnly"
                                     color="primary"
-                                    disabled={_c(illegalOrgUnits).isNotEmpty()}
+                                    disabled={_(illegalOrgUnits).isNotEmpty()}
                                 />
                             }
                             label={i18n.t(

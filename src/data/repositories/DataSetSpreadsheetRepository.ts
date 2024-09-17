@@ -5,7 +5,7 @@ import { FutureData } from "$/data/api-futures";
 import { Future } from "$/domain/entities/generic/Future";
 import { Maybe } from "$/utils/ts-utils";
 import { defaultConfig } from "$/domain/entities/Config";
-import _c, { Collection } from "$/domain/entities/generic/Collection";
+import _, { Collection } from "$/domain/entities/generic/Collection";
 
 /* Note: Shouldn't be the implemented repository DataSetRepository itself, instead of the "export"?
  * Right? And save method inside DataSetRepository */
@@ -36,7 +36,7 @@ function exportDataSet(workbook: Workbook, dataSet: DataSet, sheetName: string) 
 
     const finalRow = formType === "SECTION" ? populateSections(sheet, dataSet) : 1;
     const values = sheet.range(`A1:A${finalRow}`).value();
-    const ranges = _c(values)
+    const ranges = _(values)
         .flatten()
         .compact()
         .map(s => s.length)
@@ -103,12 +103,12 @@ function getSectionTables(categoryCombos: CategoryCombo[], greyedFields: GreyedF
         const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
             categoryOptions.map(({ displayFormName }) => displayFormName)
         );
-        const thead = (_c(optionNames).cartesian().unzip().value() as string[][]).map(
+        const thead = (_(optionNames).cartesian().unzip().value() as string[][]).map(
             row => [undefined, ...row] //add an empty cell for the data elements column
         );
 
         const cocIds = categoryCombo.categoryOptionCombos.map(({ id }) => id);
-        const combinations = (_c(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
+        const combinations = (_(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
 
         const tbody =
             categoryCombo.dataElements?.map(de => {
@@ -148,7 +148,7 @@ function addSection(sheet: Sheet, section: Section, rowNum: RowNumber): RowNumbe
         const _headRows = thead.map((row, rIdx) => {
             const r = num + rIdx;
 
-            const _cells = _c(row)
+            const _cells = _(row)
                 .map((v, cIdx) => {
                     if (!v) return;
                     return sheet
@@ -173,7 +173,7 @@ function addSection(sheet: Sheet, section: Section, rowNum: RowNumber): RowNumbe
         const _bodyRows = tbody.map((row, rIdx) => {
             const r = num + rIdx + thead.length;
 
-            const _cells = _c(row)
+            const _cells = _(row)
                 .map((v, cIdx) => {
                     if (!v) return;
                     return sheet
@@ -186,7 +186,7 @@ function addSection(sheet: Sheet, section: Section, rowNum: RowNumber): RowNumbe
                 .value();
         });
 
-        const columnsLength = _c(thead).first()?.length ?? 1;
+        const columnsLength = _(thead).first()?.length ?? 1;
         const lastRow = rowNum + thead.length + tbody.length;
         const lastCell = sheet.row(lastRow).cell(columnsLength);
         sheet.row(num).cell(START_COLUMN).rangeTo(lastCell).style(styles.borders);

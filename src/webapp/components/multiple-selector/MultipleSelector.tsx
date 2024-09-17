@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { MultipleDropdownProps } from "@eyeseetea/d2-ui-components";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
 import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 
@@ -65,7 +65,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
 
     const selected = React.useMemo(() => {
         if (isAllSelected && allOption) return [allOption.value];
-        else return _c(values).isEmpty() ? ["multiple-selector-void"] : values;
+        else return _(values).isEmpty() ? ["multiple-selector-void"] : values;
     }, [allOption, isAllSelected, values]);
 
     const helperText = React.useMemo(() => {

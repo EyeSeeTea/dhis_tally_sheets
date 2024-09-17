@@ -2,7 +2,7 @@ import { Id, Ref } from "$/domain/entities/Ref";
 import { BasicDataSet, BasicDataSetAttrs, Translation } from "$/domain/entities/BasicDataSet";
 import { Maybe } from "$/utils/ts-utils";
 import { Locale } from "$/domain/entities/Locale";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 
 export interface DataSetAttrs extends BasicDataSetAttrs {
@@ -220,7 +220,7 @@ export class DataSet extends BasicDataSet {
             const categoryOptionCombos = categoryCombo.categoryOptionCombos
                 .map(categoryOptionCombo => ({
                     id: categoryOptionCombo.id,
-                    categoryOptions: _c(categoryOptionCombo.categoryOptions)
+                    categoryOptions: _(categoryOptionCombo.categoryOptions)
                         .sortBy(({ id }) => categoriesOrder.findIndex(c => c.includes(id)))
                         .value(),
                 }))
@@ -265,7 +265,7 @@ export class DataSet extends BasicDataSet {
 
         //Order category combos by the ones that comes first on the dataset dataElements
         //Needed when multiple dataElements differ on categoryCombo
-        const orderedCategoryCombos = _c(mappedCategoryCombos).sortBy(categoryCombo =>
+        const orderedCategoryCombos = _(mappedCategoryCombos).sortBy(categoryCombo =>
             section.dataElements.findIndex(de => de.categoryCombo.id === categoryCombo.id)
         );
 
@@ -273,7 +273,7 @@ export class DataSet extends BasicDataSet {
             .map(categoryCombo => {
                 return {
                     ...categoryCombo,
-                    categoryOptionCombos: _c(categoryCombo.categoryOptionCombos)
+                    categoryOptionCombos: _(categoryCombo.categoryOptionCombos)
                         .sortBy(categoryOptionCombo => {
                             //Assign to each word of the (displayFormName) the index where it appears on categoryCombo.categories[]
                             //Output: [1, 2, 0]

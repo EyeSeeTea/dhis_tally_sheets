@@ -6,23 +6,23 @@ import { D2Api } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { Future } from "$/domain/entities/generic/Future";
 import { filterValidInstances } from "$/domain/entities/generic/Struct";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 export class DataSetD2Repository implements DataSetRepository {
     constructor(private api: D2Api) {}
 
     public getBasic(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
-        if (_c(orgUnitIds).isEmpty()) return this.getBasicDataSets([]);
+        if (_(orgUnitIds).isEmpty()) return this.getBasicDataSets([]);
 
         const basicDataSets$ = Future.sequential(
-            _c(orgUnitIds)
+            _(orgUnitIds)
                 .chunk(500)
                 .map(ids => this.getBasicDataSets(ids))
                 .value()
         );
 
         return basicDataSets$.map(basicDataSets =>
-            _c(basicDataSets)
+            _(basicDataSets)
                 .flatten()
                 .uniqBy(({ id }) => id)
                 .value()
@@ -55,7 +55,7 @@ export class DataSetD2Repository implements DataSetRepository {
                 fields: partialDataSetFields,
                 filter: {
                     formType: { "!eq": "CUSTOM" },
-                    "organisationUnits.id": _c(orgUnitIds).isNotEmpty()
+                    "organisationUnits.id": _(orgUnitIds).isNotEmpty()
                         ? { in: orgUnitIds }
                         : undefined,
                 },

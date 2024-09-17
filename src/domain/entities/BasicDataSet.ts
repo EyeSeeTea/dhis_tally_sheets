@@ -1,5 +1,5 @@
 import { constants } from "$/data/repositories/d2-metadata";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 import { Struct } from "$/domain/entities/generic/Struct";
 import { Id, NamedRef } from "$/domain/entities/Ref";
 
@@ -18,7 +18,7 @@ export class BasicDataSet extends Struct<BasicDataSetAttrs>() {
     }
 
     getAvailableLocaleCodes(): string[] {
-        return _c(this.translations)
+        return _(this.translations)
             .filter(translation => translation.property === "NAME")
             .map(translation => translation.locale.split("_")[0])
             .concat("en") // Add English because it might not be in translations

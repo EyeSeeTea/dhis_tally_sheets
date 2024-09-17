@@ -4,7 +4,7 @@ import { useAppContext } from "$/webapp/contexts/app-context";
 import { LoadingState, SelectorProps } from "$/webapp/pages/landing/useDataSetSelector";
 import { Locale } from "$/domain/entities/Locale";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 export function useLanguageSelector(
     availableLocales: string[],
@@ -50,7 +50,7 @@ export function useLanguageSelector(
             type: "language",
             pluralType: "languages",
             allItems: available,
-            disabled: loading === "loading" || _c(available).isEmpty(),
+            disabled: loading === "loading" || _(available).isEmpty(),
             allOption: canSelectAllLocales
                 ? {
                       value: allValue,
@@ -86,10 +86,10 @@ export function useLanguageSelector(
         const codes = available.map(locale => locale.code);
 
         setSelected(selected => {
-            return _c(selected).isEmpty() && preferredIsAvailable
+            return _(selected).isEmpty() && preferredIsAvailable
                 ? [preferredLocale]
-                : _c(selected)
-                      .select(s => codes.includes(s) || (s === allValue && _c(codes).isNotEmpty()))
+                : _(selected)
+                      .select(s => codes.includes(s) || (s === allValue && _(codes).isNotEmpty()))
                       .value();
         });
     }, [available, preferredLocale]);

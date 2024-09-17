@@ -21,7 +21,7 @@ import i18n from "$/utils/i18n";
 import { styled } from "styled-components";
 import { Maybe } from "$/utils/ts-utils";
 import { useAppContext } from "$/webapp/contexts/app-context";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 interface DataSetTableProps {
     dataSet: DataSet;
@@ -183,7 +183,7 @@ const DisplayTable: React.FC<{ table: TableProps }> = React.memo(props => {
 });
 
 function getColSpan(idx: number, mergeRanges: MergeRange[]): Maybe<number> {
-    const range = _c(mergeRanges.filter(([start, _end]) => start === idx)).first();
+    const range = _(mergeRanges.filter(([start, _end]) => start === idx)).first();
     return range ? range[1] - range[0] + 1 : undefined;
 }
 
@@ -195,12 +195,12 @@ function getSectionTables(
         const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
             categoryOptions.map(({ displayFormName }) => displayFormName)
         );
-        const thead = (_c(optionNames).cartesian().unzip().value() as string[][]).map(
+        const thead = (_(optionNames).cartesian().unzip().value() as string[][]).map(
             row => [undefined, ...row] //add an empty cell for the data elements column
         );
 
         const cocIds = categoryCombo.categoryOptionCombos.map(({ id }) => id);
-        const combinations = (_c(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
+        const combinations = (_(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
 
         const tbody =
             categoryCombo.dataElements?.map(de => {

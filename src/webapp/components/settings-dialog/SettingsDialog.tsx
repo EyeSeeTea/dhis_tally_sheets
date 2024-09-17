@@ -18,7 +18,7 @@ import {
 import { useSettingsDialog } from "$/webapp/components/settings-dialog/useSettingsDialog";
 import { Maybe } from "$/utils/ts-utils";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 export interface SettingsDialogProps {
     open: boolean;

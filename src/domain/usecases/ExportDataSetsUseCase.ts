@@ -6,7 +6,7 @@ import { Locale } from "$/domain/entities/Locale";
 import { Future } from "$/domain/entities/generic/Future";
 import { Repositories } from "$/CompositionRoot";
 import { Config } from "$/domain/entities/Config";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 export class ExportDataSetsUseCase {
     constructor(private repositories: Repositories) {}
@@ -19,9 +19,9 @@ export class ExportDataSetsUseCase {
     }): FutureData<void> {
         const { dataSets, locales, config, includeHeaders: _includeHeaders } = options;
 
-        const pickedTranslations = _c(dataSets).toHashMap(dataSet => {
+        const pickedTranslations = _(dataSets).toHashMap(dataSet => {
             const availableLocaleCodes = dataSet.getAvailableLocaleCodes();
-            const availableLocales = _c(locales).filter(({ code }) =>
+            const availableLocales = _(locales).filter(({ code }) =>
                 availableLocaleCodes.includes(code)
             );
 

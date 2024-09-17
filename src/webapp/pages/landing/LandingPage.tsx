@@ -31,7 +31,7 @@ import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/Disa
 import { useLandingPage } from "$/webapp/pages/landing/useLandingPage";
 import { OrgUnit } from "$/domain/entities/OrgUnit";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 import "./landing-page.css";
 
 export const LandingPage: React.FC = React.memo(() => {
@@ -95,7 +95,7 @@ export const LandingPage: React.FC = React.memo(() => {
                 </Box>
             </Paper>
 
-            {!allDataSetsSelected && _c(dataSets).isNotEmpty() && (
+            {!allDataSetsSelected && _(dataSets).isNotEmpty() && (
                 <Box
                     className="print-zone"
                     marginTop={theme.spacing(0.5)}

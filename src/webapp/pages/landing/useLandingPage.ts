@@ -9,7 +9,7 @@ import { useDataSets } from "$/webapp/pages/landing/useDataSets";
 import { useDataSetSelector } from "$/webapp/pages/landing/useDataSetSelector";
 import { BasicDataSet } from "$/domain/entities/BasicDataSet";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 import "./landing-page.css";
 
 export function useLandingPage() {
@@ -62,7 +62,7 @@ export function useLandingPage() {
     );
 
     const exportToExcel = React.useCallback(() => {
-        if (_c(dataSets).isNotEmpty() && _c(selectedLocales).isNotEmpty())
+        if (_(dataSets).isNotEmpty() && _(selectedLocales).isNotEmpty())
             compositionRoot.dataSets.export
                 .execute({
                     dataSets,
@@ -99,7 +99,7 @@ export function useLandingPage() {
 
     const disabledRestore =
         loading ||
-        (_c(selectedDataSets).isEmpty() && _c(selectedLocales).isEmpty() && _c(orgUnits).isEmpty());
+        (_(selectedDataSets).isEmpty() && _(selectedLocales).isEmpty() && _(orgUnits).isEmpty());
 
     return {
         loading,
@@ -117,17 +117,17 @@ export function useLandingPage() {
         dataSetSelectorProps,
         languageSelectorProps,
         includeHeaders,
-        disabledExport: _c(selectedDataSets).isEmpty() || _c(selectedLocales).isEmpty() || loading,
+        disabledExport: _(selectedDataSets).isEmpty() || _(selectedLocales).isEmpty() || loading,
         allDataSetsSelected: dataSetSelectorProps.allSelected,
     };
 }
 
 function getAvailableLocales(dataSets: BasicDataSet[]): string[] {
-    const avail = _c(dataSets.map(ds => ds.getAvailableLocaleCodes()))
+    const avail = _(dataSets.map(ds => ds.getAvailableLocaleCodes()))
         .flatten()
         .concat("en") // Add English because is not included in translations
         .uniq()
         .compact()
         .value();
-    return _c(dataSets).isEmpty() ? [] : avail;
+    return _(dataSets).isEmpty() ? [] : avail;
 }

@@ -8,7 +8,7 @@ import {
 } from "$/webapp/components/settings-dialog/SettingsDialog";
 import { Maybe } from "$/utils/ts-utils";
 import i18n from "$/utils/i18n";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 type Settings = {
     sheetName: string;
@@ -45,7 +45,7 @@ export function useSettingsDialog(props: SettingsDialogProps) {
 
         const config = {
             ...settings,
-            administratorGroups: _c(settings.administratorGroups.split(","))
+            administratorGroups: _(settings.administratorGroups.split(","))
                 .map(id => id.trim())
                 .compact()
                 .value(),

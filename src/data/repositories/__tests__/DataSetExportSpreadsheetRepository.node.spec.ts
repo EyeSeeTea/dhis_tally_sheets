@@ -9,7 +9,7 @@ import {
     processedDataSet,
     translatedDataSets,
 } from "$/data/repositories/__tests__/spreadsheet-fixtures/spreadsheetFixtures";
-import _c from "$/domain/entities/generic/Collection";
+import _ from "$/domain/entities/generic/Collection";
 
 describe("DataSetSpreadsheetRepository", () => {
     const repository = new DataSetSpreadsheetRepository();
@@ -67,7 +67,7 @@ describe("DataSetSpreadsheetRepository", () => {
 
 const processedDataSetPath = "spreadsheet-fixtures/spreadsheets/processed-dataset.xlsx";
 
-const translated = _c([
+const translated = _([
     {
         dataSet: translatedDataSets.ar,
         relativePath: "spreadsheet-fixtures/spreadsheets/dataset-ar.xlsx",

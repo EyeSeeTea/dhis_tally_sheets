@@ -3,7 +3,6 @@ import { UserRepository } from "$/domain/repositories/UserRepository";
 import { D2Api, MetadataPick } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { Id } from "$/domain/entities/Ref";
-import _c from "$/domain/entities/generic/Collection";
 
 export class UserD2Repository implements UserRepository {
     constructor(private api: D2Api) {}
