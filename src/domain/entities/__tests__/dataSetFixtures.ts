@@ -15,9 +15,7 @@ export function basicAttrsWithCustomFormType(): BasicDataSetAttrs {
 
 export function basicAttrsWithHideInTallySheetsAttribute(): BasicDataSetAttrs {
     return createBasicAttrs({
-        attributeValues: [
-            { value: "true", attribute: { id: "BwyMfDBLih9", name: "hideInTallySheet" } },
-        ],
+        attributeValues: [{ value: "true", attribute: { id: "att_id", name: "hideInTallySheet" } }],
     });
 }
 
@@ -50,7 +48,7 @@ function createBasicAttrs(options?: {
     const attributeValues = options?.attributeValues ?? [];
 
     return {
-        id: "BwyMfDBLih9",
+        id: "dataset_id",
         translations: [],
         displayName: "Basic Data Set",
         formType: formType,
@@ -62,8 +60,6 @@ function createAttrs(options?: { sections?: DataSetAttrs["sections"] }): DataSet
     return {
         ...createBasicAttrs(),
         name: "",
-        displayFormName: "",
-        formName: "",
         sections: options?.sections ?? [],
         dataSetElements: [],
     };

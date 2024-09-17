@@ -58,6 +58,16 @@ describe("Collection", () => {
         expectTypeOf(values).toEqualTypeOf<Collection<string>>();
     });
 
+    test("concat", () => {
+        const values1 = _([1, 2]);
+        const values2 = _([3, 4]);
+        const concatenated = values1.concat(values2);
+        const str = _(["a"]);
+
+        expect(concatenated.toArray()).toEqual([1, 2, 3, 4]);
+        expect(str.concat("b").toArray()).toEqual(["a", "b"]);
+    });
+
     test("append", () => {
         expect(_([1, 2]).append(3).toArray()).toEqual([1, 2, 3]);
     });
@@ -139,6 +149,45 @@ describe("Collection", () => {
         expect(xs.getMany([]).toArray()).toEqual([]);
         expect(xs.getMany([0, 2]).toArray()).toEqual(["a", "c"]);
         expect(xs.getMany([1, 3]).toArray()).toEqual(["b", undefined]);
+    });
+
+    test("intersection", () => {
+        const xs = _([1, 2, 3]);
+
+        expect(xs.intersection(_([2, 3, 4])).toArray()).toEqual([2, 3]);
+        expect(xs.intersection(_([4, 5, 6])).toArray()).toEqual([]);
+        expect(xs.intersection(_([2, 3, 4]), _([3, 4, 5])).toArray()).toEqual([3]);
+        expect(xs.intersection(_([4, 5, 6]), _([7, 8, 9])).toArray()).toEqual([]);
+    });
+
+    test("difference", () => {
+        const xs = _([1, 2, 3]);
+
+        expect(xs.difference(_([2, 3, 4])).toArray()).toEqual([1]);
+        expect(xs.difference(_([4, 5, 6])).toArray()).toEqual([1, 2, 3]);
+        expect(xs.difference(_([2, 3, 4]), _([3, 4, 5])).toArray()).toEqual([1]);
+        expect(xs.difference(_([4, 5, 6]), _([7, 8, 9])).toArray()).toEqual([1, 2, 3]);
+    });
+
+    test("differenceBy", () => {
+        function addId(n: number) {
+            return { id: n };
+        }
+
+        function getId(obj: { id: number }) {
+            return obj.id;
+        }
+
+        const xs = _([1, 2, 3].map(addId));
+        const xs2 = _([2, 3, 4].map(addId));
+        const xs3 = _([3, 4, 5].map(addId));
+        const xs4 = _([4, 5, 6].map(addId));
+        const xs7 = _([7, 8, 9].map(addId));
+
+        expect(xs.differenceBy(getId, xs2).toArray()).toEqual([1].map(addId));
+        expect(xs.differenceBy(getId, xs4).toArray()).toEqual([1, 2, 3].map(addId));
+        expect(xs.differenceBy(getId, xs2, xs3).toArray()).toEqual([1].map(addId));
+        expect(xs.differenceBy(getId, xs4, xs7).toArray()).toEqual([1, 2, 3].map(addId));
     });
 
     test("intersperse", () => {
@@ -288,6 +337,17 @@ describe("Collection", () => {
             [1, "a"],
             [2, "b"],
         ]);
+    });
+
+    test("unzip", () => {
+        const unzipped: Collection<any[]> = _([
+            [1, "a"],
+            [2, "b"],
+        ]).unzip();
+
+        expectTypeOf(unzipped).toEqualTypeOf<Collection<any[]>>();
+        expect(unzipped.get(0)).toEqual([1, 2]);
+        expect(unzipped.get(1)).toEqual(["a", "b"]);
     });
 
     test("prepend", () => {

@@ -10,7 +10,7 @@ export const appConfig: AppConfig = {
             clickUp: {
                 // https://app.clickup.com/${workspace}/v/b/N-${listId}-M
                 // Web development -> Common resources -> app-skeleton
-                listId: "42597084",
+                listId: "901204158366",
                 title: "[User feedback] {title}",
                 body: "## dhis2\n\nUsername: {username}\n\n{body}",
             },
@@ -19,12 +19,16 @@ export const appConfig: AppConfig = {
             buttonPosition: "bottom-end",
         },
     },
+    storage: "constants",
 };
 
-export interface AppConfig {
+interface AppConfig {
     id: string;
     appearance: {
         showShareButton: boolean;
     };
     feedback?: FeedbackOptions;
+    storage: "constants" | "dataStore";
 }
+
+export type StorageSource = AppConfig["storage"];

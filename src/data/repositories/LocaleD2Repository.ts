@@ -25,22 +25,8 @@ export class LocaleD2Repository implements LocaleRepository {
 }
 
 type D2Locale = {
-    name: string;
-    created: string;
-    lastUpdated: string;
-    translations: never[];
-    externalAccess: false;
-    userGroupAccesses: never[];
-    userAccesses: never[];
-    favorites: never[];
-    sharing: {
-        external: false;
-        users: {};
-        userGroups: {};
-    };
-    locale: string;
-    displayName: string;
-    favorite: false;
     id: string;
-    attributeValues: never[];
+    name: string;
+    displayName: string;
+    locale: string;
 };

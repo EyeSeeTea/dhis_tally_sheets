@@ -2,25 +2,31 @@ import { Id } from "$/domain/entities/Ref";
 import { BasicDataSet, BasicDataSetAttrs } from "$/domain/entities/BasicDataSet";
 import { DataSet, DataSetAttrs } from "$/domain/entities/DataSet";
 import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
-import { D2Api, MetadataPick } from "$/types/d2-api";
+import { D2Api } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
-import { filterValidInstances } from "$/utils/instance-utils";
+import { Future } from "$/domain/entities/generic/Future";
+import { filterValidInstances } from "$/domain/entities/generic/Struct";
+import _c from "$/domain/entities/generic/Collection";
 
 export class DataSetD2Repository implements DataSetRepository {
     constructor(private api: D2Api) {}
 
-    public getAllBasic(): FutureData<BasicDataSet[]> {
-        return apiToFuture(
-            this.api.models.dataSets.get({
-                fields: partialDataSetFields,
-                filter: { formType: { "!eq": "CUSTOM" } },
-                translate: "true",
-                paging: false,
-            })
-        ).map(res => {
-            const attrs: BasicDataSetAttrs[] = res.objects.map(this.buildBasicDataSet);
-            return filterValidInstances(BasicDataSet, attrs).instances;
-        });
+    public getBasic(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
+        if (_c(orgUnitIds).isEmpty()) return this.getBasicDataSets([]);
+
+        const basicDataSets$ = Future.sequential(
+            _c(orgUnitIds)
+                .chunk(500)
+                .map(ids => this.getBasicDataSets(ids))
+                .value()
+        );
+
+        return basicDataSets$.map(basicDataSets =>
+            _c(basicDataSets)
+                .flatten()
+                .uniqBy(({ id }) => id)
+                .value()
+        );
     }
 
     public getByIds(ids: Id[]): FutureData<DataSet[]> {
@@ -28,81 +34,51 @@ export class DataSetD2Repository implements DataSetRepository {
             this.api.models.dataSets.get({
                 fields: dataSetFields,
                 filter: { id: { in: ids }, formType: { "!eq": "CUSTOM" } },
-                translate: "true",
                 paging: false,
             })
-        ).map(res => {
-            const attrs: DataSetAttrs[] = res.objects.map(this.buildFullDataSet);
-            return filterValidInstances(DataSet, attrs).instances;
-        });
+        ).map(res => this.createDataSets(res.objects));
     }
 
-    public getAll(): FutureData<DataSet[]> {
+    public get(): FutureData<DataSet[]> {
         return apiToFuture(
             this.api.models.dataSets.get({
                 fields: dataSetFields,
                 filter: { formType: { "!eq": "CUSTOM" } },
-                translate: "true",
                 paging: false,
             })
-        ).map(res => {
-            const attrs: DataSetAttrs[] = res.objects.map(this.buildFullDataSet);
-            return filterValidInstances(DataSet, attrs).instances;
-        });
+        ).map(res => this.createDataSets(res.objects));
     }
 
-    private buildBasicDataSet(d2DataSet: PartialD2DataSet): BasicDataSetAttrs {
-        return {
-            id: d2DataSet.id,
-            formType: d2DataSet.formType,
-            displayName: d2DataSet.displayName,
-            translations: d2DataSet.translations,
-            attributeValues: d2DataSet.attributeValues,
-        };
+    private getBasicDataSets(orgUnitIds: Id[]): FutureData<BasicDataSet[]> {
+        return apiToFuture(
+            this.api.models.dataSets.get({
+                fields: partialDataSetFields,
+                filter: {
+                    formType: { "!eq": "CUSTOM" },
+                    "organisationUnits.id": _c(orgUnitIds).isNotEmpty()
+                        ? { in: orgUnitIds }
+                        : undefined,
+                },
+                paging: false,
+            })
+        ).map(res => this.createBasicDataSets(res.objects));
     }
 
-    private buildFullDataSet(d2DataSet: D2DataSet): DataSetAttrs {
-        return {
-            id: d2DataSet.id,
-            name: d2DataSet.name,
-            displayFormName: d2DataSet.displayFormName,
-            translations: d2DataSet.translations,
-            formName: d2DataSet.formName,
-            displayName: d2DataSet.displayName,
-            formType: d2DataSet.formType,
-            attributeValues: d2DataSet.attributeValues,
-            sections: d2DataSet.sections.map(section => ({
-                id: section.id,
-                translations: section.translations,
-                name: section.name,
-                displayName: section.displayName,
-                description: section.description,
-                categoryCombos: section.categoryCombos.map(categoryCombo => ({
-                    id: categoryCombo.id,
-                    displayName: undefined,
-                    categories: categoryCombo.categories,
-                    categoryOptionCombos: categoryCombo.categoryOptionCombos,
-                })),
-                dataElements: section.dataElements,
-                greyedFields: section.greyedFields,
-            })),
-            dataSetElements: d2DataSet.dataSetElements.map(dataSetElement => ({
-                categoryCombo: dataSetElement.categoryCombo,
-                dataElement: { ...dataSetElement.dataElement, categoryCombo: undefined },
-            })),
-        };
+    private createBasicDataSets(attrs: BasicDataSetAttrs[]): BasicDataSet[] {
+        return filterValidInstances(BasicDataSet, attrs).instances;
+    }
+
+    private createDataSets(attrs: DataSetAttrs[]): DataSet[] {
+        return filterValidInstances(DataSet, attrs).instances;
     }
 }
 
-//CHECK DISPLAY NAMES ARE NOW AUTO TRANSLATED
 const dataSetFields = {
     id: true,
     name: true,
-    displayFormName: true,
-    translations: true,
-    formName: true,
     displayName: true,
     formType: true,
+    translations: true,
     attributeValues: {
         attribute: {
             id: true,
@@ -116,20 +92,20 @@ const dataSetFields = {
         name: true,
         displayName: true,
         description: true,
+        displayDescription: true,
         categoryCombos: {
             id: true,
             categories: {
                 categoryOptions: {
                     id: true,
                     name: true,
+                    formName: true,
                     displayFormName: true,
                     translations: true,
                 },
             },
             categoryOptionCombos: {
                 id: true,
-                name: true,
-                displayFormName: true,
                 categoryOptions: {
                     id: true,
                     name: true,
@@ -141,9 +117,9 @@ const dataSetFields = {
         dataElements: {
             id: true,
             name: true,
+            formName: true,
             displayFormName: true,
             translations: true,
-            formName: true,
             categoryCombo: true,
         },
         greyedFields: { dataElement: true, categoryOptionCombo: true },
@@ -155,9 +131,9 @@ const dataSetFields = {
         dataElement: {
             id: true,
             name: true,
+            formName: true,
             displayFormName: true,
             translations: true,
-            formName: true,
         },
     },
 } as const;
@@ -175,11 +151,3 @@ const partialDataSetFields = {
         value: true,
     },
 } as const;
-
-type D2DataSet = MetadataPick<{
-    dataSets: { fields: typeof dataSetFields };
-}>["dataSets"][number];
-
-type PartialD2DataSet = MetadataPick<{
-    dataSets: { fields: typeof partialDataSetFields };
-}>["dataSets"][number];

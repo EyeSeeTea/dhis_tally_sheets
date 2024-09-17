@@ -15,9 +15,6 @@ import { HashMap } from "./HashMap";
  * ```
  */
 
-// HMIS Tally Sheets not implemented methods from lodash:
-// "lodash": "4.17.21", --> _.isEmpty and _.intersection to be added to Collection
-
 export class Collection<T> {
     protected xs: T[];
 
@@ -29,6 +26,10 @@ export class Collection<T> {
 
     static from<T>(xs: T[]): Collection<T> {
         return new Collection(xs);
+    }
+
+    static fromSet<T>(set: Set<T>): Collection<T> {
+        return Collection.from(Array.from(set));
     }
 
     static range(start: number, end: number, step = 1): Collection<number> {
@@ -51,7 +52,7 @@ export class Collection<T> {
 
     /* Methods that return a Collection */
 
-    map<U>(fn: (x: T) => U): Collection<U> {
+    map<U>(fn: (x: T, idx: number) => U): Collection<U> {
         return _c(this.xs.map(fn));
     }
 
@@ -85,6 +86,14 @@ export class Collection<T> {
 
     compactMap<U>(fn: (x: T) => U | undefined | null): Collection<U> {
         return this.map(fn).compact() as unknown as Collection<U>;
+    }
+
+    concat(...items: (T | Collection<T>)[]): Collection<T> {
+        const flattenedItems = items.map(item =>
+            item instanceof Collection ? item.toArray() : item
+        );
+
+        return _c(this.xs.concat(...flattenedItems));
     }
 
     append(x: T): Collection<T> {
@@ -198,6 +207,43 @@ export class Collection<T> {
         return _c(idxs.map(idx => this.xs[idx]));
     }
 
+    /* June 2024 Set.prototype.intersection() Newly Available (same goes for union, difference, symmetricDifference) */
+    intersection(...collections: Collection<T>[]): Collection<T> {
+        const output: T[] = [];
+
+        for (const item of this.xs) {
+            if (collections.every(collection => collection.includes(item))) {
+                output.push(item);
+            }
+        }
+
+        return _c(output);
+    }
+
+    difference(...collections: Collection<T>[]): Collection<T> {
+        const output: T[] = [];
+
+        for (const item of this.xs) {
+            if (collections.every(collection => !collection.includes(item))) {
+                output.push(item);
+            }
+        }
+
+        return _c(output);
+    }
+
+    differenceBy<U>(mapper: (x: T) => U, ...collections: Collection<T>[]): Collection<T> {
+        const output: T[] = [];
+
+        for (const item of this.xs) {
+            if (collections.every(collection => !collection.map(mapper).includes(mapper(item)))) {
+                output.push(item);
+            }
+        }
+
+        return _c(output);
+    }
+
     intersperse(value: T): Collection<T> {
         return this.flatMap(x => _c([x, value])).thru(cs => cs.take(cs.size - 1));
     }
@@ -269,6 +315,18 @@ export class Collection<T> {
             .map(i => [this.xs[i], xs.xs[i]] as [T, S])
             .value();
         return _c(pairs);
+    }
+
+    unzip<U>(): Collection<U[]> {
+        if (this.xs.length === 0 || !Array.isArray(this.xs[0])) {
+            return _c<U[]>([]);
+        }
+
+        const unzipped = (this.xs[0] as U[]).map((_, i) =>
+            this.xs.map(tuple => (tuple as U[])[i] as U)
+        );
+
+        return Collection.from(unzipped);
     }
 
     /* Methods that return HashMap */

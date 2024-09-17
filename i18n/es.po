@@ -1,14 +1,59 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-08-28T13:57:13.972Z\n"
+"POT-Creation-Date: 2024-09-16T13:37:01.179Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
+msgctxt "STORAGE constant is not defined."
+msgid "The TALLY_SHEETS"
+msgstr ""
+
+msgctxt "STORAGE description is not a valid JSON object."
+msgid "The TALLY_SHEETS"
+msgstr ""
+
+msgid ""
+"Thanks for downloading HMIS Tally Sheets! You can edit or hide this info "
+"message placeholder under settings options. For any questions or feedback, "
+"please contact us through the 'Send Feddback' button on the bottom right "
+"corner."
+msgstr ""
+
+msgid "Health facility"
+msgstr "Centro sanitario"
+
+msgid "Reporting period"
+msgstr "Periodo reportado"
+
+msgid "Value"
+msgstr ""
+
+msgid "selected"
+msgstr ""
+
 msgid "Nothing selected"
+msgstr "Nada seleccionado"
+
+msgid "Unable to fetch the organisation unit children"
+msgstr ""
+
+msgid "Filter by Organisation Unit"
+msgstr ""
+
+msgid "Select an organisation unit"
+msgstr ""
+
+msgid "Select current user's organisation units (and children)"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Apply"
 msgstr ""
 
 msgid "Back"
@@ -17,35 +62,105 @@ msgstr "Volver"
 msgid "Help"
 msgstr "Ayuda"
 
-msgid "Include headers"
+msgid "Settings saved. Reloading page..."
 msgstr ""
 
-msgid "Select all languages"
+msgid "Settings"
 msgstr ""
 
-msgid "Select all datasets"
+msgid ""
+"The sheet name of the zip file that will be created when more than one "
+"dataset is selected"
+msgstr ""
+
+msgid "Sheet name"
+msgstr ""
+
+msgid ""
+"The filename of the zip file that will be created when more than one dataset "
+"is selected"
+msgstr ""
+
+msgid "Filename"
+msgstr ""
+
+msgid "User Group IDs separated by commas"
+msgstr ""
+
+msgid "Administrator Groups"
+msgstr ""
+
+msgid "The placeholder label that will be added next to '{{healthFacility}}: '"
+msgstr ""
+
+#, fuzzy
+msgid "Health Facility"
+msgstr "Centro sanitario"
+
+msgid "OU label"
+msgstr ""
+
+msgid ""
+"The placeholder label that will be added next to '{{reportingPeriod}}: '"
+msgstr ""
+
+#, fuzzy
+msgid "Reporting Period"
+msgstr "Periodo reportado"
+
+msgid "Period label"
+msgstr ""
+
+msgid ""
+"The placeholder message that will be shown to users at the top of the app. "
+"You can use this field to provide instructions or other information. To hide "
+"this message, leave this field empty."
+msgstr ""
+
+msgid "Message placeholder"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid ""
+"An error occurred while loading the application. Please contact your "
+"administrator."
+msgstr ""
+
+msgid "Something went wrong while creating the excel file"
+msgstr ""
+
+msgid "Restore changes"
 msgstr ""
 
 msgid "Print"
-msgstr ""
+msgstr "Imprimir"
 
-msgid "Export to MS Excel"
-msgstr ""
+msgid "Export to Excel"
+msgstr "Exportar a Excel"
+
+msgid "Include headers"
+msgstr "Incluir cabeceras"
 
 msgid "Select a dataset"
+msgstr "Selecciona un set de datos"
+
+msgid "ALL"
+msgstr ""
+
+msgid "Unable to fetch datasets list"
 msgstr ""
 
 msgid "Select a language"
+msgstr "Selecciona un idioma"
+
+msgid "Unable to fetch languages list"
 msgstr ""
 
-#~ msgid "Hello {{name}}"
-#~ msgstr "Hola {{name}}"
-
-#~ msgid "Add"
-#~ msgstr "Añadir"
-
-#~ msgid "List"
-#~ msgstr "Listar"
-
-#~ msgid "Section"
-#~ msgstr "Sección"
+#, fuzzy
+msgid "Unable to fetch datasets"
+msgstr "Selecciona un set de datos"

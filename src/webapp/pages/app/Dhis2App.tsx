@@ -1,9 +1,10 @@
 import React from "react";
-import i18n from "@dhis2/d2-i18n";
 import { Provider } from "@dhis2/app-runtime";
-import { D2Api } from "$/types/d2-api";
-import App from "./App";
 import { CompositionRoot, getWebappCompositionRoot } from "$/CompositionRoot";
+import { D2Api } from "$/types/d2-api";
+import { appConfig } from "$/app-config";
+import App from "./App";
+import i18n from "$/utils/i18n";
 
 export function Dhis2App(_props: {}) {
     const [compositionRootRes, setCompositionRootRes] = React.useState<CompositionRootResult>({
@@ -16,7 +17,7 @@ export function Dhis2App(_props: {}) {
 
     switch (compositionRootRes.type) {
         case "loading":
-            return <h3>Loading...</h3>;
+            return null;
         case "error": {
             const { baseUrl, error } = compositionRootRes.error;
             return (
@@ -54,7 +55,7 @@ async function getData(): Promise<CompositionRootResult> {
     const api = auth
         ? new D2Api({ baseUrl: baseUrl, auth: { username, password } })
         : new D2Api({ baseUrl: baseUrl });
-    const compositionRoot = getWebappCompositionRoot(api);
+    const compositionRoot = getWebappCompositionRoot(api, appConfig.storage);
 
     const userSettings = await api.get<{ keyUiLocale: string }>("/userSettings").getData();
     configI18n(userSettings);

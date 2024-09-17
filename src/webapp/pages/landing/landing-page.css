@@ -1,0 +1,49 @@
+@media print {
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    #root > header,
+    header * {
+        display: none;
+    }
+
+    /* Send feedback */
+    header + div {
+        display: none;
+    }
+
+    #app > div[class^="MuiBox"] {
+        margin: 0;
+        padding: 0;
+    }
+
+    #app > div > div:not(.print-zone) {
+        display: none;
+    }
+
+    .print-zone[class^="MuiBox"] {
+        margin: 0;
+    }
+
+    .print-zone .dataset-container {
+        border: none;
+        padding: 0;
+    }
+
+    .print-zone .dataset-container > div[class^="MuiBox"] {
+        padding: 0;
+    }
+
+    .print-zone button[aria-label="delete"] {
+        display: none;
+    }
+
+    h4[class^="MuiTypography"],
+    h6[class^="MuiTypography"] {
+        border: unset;
+        padding: 0;
+    }
+}

@@ -5,10 +5,55 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-28T13:57:13.972Z\n"
-"PO-Revision-Date: 2024-08-28T13:57:13.972Z\n"
+"POT-Creation-Date: 2024-09-17T01:59:04.779Z\n"
+"PO-Revision-Date: 2024-09-17T01:59:04.779Z\n"
+
+msgctxt "STORAGE constant is not defined."
+msgid "The TALLY_SHEETS"
+msgstr ""
+
+msgctxt "STORAGE description is not a valid JSON object."
+msgid "The TALLY_SHEETS"
+msgstr ""
+
+msgid ""
+"Thanks for downloading HMIS Tally Sheets! You can edit or hide this info "
+"message placeholder under settings options. For any questions or feedback, "
+"please contact us through the 'Send Feddback' button on the bottom right "
+"corner."
+msgstr ""
+
+msgid "Health facility"
+msgstr ""
+
+msgid "Reporting period"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "selected"
+msgstr ""
 
 msgid "Nothing selected"
+msgstr ""
+
+msgid "Unable to fetch the organisation unit children"
+msgstr ""
+
+msgid "Filter by Organisation Unit"
+msgstr ""
+
+msgid "Select an organisation unit"
+msgstr ""
+
+msgid "Select current user's organisation units (and children)"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Apply"
 msgstr ""
 
 msgid "Back"
@@ -17,23 +62,101 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-msgid "Include headers"
+msgid "Settings saved. Reloading page..."
 msgstr ""
 
-msgid "Select all languages"
+msgid "Settings"
 msgstr ""
 
-msgid "Select all datasets"
+msgid ""
+"The sheet name of the zip file that will be created when more than one "
+"dataset is selected"
+msgstr ""
+
+msgid "Sheet name"
+msgstr ""
+
+msgid ""
+"The filename of the zip file that will be created when more than one "
+"dataset is selected"
+msgstr ""
+
+msgid "Filename"
+msgstr ""
+
+msgid "User Group IDs separated by commas"
+msgstr ""
+
+msgid "Administrator Groups"
+msgstr ""
+
+msgid "The placeholder label that will be added next to '{{healthFacility}}: '"
+msgstr ""
+
+msgid "Health Facility"
+msgstr ""
+
+msgid "OU label"
+msgstr ""
+
+msgid "The placeholder label that will be added next to '{{reportingPeriod}}: '"
+msgstr ""
+
+msgid "Reporting Period"
+msgstr ""
+
+msgid "Period label"
+msgstr ""
+
+msgid ""
+"The placeholder message that will be shown to users at the top of the app. "
+"You can use this field to provide instructions or other information. To "
+"hide this message, leave this field empty."
+msgstr ""
+
+msgid "Message placeholder"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid ""
+"An error occurred while loading the application. Please contact your "
+"administrator."
+msgstr ""
+
+msgid "Something went wrong while creating the excel file"
+msgstr ""
+
+msgid "Restore changes"
 msgstr ""
 
 msgid "Print"
 msgstr ""
 
-msgid "Export to MS Excel"
+msgid "Export to Excel"
+msgstr ""
+
+msgid "Include headers"
 msgstr ""
 
 msgid "Select a dataset"
 msgstr ""
 
+msgid "ALL"
+msgstr ""
+
+msgid "Unable to fetch datasets list"
+msgstr ""
+
 msgid "Select a language"
+msgstr ""
+
+msgid "Unable to fetch languages list"
+msgstr ""
+
+msgid "Unable to fetch datasets"
 msgstr ""

@@ -1,3 +1,4 @@
+import { OrgUnit } from "$/domain/entities/OrgUnit";
 import { Struct } from "./generic/Struct";
 import { NamedRef } from "./Ref";
 
@@ -7,8 +8,11 @@ export interface UserAttrs {
     username: string;
     userRoles: UserRole[];
     userGroups: NamedRef[];
-    canSelectAllLocales: boolean;
     preferredLocale: string;
+    organisationUnits: OrgUnit[];
+    authorizations: {
+        canSelectAllLocales: boolean;
+    };
 }
 
 export interface UserRole extends NamedRef {
@@ -21,7 +25,6 @@ export class User extends Struct<UserAttrs>() {
     }
 
     isAdmin(): boolean {
-        /* Readded for next implementation Settings feature */
         return this.userRoles.some(({ authorities }) => authorities.includes("ALL"));
     }
 }
