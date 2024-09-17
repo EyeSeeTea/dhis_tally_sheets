@@ -38,6 +38,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
         <>
             <Dialog open={open} onClose={close} fullWidth>
                 <DialogTitle>{i18n.t("Settings")}</DialogTitle>
+
                 <DialogContent dividers>
                     <Box
                         display="flex"
@@ -51,7 +52,9 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         ))}
                     </Box>
                 </DialogContent>
+
                 <LinearProgress hidden={!loading} />
+
                 <DialogActions>
                     <Button onClick={close} color="default">
                         {i18n.t("Cancel")}

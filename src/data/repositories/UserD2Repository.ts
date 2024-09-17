@@ -7,12 +7,12 @@ import { Id } from "$/domain/entities/Ref";
 export class UserD2Repository implements UserRepository {
     constructor(private api: D2Api) {}
 
-    public getCurrent(authorizationGroups = { adminGroups: [] as Id[] }): FutureData<User> {
+    public getCurrent(options = { adminGroups: [] as Id[] }): FutureData<User> {
         return apiToFuture(
             this.api.currentUser.get({
                 fields: userFields,
             })
-        ).map(d2User => this.buildUser(d2User, authorizationGroups.adminGroups));
+        ).map(d2User => this.buildUser(d2User, options.adminGroups));
     }
 
     private buildUser(d2User: D2User, adminGroups: Id[]): User {

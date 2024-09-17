@@ -194,17 +194,18 @@ export class DataSet extends BasicDataSet {
     }
 
     private excludeCommentsSection(sections: DataSet["sections"]) {
-        return sections.filter(
-            section =>
-                !(
-                    section.name.toLowerCase().includes("comments") ||
-                    section.displayName.toLowerCase().includes("comments") ||
-                    section.displayName.toLowerCase().includes("comentarios") ||
-                    section.displayName.toLowerCase().includes("commentaires") ||
-                    section.displayName.toLowerCase().includes("comentários") ||
-                    section.displayName.toLowerCase().includes("notas")
-                )
-        );
+        return sections.filter(section => {
+            const displayName = section.displayName.toLowerCase();
+
+            return !(
+                section.name.toLowerCase().includes("comments") ||
+                displayName.includes("comments") ||
+                displayName.includes("comentarios") ||
+                displayName.includes("commentaires") ||
+                displayName.includes("comentários") ||
+                displayName.includes("notas")
+            );
+        });
     }
 
     private orderSectionContent(section: Section): Section {
@@ -292,9 +293,9 @@ export class DataSet extends BasicDataSet {
 
                             //Gives lower priority as [N] increases and does a sum of all values
                             //[1, 2, 0] -> [100, 20, 0] -> 120
-                            return prio
+                            return _(prio)
                                 .map((v, idx) => v * Math.pow(10, prio.length - 1 - idx))
-                                .reduce((a, b) => a + b, 0);
+                                .sum();
                         })
                         .value(),
                 };

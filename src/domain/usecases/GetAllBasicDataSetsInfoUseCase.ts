@@ -9,10 +9,7 @@ export class GetAllBasicDataSetsInfoUseCase {
     constructor(private repositories: Repositories) {}
 
     public execute(orgUnits: OrgUnit[]): FutureData<BasicDataSet[]> {
-        if (_(orgUnits).isEmpty()) {
-            return this.repositories.dataSetRepository.getBasic([]);
-        } else {
-            return this.repositories.dataSetRepository.getBasic(orgUnits.map(getId));
-        }
+        if (_(orgUnits).isEmpty()) return this.repositories.dataSetRepository.getBasic([]);
+        return this.repositories.dataSetRepository.getBasic(orgUnits.map(getId));
     }
 }
