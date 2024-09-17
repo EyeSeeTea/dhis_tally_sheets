@@ -54,15 +54,30 @@ export class DataSet extends BasicDataSet {
         });
     }
 
-    /* Default display fields on DataSet before method is called, are the fields to use in Presentation layer */
+    /**
+     * Applies the given locale to the DataSet, updating all relevant display names and headers
+     * to match the specified locale. This method traverses through the DataSet's sections,
+     * categoryCombos, categories, categoryOptions, categoryOptionCombos, dataElements, and
+     * dataSetElements, updating their display names using the provided locale. **Translations will
+     * be removed from all metadata after the locale is applied**.
+     *
+     * @param locale - The locale to apply to the DataSet.
+     * @returns A new DataSet instance with the locale applied and removed translations.
+     *
+     * @remarks
+     * This method is designed to at least reduce some memory because there will be not useful
+     * information on translations after the locale is applied. Actually quite a difference
+     * in memory usage if ALL datasets and ALL languages are selected.
+     */
     applyLocale(locale: Locale): DataSet {
         const defaultHeaders = {
-            healthFacility: `${i18n.t("Health facility", { lng: locale.code })}: `,
-            reportingPeriod: `${i18n.t("Reporting period", { lng: locale.code })}: `,
+            healthFacility: `${i18n.t("Health facility", { lng: locale.code })}:`,
+            reportingPeriod: `${i18n.t("Reporting period", { lng: locale.code })}:`,
         };
 
-        return new DataSet({
+        const newAttrs = this.removeTranslationsFromAttrs({
             ...this,
+            translations: [],
             locale: locale,
             headers: defaultHeaders,
             displayName: this.getDisplayName(this, locale.code),
@@ -104,10 +119,49 @@ export class DataSet extends BasicDataSet {
                 },
             })),
         });
+
+        return new DataSet(newAttrs);
     }
 
-    updateHeaders(headers: Headers): DataSet {
+    updateHeaders(headers: Maybe<Headers>): DataSet {
         return new DataSet({ ...this, headers });
+    }
+
+    private removeTranslationsFromAttrs(attrs: DataSetAttrs): DataSetAttrs {
+        return {
+            ...attrs,
+            sections: attrs.sections.map(section => ({
+                ...section,
+                translations: [],
+                categoryCombos: section.categoryCombos.map(categoryCombo => ({
+                    ...categoryCombo,
+                    categories: categoryCombo.categories.map(category => ({
+                        categoryOptions: category.categoryOptions.map(co => ({
+                            ...co,
+                            translations: [],
+                        })),
+                    })),
+                    categoryOptionCombos: categoryCombo.categoryOptionCombos.map(coc => ({
+                        ...coc,
+                        categoryOptions: coc.categoryOptions.map(co => ({
+                            ...co,
+                            translations: [],
+                        })),
+                    })),
+                })),
+                dataElements: section.dataElements.map(de => ({
+                    ...de,
+                    translations: [],
+                })),
+            })),
+            dataSetElements: attrs.dataSetElements.map(dse => ({
+                ...dse,
+                dataElement: {
+                    ...dse.dataElement,
+                    translations: [],
+                },
+            })),
+        };
     }
 
     private translateProperty(
@@ -291,6 +345,9 @@ export class DataSet extends BasicDataSet {
  * is not defined. So the best flow for picking the "display" field would be:
  * formName -> name (both in translations), -> formName -> name
  * (without translations) */
+
+/* Default display fields on DataSet before applyLocale() is called,
+ * are the fields to use in Presentation layer */
 
 export type Section = {
     id: Id;
