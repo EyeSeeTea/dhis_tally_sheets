@@ -426,13 +426,13 @@ function useLanguagesSelector(
         const preferredIsAvailable = available.map(locale => locale.code).includes(preferredLocale);
         const codes = available.map(locale => locale.code);
 
-        setSelected(selected =>
-            _c(selected).isEmpty() && preferredIsAvailable
+        setSelected(selected => {
+            return _c(selected).isEmpty() && preferredIsAvailable
                 ? [preferredLocale]
                 : _c(selected)
-                      .select(s => codes.includes(s))
-                      .value()
-        );
+                      .select(s => codes.includes(s) || (s === allValue && _c(codes).isNotEmpty()))
+                      .value();
+        });
     }, [available, preferredLocale]);
 
     return props;
