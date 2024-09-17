@@ -11,7 +11,14 @@ import _c from "$/domain/entities/generic/Collection";
 export class ExportDataSetsUseCase {
     constructor(private repositories: Repositories) {}
 
-    public execute(dataSets: DataSet[], locales: Locale[], config: Config): FutureData<void> {
+    public execute(options: {
+        dataSets: DataSet[];
+        locales: Locale[];
+        config: Config;
+        includeHeaders: boolean;
+    }): FutureData<void> {
+        const { dataSets, locales, config, includeHeaders: _includeHeaders } = options;
+
         const pickedTranslations = _c(dataSets).toHashMap(dataSet => {
             const availableLocaleCodes = dataSet.getAvailableLocaleCodes();
             const availableLocales = _c(locales).filter(({ code }) =>
@@ -37,6 +44,7 @@ export class ExportDataSetsUseCase {
                                 : headers.reportingPeriod,
                         };
 
+                        // (includeHeaders ? newHeaders: undefined) previously we were always including headers
                         return ds.updateHeaders(newHeaders);
                     })
                     .value()

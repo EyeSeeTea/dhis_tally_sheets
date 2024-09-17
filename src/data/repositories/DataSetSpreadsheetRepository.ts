@@ -80,9 +80,11 @@ const styles = {
     },
 };
 
-function populateHeaders(sheet: Sheet, headers: Headers, title: string) {
-    sheet.cell("A1").value(headers.healthFacility).style(styles.titleStyle);
-    sheet.cell("A2").value(headers.reportingPeriod).style({ bold: true, fontSize: 18 });
+function populateHeaders(sheet: Sheet, headers: Maybe<Headers>, title: string) {
+    if (headers) {
+        sheet.cell("A1").value(headers.healthFacility).style(styles.titleStyle);
+        sheet.cell("A2").value(headers.reportingPeriod).style({ bold: true, fontSize: 18 });
+    }
     sheet.cell("A3").value(title).style(styles.titleStyle);
 }
 
@@ -106,7 +108,7 @@ function populateDefault(sheet: Sheet, dataSet: DataSet) {
 }
 
 function populateSections(sheet: Sheet, dataSet: DataSet) {
-    if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayName);
+    populateHeaders(sheet, dataSet.headers, dataSet.displayName);
     const row = Collection.range(0, dataSet.sections.length).reduce((row, v) => {
         const section = dataSet.sections[v];
         if (!section) return row;

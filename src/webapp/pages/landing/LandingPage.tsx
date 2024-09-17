@@ -102,16 +102,25 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const exportToExcel = React.useCallback(() => {
         if (_c(dataSets).isNotEmpty() && _c(selectedLocales).isNotEmpty())
-            compositionRoot.dataSets.export.execute(dataSets, selectedLocales, config).run(
-                () => {
-                    console.debug(`Exported to Excel ${dataSets.length} datasets`);
-                },
-                err => {
-                    snackbar.error(i18n.t("Something went wrong while creating the excel file"));
-                    console.error(err);
-                }
-            );
-    }, [compositionRoot, config, dataSets, selectedLocales, snackbar]);
+            compositionRoot.dataSets.export
+                .execute({
+                    dataSets,
+                    locales: selectedLocales,
+                    config,
+                    includeHeaders: options.includeHeaders,
+                })
+                .run(
+                    () => {
+                        console.debug(`Exported to Excel ${dataSets.length} datasets`);
+                    },
+                    err => {
+                        snackbar.error(
+                            i18n.t("Something went wrong while creating the excel file")
+                        );
+                        console.error(err);
+                    }
+                );
+    }, [compositionRoot, config, dataSets, options.includeHeaders, selectedLocales, snackbar]);
 
     const resetView = React.useCallback(() => {
         resetSelectedDataSets();
