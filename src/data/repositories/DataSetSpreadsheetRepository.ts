@@ -8,8 +8,9 @@ import { defaultConfig } from "$/domain/entities/Config";
 import _, { Collection } from "$/domain/entities/generic/Collection";
 import { getId } from "$/domain/entities/Ref";
 
-/* Note: Shouldn't be the implemented repository DataSetRepository itself, instead of the "export"?
+/* Shouldn't be the implemented repository DataSetRepository itself, instead of the "export"?
  * Right? And save method inside DataSetRepository */
+/* TODO: https://github.com/EyeSeeTea/dhis_tally_sheets/pull/14#discussion_r1762634403 */
 export class DataSetSpreadsheetRepository implements DataSetExportRepository {
     save(
         dataSet: DataSet,
