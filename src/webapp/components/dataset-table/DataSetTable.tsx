@@ -16,7 +16,7 @@ import {
     GreyedField,
     Section as SectionType,
 } from "$/domain/entities/DataSet";
-import { Id } from "$/domain/entities/Ref";
+import { getId, Id } from "$/domain/entities/Ref";
 import i18n from "$/utils/i18n";
 import { styled } from "styled-components";
 import { Maybe } from "$/utils/ts-utils";
@@ -199,7 +199,7 @@ function getSectionTables(
             row => [undefined, ...row] //add an empty cell for the data elements column
         );
 
-        const cocIds = categoryCombo.categoryOptionCombos.map(({ id }) => id);
+        const cocIds = categoryCombo.categoryOptionCombos.map(getId);
         const combinations = (_(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
 
         const tbody =

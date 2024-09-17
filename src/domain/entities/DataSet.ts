@@ -1,4 +1,4 @@
-import { Id, Ref } from "$/domain/entities/Ref";
+import { getId, Id, Ref } from "$/domain/entities/Ref";
 import { BasicDataSet, BasicDataSetAttrs, Translation } from "$/domain/entities/BasicDataSet";
 import { Maybe } from "$/utils/ts-utils";
 import { Locale } from "$/domain/entities/Locale";
@@ -214,7 +214,7 @@ export class DataSet extends BasicDataSet {
             );
 
             const categoriesOrder = categoryCombo.categories.map(({ categoryOptions }) =>
-                categoryOptions.map(({ id }) => id)
+                categoryOptions.map(getId)
             );
 
             const categoryOptionCombos = categoryCombo.categoryOptionCombos
@@ -237,8 +237,8 @@ export class DataSet extends BasicDataSet {
                 de => de.categoryCombo.id === categoryCombo.id
             );
 
-            const deIds = dataElements.map(({ id }) => id);
-            const cocIds = categoryOptionCombos.map(({ id }) => id);
+            const deIds = dataElements.map(getId);
+            const cocIds = categoryOptionCombos.map(getId);
 
             const greyedFields = section.greyedFields.filter(
                 gf =>

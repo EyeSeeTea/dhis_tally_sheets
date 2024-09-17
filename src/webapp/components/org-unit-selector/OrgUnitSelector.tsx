@@ -24,6 +24,7 @@ import {
 import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
+import { getId } from "$/domain/entities/Ref";
 
 interface OrgUnitSelectorProps {
     selected: OrgUnit[];
@@ -73,7 +74,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
 
     const apply = React.useCallback(() => {
         startLoading();
-        const userOrgUnitIds = currentUser.organisationUnits.map(({ id }) => id);
+        const userOrgUnitIds = currentUser.organisationUnits.map(getId);
         const orgUnitIds = _(current.selectedPaths)
             .map(path => path.split("/").slice(-1))
             .flatten()
@@ -134,7 +135,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
 
         return {
             items: sorted.map(({ id, displayName }) => ({ value: id, text: displayName })),
-            values: sorted.map(({ id }) => id),
+            values: sorted.map(getId),
             onChange: () => {},
             label: i18n.t("Select an organisation unit"),
             name: "select-organisation-unit",

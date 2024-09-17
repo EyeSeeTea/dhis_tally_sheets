@@ -1,4 +1,4 @@
-import { Id } from "$/domain/entities/Ref";
+import { getId, Id } from "$/domain/entities/Ref";
 import { BasicDataSet, BasicDataSetAttrs } from "$/domain/entities/BasicDataSet";
 import { DataSet, DataSetAttrs } from "$/domain/entities/DataSet";
 import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
@@ -22,10 +22,7 @@ export class DataSetD2Repository implements DataSetRepository {
         );
 
         return basicDataSets$.map(basicDataSets =>
-            _(basicDataSets)
-                .flatten()
-                .uniqBy(({ id }) => id)
-                .value()
+            _(basicDataSets).flatten().uniqBy(getId).value()
         );
     }
 

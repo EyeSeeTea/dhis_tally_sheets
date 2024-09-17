@@ -4,7 +4,7 @@ import { BasicDataSet } from "$/domain/entities/BasicDataSet";
 import { DataSet } from "$/domain/entities/DataSet";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
-import { Id } from "$/domain/entities/Ref";
+import { getId, Id } from "$/domain/entities/Ref";
 import _ from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
 
@@ -108,8 +108,4 @@ function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) 
     const removed = oldDS.differenceBy(getId, newDS);
 
     return { added: added.value(), removed: removed.value() };
-}
-
-function getId(dataSet: BasicDataSet) {
-    return dataSet.id;
 }

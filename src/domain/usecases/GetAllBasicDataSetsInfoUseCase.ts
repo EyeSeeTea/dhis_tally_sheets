@@ -3,6 +3,7 @@ import { BasicDataSet } from "$/domain/entities/BasicDataSet";
 import { OrgUnit } from "$/domain/entities/OrgUnit";
 import { Repositories } from "$/CompositionRoot";
 import _ from "$/domain/entities/generic/Collection";
+import { getId } from "$/domain/entities/Ref";
 
 export class GetAllBasicDataSetsInfoUseCase {
     constructor(private repositories: Repositories) {}
@@ -11,7 +12,7 @@ export class GetAllBasicDataSetsInfoUseCase {
         if (_(orgUnits).isEmpty()) {
             return this.repositories.dataSetRepository.getBasic([]);
         } else {
-            return this.repositories.dataSetRepository.getBasic(orgUnits.map(({ id }) => id));
+            return this.repositories.dataSetRepository.getBasic(orgUnits.map(getId));
         }
     }
 }

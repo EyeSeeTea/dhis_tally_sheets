@@ -6,6 +6,7 @@ import { Future } from "$/domain/entities/generic/Future";
 import { Maybe } from "$/utils/ts-utils";
 import { defaultConfig } from "$/domain/entities/Config";
 import _, { Collection } from "$/domain/entities/generic/Collection";
+import { getId } from "$/domain/entities/Ref";
 
 /* Note: Shouldn't be the implemented repository DataSetRepository itself, instead of the "export"?
  * Right? And save method inside DataSetRepository */
@@ -107,7 +108,7 @@ function getSectionTables(categoryCombos: CategoryCombo[], greyedFields: GreyedF
             row => [undefined, ...row] //add an empty cell for the data elements column
         );
 
-        const cocIds = categoryCombo.categoryOptionCombos.map(({ id }) => id);
+        const cocIds = categoryCombo.categoryOptionCombos.map(getId);
         const combinations = (_(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
 
         const tbody =
