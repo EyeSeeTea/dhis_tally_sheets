@@ -33,11 +33,12 @@ export function validateDataSetIsAllowed(basicDataSet: BasicDataSet): BasicDataS
     );
 
     const hasCustomFormType = basicDataSet.formType === "CUSTOM";
+    const hasDefaultFormType = basicDataSet.formType === "DEFAULT"; // Was not really implemented before
 
     if (hasHideAttribute) {
         throw new Error(`DataSet ${basicDataSet.id} marked to be ignored in Tally Sheets`);
-    } else if (hasCustomFormType) {
-        throw new Error(`DataSet ${basicDataSet.id} has CUSTOM form type`);
+    } else if (hasCustomFormType || hasDefaultFormType) {
+        throw new Error(`DataSet ${basicDataSet.id} has ${basicDataSet.formType} form type`);
     } else {
         return basicDataSet;
     }

@@ -34,12 +34,7 @@ function exportDataSet(workbook: Workbook, dataSet: DataSet, sheetName: string) 
 
     const { formType } = dataSet;
 
-    const finalRow =
-        formType === "DEFAULT"
-            ? populateDefault(sheet, dataSet)
-            : formType === "SECTION"
-            ? populateSections(sheet, dataSet)
-            : 1;
+    const finalRow = formType === "SECTION" ? populateSections(sheet, dataSet) : 1;
     const values = sheet.range(`A1:A${finalRow}`).value();
     const ranges = _c(values)
         .flatten()
@@ -86,25 +81,6 @@ function populateHeaders(sheet: Sheet, headers: Maybe<Headers>, title: string) {
         sheet.cell("A2").value(headers.reportingPeriod).style({ bold: true, fontSize: 18 });
     }
     sheet.cell("A3").value(title).style(styles.titleStyle);
-}
-
-function populateDefault(sheet: Sheet, dataSet: DataSet) {
-    if (dataSet.headers) populateHeaders(sheet, dataSet.headers, dataSet.displayName);
-    sheet.cell("A4").value(dataSet.displayName).style(styles.titleStyle);
-    sheet.cell("B6").value("Value");
-    sheet.row(6).style(styles.categoryHeaderStyle);
-    dataSet.dataSetElements.forEach((dse, idx) =>
-        sheet
-            .row(7 + idx) //(6 + 1 cause idx starts on 0)
-            .cell(1)
-            .value(dse.dataElement.displayFormName)
-            .style(styles.dataElementStyle)
-    );
-
-    const lastCell = sheet.row(dataSet.dataSetElements.length + 6).cell(2); //B = 2
-    sheet.row(6).cell(1).rangeTo(lastCell).style(styles.borders);
-
-    return dataSet.dataSetElements.length + 6;
 }
 
 function populateSections(sheet: Sheet, dataSet: DataSet) {
