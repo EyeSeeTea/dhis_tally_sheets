@@ -20,6 +20,7 @@ import { useBooleanState } from "$/webapp/utils/use-boolean";
 import { useSnackbar } from "@eyeseetea/d2-ui-components/snackbar";
 import { Maybe } from "$/utils/ts-utils";
 import i18n from "$/utils/i18n";
+import _c from "$/domain/entities/generic/Collection";
 
 interface SettingsDialogProps {
     open: boolean;
@@ -53,7 +54,10 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
 
         const config = {
             ...settings,
-            administratorGroups: settings.administratorGroups.split(",").map(id => id.trim()),
+            administratorGroups: _c(settings.administratorGroups.split(","))
+                .map(id => id.trim())
+                .compact()
+                .value(),
         };
 
         compositionRoot.config.update.execute(config).run(
