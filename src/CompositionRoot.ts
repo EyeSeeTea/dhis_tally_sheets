@@ -1,10 +1,13 @@
 import { StorageSource } from "$/app-config";
+import { locales } from "$/data/repositories/__tests__/spreadsheet-fixtures/spreadsheetFixtures";
 import { ConfigD2ConstantsRepository } from "$/data/repositories/ConfigD2ConstantsRepository";
 import { ConfigD2DataStoreRepository } from "$/data/repositories/ConfigD2DataStoreRepository";
 import { DataSetD2Repository } from "$/data/repositories/DataSetD2Repository";
 import { DataSetSpreadsheetRepository } from "$/data/repositories/DataSetSpreadsheetRepository";
 import { LocaleD2Repository } from "$/data/repositories/LocaleD2Repository";
 import { OrgUnitD2Repository } from "$/data/repositories/OrgUnitD2Repository";
+import { defaultConfig } from "$/domain/entities/Config";
+import { Future } from "$/domain/entities/generic/Future";
 import { ConfigRepository } from "$/domain/repositories/ConfigRepository";
 import { DataSetExportRepository } from "$/domain/repositories/DataSetExportRepository";
 import { DataSetRepository } from "$/domain/repositories/DataSetRepository";
@@ -74,31 +77,22 @@ export function getWebappCompositionRoot(api: D2Api, storage: StorageSource) {
 }
 
 export function getTestCompositionRoot() {
+    //TODO: Implement mockup repositories
     const repositories: Repositories = {
         configRepository: {
-            get: () => {
-                throw new Error("Not implemented");
-            },
+            get: () => Future.success(defaultConfig),
             update: () => {
                 throw new Error("Not implemented");
             },
         },
         usersRepository: new UserTestRepository(),
         orgUnitRepository: {
-            getWithChildren: () => {
-                throw new Error("Not implemented");
-            },
+            getWithChildren: () => Future.success([]),
         },
         dataSetRepository: {
-            getByIds: () => {
-                throw new Error("Not implemented");
-            },
-            get: () => {
-                throw new Error("Not implemented");
-            },
-            getBasic: () => {
-                throw new Error("Not implemented");
-            },
+            getByIds: () => Future.success([]),
+            get: () => Future.success([]),
+            getBasic: () => Future.success([]),
         },
         dataSetExportRepository: {
             save: () => {
@@ -106,9 +100,7 @@ export function getTestCompositionRoot() {
             },
         },
         localeRepository: {
-            get: () => {
-                throw new Error("Not implemented");
-            },
+            get: () => Future.success(locales),
         },
     };
 

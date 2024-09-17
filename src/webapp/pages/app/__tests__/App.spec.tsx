@@ -9,6 +9,8 @@ describe("App", () => {
         const view = getView();
         expect(await view.findByText("Send feedback")).toBeInTheDocument();
     });
+
+    // TODO:
     it("with i18n translates correctly", () => {});
 });
 

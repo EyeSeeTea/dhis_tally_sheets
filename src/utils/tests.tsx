@@ -9,7 +9,7 @@ import { D2Api } from "$/types/d2-api";
 
 export function getTestContext() {
     const context: AppContextState = {
-        api: new D2Api(),
+        api: new D2Api(), // Only relevant for OrgUnitSelector (todo: add baseUrl)
         config: defaultConfig,
         currentUser: createAdminUser(),
         compositionRoot: getTestCompositionRoot(),
