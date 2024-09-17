@@ -14,14 +14,14 @@ describe("BasicDataSet", () => {
     it("should throw an error when the BasicDataSet has a formType equal to CUSTOM", () => {
         const basicDataSet = () => new BasicDataSet(basicAttrsWithCustomFormType());
 
-        expect(basicDataSet).toThrowError("DataSet BwyMfDBLih9 has CUSTOM form type");
+        expect(basicDataSet).toThrowError("DataSet dataset_id has CUSTOM form type");
     });
 
     it("should throw an error when the BasicDataSet has an attribute with name hideInTallySheet and value true", () => {
         const basicDataSet = () => new BasicDataSet(basicAttrsWithHideInTallySheetsAttribute());
 
         expect(basicDataSet).toThrowError(
-            "DataSet BwyMfDBLih9 marked to be ignored in Tally Sheets"
+            "DataSet dataset_id marked to be ignored in Tally Sheets"
         );
     });
 });

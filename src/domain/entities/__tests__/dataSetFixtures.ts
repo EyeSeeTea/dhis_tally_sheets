@@ -48,7 +48,7 @@ function createBasicAttrs(options?: {
     const attributeValues = options?.attributeValues ?? [];
 
     return {
-        id: "att_id",
+        id: "dataset_id",
         translations: [],
         displayName: "Basic Data Set",
         formType: formType,
