@@ -1,3 +1,4 @@
+import { constants } from "$/data/repositories/d2-metadata";
 import _c from "$/domain/entities/generic/Collection";
 import { Struct } from "$/domain/entities/generic/Struct";
 import { Id, NamedRef } from "$/domain/entities/Ref";
@@ -27,9 +28,9 @@ export class BasicDataSet extends Struct<BasicDataSetAttrs>() {
     }
 }
 
-export function validateDataSetIsAllowed(basicDataSet: BasicDataSet): BasicDataSet {
+function validateDataSetIsAllowed(basicDataSet: BasicDataSet): BasicDataSet {
     const hasHideAttribute = basicDataSet.attributeValues.some(
-        av => av.attribute.name === "hideInTallySheet" && av.value === "true"
+        av => av.attribute.name === constants.hideAttributeName && av.value === "true"
     );
 
     const hasCustomFormType = basicDataSet.formType === "CUSTOM";
@@ -49,7 +50,7 @@ type AttributeValue = {
     attribute: NamedRef;
 };
 
-export type DataSetFormType = "DEFAULT" | "CUSTOM" | "SECTION" | "SECTION_MULTIORG";
+type DataSetFormType = "DEFAULT" | "CUSTOM" | "SECTION" | "SECTION_MULTIORG";
 
 export type Translation = {
     property: string;

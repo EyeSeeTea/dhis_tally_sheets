@@ -389,7 +389,7 @@ type Category = {
     categoryOptions: CategoryOption[];
 };
 
-export type CategoryOption = {
+type CategoryOption = {
     id: Id;
     name: string;
     formName?: string;

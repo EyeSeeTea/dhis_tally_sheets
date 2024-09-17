@@ -19,10 +19,10 @@ export const appConfig: AppConfig = {
             buttonPosition: "bottom-end",
         },
     },
-    storage: "dataStore",
+    storage: "constants",
 };
 
-export interface AppConfig {
+interface AppConfig {
     id: string;
     appearance: {
         showShareButton: boolean;

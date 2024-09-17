@@ -1,10 +1,10 @@
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { configCodec } from "$/data/config-codec";
+import { constants, errors } from "$/data/repositories/d2-metadata";
 import { Config, defaultConfig } from "$/domain/entities/Config";
 import { Future } from "$/domain/entities/generic/Future";
 import { ConfigRepository } from "$/domain/repositories/ConfigRepository";
 import { D2Api, MetadataPick } from "$/types/d2-api";
-import i18n from "$/utils/i18n";
 
 export class ConfigD2ConstantsRepository implements ConfigRepository {
     constructor(private api: D2Api) {}
@@ -13,7 +13,7 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
         const constants$ = apiToFuture(
             this.api.models.constants.get({
                 fields: constantFields,
-                filter: { code: { eq: "TALLY_SHEETS_STORAGE" } },
+                filter: { code: { eq: constants.constantsStorageCode } },
                 paging: false,
             })
         );
@@ -31,7 +31,7 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
         const constant$ = apiToFuture(
             this.api.models.constants.get({
                 fields: constantFields,
-                filter: { code: { eq: "TALLY_SHEETS_STORAGE" } },
+                filter: { code: { eq: constants.constantsStorageCode } },
                 paging: false,
             })
         ).map(res => res.objects.at(0));
@@ -55,9 +55,9 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
 
     private create(payload?: D2Constant): FutureData<void> {
         const defaultPayload = {
-            code: "TALLY_SHEETS_STORAGE",
-            name: "Tally Sheets Storage",
-            shortName: "Tally Sheets Storage",
+            code: constants.constantsStorageCode,
+            name: constants.constantsStorageName,
+            shortName: constants.constantsStorageName,
             description: JSON.stringify(defaultConfig),
             value: 1,
         };
@@ -70,8 +70,9 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
     private decodeConfig(description: Config): FutureData<Config> {
         return configCodec.decode(description).caseOf({
             Left: (err): FutureData<Config> => {
-                console.error(new Error(errorMessages.invalidJsonErrMsg + err));
-                return Future.error(new Error(errorMessages.invalidJsonErrMsg));
+                const errStr = errors.invalidJSON(constants.constantsStorageName, "description");
+                console.error(new Error(errStr + err));
+                return Future.error(new Error(errStr));
             },
             Right: (res): FutureData<Config> => {
                 if ("sheetName" in res) return Future.success(res);
@@ -83,11 +84,6 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
         });
     }
 }
-
-const errorMessages = {
-    constantsErrMsg: i18n.t("The TALLY_SHEETS_STORAGE constant is not defined."),
-    invalidJsonErrMsg: i18n.t("The TALLY_SHEETS_STORAGE description is not a valid JSON object."),
-} as const;
 
 const constantFields = {
     id: true,

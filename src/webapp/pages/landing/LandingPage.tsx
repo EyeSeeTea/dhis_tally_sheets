@@ -68,15 +68,10 @@ export const LandingPage: React.FC = React.memo(() => {
 
     const selectedDataSets = dataSetSelectorProps.selectedItems;
 
-    const availableLocales = React.useMemo(() => {
-        const avail = _c(selectedDataSets.map(ds => ds.getAvailableLocaleCodes()))
-            .flatten()
-            .concat("en") // Add English because is not included in translations
-            .uniq()
-            .compact()
-            .value();
-        return _c(selectedDataSets).isEmpty() ? [] : avail;
-    }, [selectedDataSets]);
+    const availableLocales = React.useMemo(
+        () => getAvailableLocales(selectedDataSets),
+        [selectedDataSets]
+    );
 
     const languageSelectorProps = useLanguagesSelector(
         availableLocales,
@@ -162,8 +157,10 @@ export const LandingPage: React.FC = React.memo(() => {
                                 selected={orgUnits}
                                 disabled={loading}
                             />
+
                             <MultipleSelector {...dataSetSelectorProps} />
                             <MultipleSelector {...languageSelectorProps} />
+
                             <DisableableTooltip
                                 title={i18n.t("Restore changes")}
                                 disabled={disabledRestore}
@@ -201,6 +198,7 @@ export const LandingPage: React.FC = React.memo(() => {
                                     </Button>
                                 </Tooltip>
                             )}
+
                             <Button
                                 className={classes.actionButton}
                                 variant="outlined"
@@ -210,6 +208,7 @@ export const LandingPage: React.FC = React.memo(() => {
                             >
                                 {i18n.t("Print")}
                             </Button>
+
                             <Button
                                 className={classes.actionButton}
                                 variant="contained"
@@ -542,6 +541,16 @@ function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) 
 
 function getId(dataSet: BasicDataSet) {
     return dataSet.id;
+}
+
+function getAvailableLocales(dataSets: BasicDataSet[]): string[] {
+    const avail = _c(dataSets.map(ds => ds.getAvailableLocaleCodes()))
+        .flatten()
+        .concat("en") // Add English because is not included in translations
+        .uniq()
+        .compact()
+        .value();
+    return _c(dataSets).isEmpty() ? [] : avail;
 }
 
 const useStyles = makeStyles((_theme: Theme) =>

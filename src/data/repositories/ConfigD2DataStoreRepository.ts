@@ -1,15 +1,15 @@
+import { DataStore } from "@eyeseetea/d2-api/api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { configCodec } from "$/data/config-codec";
 import { Config, defaultConfig } from "$/domain/entities/Config";
 import { Future } from "$/domain/entities/generic/Future";
 import { ConfigRepository } from "$/domain/repositories/ConfigRepository";
 import { D2Api } from "$/types/d2-api";
-import i18n from "$/utils/i18n";
-import { DataStore } from "@eyeseetea/d2-api/api";
+import { constants, errors } from "$/data/repositories/d2-metadata";
 
 export class ConfigD2DataStoreRepository implements ConfigRepository {
-    private namespace = "HMIS_Tally_Sheets";
-    private configKey = "config";
+    private namespace = constants.datastoreNamespace;
+    private configKey = constants.datastoreKey;
     private dataStore: DataStore;
 
     constructor(private api: D2Api) {
@@ -36,8 +36,9 @@ export class ConfigD2DataStoreRepository implements ConfigRepository {
     private decodeConfig(config: Config): FutureData<Config> {
         return configCodec.decode(config).caseOf({
             Left: (err): FutureData<Config> => {
-                console.error(new Error(errorMessages.invalidJsonErrMsg + err));
-                return Future.error(new Error(errorMessages.invalidJsonErrMsg));
+                const errStr = errors.invalidJSON(this.namespace, this.configKey);
+                console.error(new Error(errStr + err));
+                return Future.error(new Error(errStr));
             },
             Right: (res): FutureData<Config> => {
                 if ("sheetName" in res) return Future.success(res);
@@ -49,8 +50,3 @@ export class ConfigD2DataStoreRepository implements ConfigRepository {
         });
     }
 }
-
-const errorMessages = {
-    constantsErrMsg: i18n.t("The TALLY_SHEETS_STORAGE constant is not defined."),
-    invalidJsonErrMsg: i18n.t("The TALLY_SHEETS_STORAGE description is not a valid JSON object."),
-} as const;
