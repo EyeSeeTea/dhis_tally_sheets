@@ -18,6 +18,6 @@ export const defaultConfig: Config = {
     ouLabel: "",
     periodLabel: "",
     infoPlaceholder: i18n.t(
-        "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info message placeholder under settings options. For any questions or feedback, please contact us through the 'Send Feddback' button on the bottom right corner."
+        "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info message placeholder under settings options. For any questions or feedback, please contact us through the 'Send Feedback' button on the bottom right corner."
     ),
 };
