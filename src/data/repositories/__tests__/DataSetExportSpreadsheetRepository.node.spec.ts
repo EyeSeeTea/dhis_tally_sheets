@@ -60,8 +60,6 @@ describe("DataSetSpreadsheetRepository", () => {
 
     it("should not include headers when 'Include headers' option is falsy", async () => {}); // In usecase
 
-    it("should have translations when locales are assigned to the DataSet", async () => {}); // In entity
-
     it("should not include sections that have been removed", async () => {}); // In entity / Also here
 
     it("should have headers translated", async () => {}); // In entity

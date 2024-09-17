@@ -4,38 +4,42 @@ import { Locale } from "$/domain/entities/Locale";
 
 type LocaleCodes = "ar" | "en" | "es" | "fr" | "pt";
 
-export const locales: Locale[] = [
-    {
-        id: "ar",
-        name: "Arabic",
-        displayName: "Arabic",
-        code: "ar",
-    },
-    {
-        id: "en",
-        name: "English",
-        displayName: "English",
-        code: "en",
-    },
-    {
-        id: "es",
-        name: "Spanish",
-        displayName: "Spanish",
-        code: "es",
-    },
-    {
-        id: "fr",
-        name: "French",
-        displayName: "French",
-        code: "fr",
-    },
-    {
-        id: "pt",
-        name: "Portuguese",
-        displayName: "Portuguese",
-        code: "pt",
-    },
-];
+const arabic: Locale = {
+    id: "ar",
+    name: "Arabic",
+    displayName: "Arabic",
+    code: "ar",
+};
+
+const english: Locale = {
+    id: "en",
+    name: "English",
+    displayName: "English",
+    code: "en",
+};
+
+export const spanish: Locale = {
+    id: "es",
+    name: "Spanish",
+    displayName: "Spanish",
+    code: "es",
+};
+
+const french: Locale = {
+    id: "fr",
+    name: "French",
+    displayName: "French",
+    code: "fr",
+};
+
+const portuguese: Locale = {
+    id: "pt",
+    name: "Portuguese",
+    displayName: "Portuguese",
+    code: "pt",
+};
+
+export const locales: Locale[] = [english, spanish, french, portuguese, arabic];
 
 export const processedDataSet: DataSet = new DataSet({
     name: "Processed DataSet",
@@ -1589,129 +1593,25 @@ export const processedDataSet: DataSet = new DataSet({
                                     name: "Foo",
                                     id: "foo",
                                     displayFormName: "Foo",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Foo",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                                 {
                                     name: "Bar",
                                     id: "bar",
                                     displayFormName: "Bar",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Bar",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                                 {
                                     name: "Baz",
                                     id: "baz",
                                     displayFormName: "Baz",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Baz",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                                 {
                                     name: "Qux",
                                     id: "qux",
                                     displayFormName: "Qux",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Qux",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                             ],
                         },
@@ -1724,33 +1624,7 @@ export const processedDataSet: DataSet = new DataSet({
                                     name: "Foo",
                                     id: "foo",
                                     displayFormName: "Foo",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Foo",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Foo",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                             ],
                         },
@@ -1761,33 +1635,7 @@ export const processedDataSet: DataSet = new DataSet({
                                     name: "Bar",
                                     id: "bar",
                                     displayFormName: "Bar",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Bar",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Bar",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                             ],
                         },
@@ -1798,33 +1646,7 @@ export const processedDataSet: DataSet = new DataSet({
                                     name: "Baz",
                                     id: "baz",
                                     displayFormName: "Baz",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Baz",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Baz",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                             ],
                         },
@@ -1835,33 +1657,7 @@ export const processedDataSet: DataSet = new DataSet({
                                     name: "Qux",
                                     id: "qux",
                                     displayFormName: "Qux",
-                                    translations: [
-                                        {
-                                            property: "NAME",
-                                            locale: "en",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "es",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "fr",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "pt",
-                                            value: "Qux",
-                                        },
-                                        {
-                                            property: "NAME",
-                                            locale: "ar",
-                                            value: "Qux",
-                                        },
-                                    ],
+                                    translations: [],
                                 },
                             ],
                         },

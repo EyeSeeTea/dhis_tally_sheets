@@ -102,7 +102,7 @@ export class DataSet extends BasicDataSet {
                         ...coc,
                         categoryOptions: coc.categoryOptions.map(co => ({
                             ...co,
-                            displayFormName: this.getDisplayFormName(co, locale.code),
+                            displayFormName: this.getDisplayFormName(co, locale.code), //Although it will not be used in export
                         })),
                     })),
                 })),
@@ -389,7 +389,7 @@ type Category = {
     categoryOptions: CategoryOption[];
 };
 
-type CategoryOption = {
+export type CategoryOption = {
     id: Id;
     name: string;
     formName?: string;
