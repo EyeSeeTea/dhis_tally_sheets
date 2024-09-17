@@ -115,12 +115,14 @@ const Section: React.FC<SectionProps> = React.memo(props => {
 const SectionTable: React.FC<{ section: SectionType }> = React.memo(props => {
     const { section } = props;
 
+    const theme = useTheme();
+
     const tables = React.useMemo(() => {
         return getSectionTables(section.categoryCombos, section.greyedFields);
     }, [section.categoryCombos, section.greyedFields]);
 
     return (
-        <Box>
+        <Box display="flex" flexDirection="column" gridRowGap={theme.spacing(3)}>
             {tables.map((table, idx) => (
                 <DisplayTable table={table} key={idx} />
             ))}
