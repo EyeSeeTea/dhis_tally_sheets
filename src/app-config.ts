@@ -19,7 +19,7 @@ export const appConfig: AppConfig = {
             buttonPosition: "bottom-end",
         },
     },
-    storage: "constants",
+    storage: "dataStore",
 };
 
 export interface AppConfig {
