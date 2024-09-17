@@ -1,6 +1,7 @@
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { configCodec } from "$/data/config-codec";
 import { constants, errors } from "$/data/repositories/d2-metadata";
+import { runMetadata } from "$/data/response";
 import { Config, defaultConfig } from "$/domain/entities/Config";
 import { Future } from "$/domain/entities/generic/Future";
 import { ConfigRepository } from "$/domain/repositories/ConfigRepository";
@@ -20,7 +21,7 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
 
         const config$ = constants$.flatMap((res): FutureData<Config> => {
             const description = res.objects.at(0)?.description;
-            if (!description) return this.create().map(() => defaultConfig);
+            if (!description) return this.createDefault();
             else return this.decodeConfig(JSON.parse(description));
         });
 
@@ -36,24 +37,25 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
             })
         ).map(res => res.objects.at(0));
 
-        const config$ = this.decodeConfig(config);
+        return constant$
+            .flatMap(constant => {
+                if (!constant) return this.createDefault();
 
-        const req$ = Future.joinObj({
-            constant: constant$,
-            config: config$,
-        });
-
-        return req$.flatMap(({ constant, config }) => {
-            if (!constant) return this.create();
-
-            return this.create({
-                ...constant,
-                description: JSON.stringify(config),
-            });
-        });
+                return this.create({
+                    ...constant,
+                    description: JSON.stringify(config),
+                });
+            })
+            .map(_config => {});
     }
 
-    private create(payload?: D2Constant): FutureData<void> {
+    private create(payload: D2Constant): FutureData<Config> {
+        return runMetadata(apiToFuture(this.api.metadata.post({ constants: [payload] }))).map(
+            () => defaultConfig
+        );
+    }
+
+    private createDefault(): FutureData<Config> {
         const defaultPayload = {
             code: constants.constantsStorageCode,
             name: constants.constantsStorageName,
@@ -62,12 +64,12 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
             value: 1,
         };
 
-        return apiToFuture(this.api.metadata.post({ constants: [payload ?? defaultPayload] })).map(
-            _res => {}
-        );
+        return runMetadata(
+            apiToFuture(this.api.metadata.post({ constants: [defaultPayload] }))
+        ).map(() => defaultConfig);
     }
 
-    private decodeConfig(description: Config): FutureData<Config> {
+    private decodeConfig(description: unknown): FutureData<Config> {
         return configCodec.decode(description).caseOf({
             Left: (err): FutureData<Config> => {
                 const errStr = errors.invalidJSON(constants.constantsStorageName, "description");

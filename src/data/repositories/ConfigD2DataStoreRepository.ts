@@ -33,7 +33,7 @@ export class ConfigD2DataStoreRepository implements ConfigRepository {
         return apiToFuture(this.dataStore.save(this.configKey, config ?? defaultConfig));
     }
 
-    private decodeConfig(config: Config): FutureData<Config> {
+    private decodeConfig(config: unknown): FutureData<Config> {
         return configCodec.decode(config).caseOf({
             Left: (err): FutureData<Config> => {
                 const errStr = errors.invalidJSON(this.namespace, this.configKey);
