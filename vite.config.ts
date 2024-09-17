@@ -31,6 +31,10 @@ export default ({ mode }) => {
             include: ["**/*.spec.{ts,tsx}"],
             setupFiles: "./src/tests/setup.js",
             exclude: ["node_modules", "src/tests/playwright"],
+            environmentMatchGlobs: [
+                ["src/**/__tests__/*.node.spec.ts", "node"],
+                ["src/**/__tests__/*", "jsdom"],
+            ],
             globals: true,
         },
         server: {
