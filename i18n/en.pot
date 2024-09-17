@@ -5,21 +5,16 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-17T01:59:04.779Z\n"
-"PO-Revision-Date: 2024-09-17T01:59:04.779Z\n"
+"POT-Creation-Date: 2024-09-17T10:52:58.151Z\n"
+"PO-Revision-Date: 2024-09-17T10:52:58.151Z\n"
 
-msgctxt "STORAGE constant is not defined."
-msgid "The TALLY_SHEETS"
-msgstr ""
-
-msgctxt "STORAGE description is not a valid JSON object."
-msgid "The TALLY_SHEETS"
+msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr ""
 
 msgid ""
 "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info "
 "message placeholder under settings options. For any questions or feedback, "
-"please contact us through the 'Send Feddback' button on the bottom right "
+"please contact us through the 'Send Feedback' button on the bottom right "
 "corner."
 msgstr ""
 
@@ -62,10 +57,13 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-msgid "Settings saved. Reloading page..."
+msgid "Settings"
 msgstr ""
 
-msgid "Settings"
+msgid "Save"
+msgstr ""
+
+msgid "Settings saved. Reloading page..."
 msgstr ""
 
 msgid ""
@@ -117,9 +115,6 @@ msgstr ""
 msgid "Message placeholder"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Error"
 msgstr ""
 
@@ -128,7 +123,7 @@ msgid ""
 "administrator."
 msgstr ""
 
-msgid "Something went wrong while creating the excel file"
+msgid "Include headers"
 msgstr ""
 
 msgid "Restore changes"
@@ -140,9 +135,6 @@ msgstr ""
 msgid "Export to Excel"
 msgstr ""
 
-msgid "Include headers"
-msgstr ""
-
 msgid "Select a dataset"
 msgstr ""
 
@@ -152,11 +144,14 @@ msgstr ""
 msgid "Unable to fetch datasets list"
 msgstr ""
 
+msgid "Unable to fetch datasets"
+msgstr ""
+
+msgid "Something went wrong while creating the excel file"
+msgstr ""
+
 msgid "Select a language"
 msgstr ""
 
 msgid "Unable to fetch languages list"
-msgstr ""
-
-msgid "Unable to fetch datasets"
 msgstr ""

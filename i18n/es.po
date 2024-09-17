@@ -1,25 +1,20 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-16T13:37:01.179Z\n"
+"POT-Creation-Date: 2024-09-17T10:52:58.151Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-msgctxt "STORAGE constant is not defined."
-msgid "The TALLY_SHEETS"
-msgstr ""
-
-msgctxt "STORAGE description is not a valid JSON object."
-msgid "The TALLY_SHEETS"
+msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr ""
 
 msgid ""
 "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info "
 "message placeholder under settings options. For any questions or feedback, "
-"please contact us through the 'Send Feddback' button on the bottom right "
+"please contact us through the 'Send Feedback' button on the bottom right "
 "corner."
 msgstr ""
 
@@ -62,10 +57,13 @@ msgstr "Volver"
 msgid "Help"
 msgstr "Ayuda"
 
-msgid "Settings saved. Reloading page..."
+msgid "Settings"
 msgstr ""
 
-msgid "Settings"
+msgid "Save"
+msgstr ""
+
+msgid "Settings saved. Reloading page..."
 msgstr ""
 
 msgid ""
@@ -120,9 +118,6 @@ msgstr ""
 msgid "Message placeholder"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Error"
 msgstr ""
 
@@ -131,8 +126,8 @@ msgid ""
 "administrator."
 msgstr ""
 
-msgid "Something went wrong while creating the excel file"
-msgstr ""
+msgid "Include headers"
+msgstr "Incluir cabeceras"
 
 msgid "Restore changes"
 msgstr ""
@@ -143,9 +138,6 @@ msgstr "Imprimir"
 msgid "Export to Excel"
 msgstr "Exportar a Excel"
 
-msgid "Include headers"
-msgstr "Incluir cabeceras"
-
 msgid "Select a dataset"
 msgstr "Selecciona un set de datos"
 
@@ -155,12 +147,15 @@ msgstr ""
 msgid "Unable to fetch datasets list"
 msgstr ""
 
+#, fuzzy
+msgid "Unable to fetch datasets"
+msgstr "Selecciona un set de datos"
+
+msgid "Something went wrong while creating the excel file"
+msgstr ""
+
 msgid "Select a language"
 msgstr "Selecciona un idioma"
 
 msgid "Unable to fetch languages list"
 msgstr ""
-
-#, fuzzy
-msgid "Unable to fetch datasets"
-msgstr "Selecciona un set de datos"
