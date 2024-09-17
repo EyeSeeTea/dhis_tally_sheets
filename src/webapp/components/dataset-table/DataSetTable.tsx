@@ -130,6 +130,9 @@ const SectionTable: React.FC<{ section: SectionType }> = React.memo(props => {
     );
 });
 
+/* A MUST refactor for next iteration:
+ * As both in view layer and data layer DataSet can be represented as a Table,
+ * we might do something like DataSet.toTable(): DataSetTable */
 const DisplayTable: React.FC<{ table: TableProps }> = React.memo(props => {
     const {
         table: { thead, tbody },
