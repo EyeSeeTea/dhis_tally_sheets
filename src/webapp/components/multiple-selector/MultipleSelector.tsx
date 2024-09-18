@@ -140,6 +140,18 @@ const useStyles = makeStyles((theme: Theme) =>
         formControl: {
             minWidth: theme.spacing(42),
             maxWidth: theme.spacing(42),
+            [theme.breakpoints.down(1600)]: {
+                minWidth: theme.spacing(32),
+                maxWidth: theme.spacing(32),
+            },
+            [theme.breakpoints.down(1200)]: {
+                minWidth: theme.spacing(24),
+                maxWidth: theme.spacing(24),
+            },
+            [theme.breakpoints.down(980)]: {
+                minWidth: "100%",
+                maxWidth: "100%",
+            },
         },
     })
 );

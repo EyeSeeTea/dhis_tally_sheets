@@ -17,6 +17,7 @@ import {
     Paper,
     Theme,
     Tooltip,
+    useMediaQuery,
     useTheme,
 } from "@material-ui/core";
 import {
@@ -36,6 +37,7 @@ import "./landing-page.css";
 
 export const LandingPage: React.FC = React.memo(() => {
     const theme = useTheme();
+    const classes = useStyles();
 
     const {
         loading,
@@ -57,12 +59,43 @@ export const LandingPage: React.FC = React.memo(() => {
         allDataSetsSelected,
     } = useLandingPage();
 
+    const isSmScreen = useMediaQuery("(max-width:980px)");
+
     return (
         <Box margin={theme.spacing(0.5)}>
             <MessagePlaceholder />
             <Paper elevation={2}>
-                <Box padding={theme.spacing(3, 4, 2.5)}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box display="flex" flexDirection="column" padding={theme.spacing(3, 4, 2.5)}>
+                    {isSmScreen && (
+                        <Box alignSelf="flex-end" display="flex" marginBottom={theme.spacing(0.25)}>
+                            <DisableableTooltip
+                                title={i18n.t("Reset filters")}
+                                disabled={disabledRestore}
+                            >
+                                <Button
+                                    className={classes.iconButton}
+                                    aria-label="restore"
+                                    size="small"
+                                    variant="outlined"
+                                    disabled={disabledRestore}
+                                    onClick={resetView}
+                                >
+                                    <RestoreIcon fontSize="medium" />
+                                </Button>
+                            </DisableableTooltip>
+                            <Actions
+                                openSettings={openSettings}
+                                exportToExcel={exportToExcel}
+                                disabledExport={disabledExport}
+                            />
+                        </Box>
+                    )}
+                    <Box
+                        display="flex"
+                        flexGrow={1}
+                        justifyContent="space-between"
+                        alignItems="center"
+                    >
                         <Selectors
                             loading={loading}
                             orgUnits={orgUnits}
@@ -73,11 +106,13 @@ export const LandingPage: React.FC = React.memo(() => {
                             resetView={resetView}
                         />
 
-                        <Actions
-                            openSettings={openSettings}
-                            exportToExcel={exportToExcel}
-                            disabledExport={disabledExport}
-                        />
+                        {!isSmScreen && (
+                            <Actions
+                                openSettings={openSettings}
+                                exportToExcel={exportToExcel}
+                                disabledExport={disabledExport}
+                            />
+                        )}
                     </Box>
                     <Box marginTop={theme.spacing(0.25)}>
                         <FormControlLabel
@@ -143,8 +178,17 @@ const Selectors: React.FC<SelectorsProps> = React.memo(props => {
     const theme = useTheme();
     const classes = useStyles();
 
+    const isSmScreen = useMediaQuery("(max-width:980px)");
+
     return (
-        <Box display="flex" gridColumnGap={theme.spacing(2)} alignItems="center">
+        <Box
+            display="flex"
+            flexDirection={isSmScreen ? "column" : "row"}
+            flexGrow={1}
+            gridColumnGap={theme.spacing(2)}
+            gridRowGap={theme.spacing(1)}
+            alignItems="center"
+        >
             <OrgUnitSelector
                 onChange={setSelectedOrgUnits}
                 selected={orgUnits}
@@ -154,18 +198,20 @@ const Selectors: React.FC<SelectorsProps> = React.memo(props => {
             <MultipleSelector {...dataSetSelectorProps} />
             <MultipleSelector {...languageSelectorProps} />
 
-            <DisableableTooltip title={i18n.t("Restore changes")} disabled={disabledRestore}>
-                <Button
-                    className={classes.iconButton}
-                    aria-label="restore"
-                    size="small"
-                    variant="outlined"
-                    disabled={disabledRestore}
-                    onClick={resetView}
-                >
-                    <RestoreIcon fontSize="medium" />
-                </Button>
-            </DisableableTooltip>
+            {!isSmScreen && (
+                <DisableableTooltip title={i18n.t("Reset filters")} disabled={disabledRestore}>
+                    <Button
+                        className={classes.iconButton}
+                        aria-label="restore"
+                        size="small"
+                        variant="outlined"
+                        disabled={disabledRestore}
+                        onClick={resetView}
+                    >
+                        <RestoreIcon fontSize="medium" />
+                    </Button>
+                </DisableableTooltip>
+            )}
 
             {loading && (
                 <Box display="flex" alignItems="center">
@@ -188,14 +234,47 @@ const Actions: React.FC<ActionsProps> = React.memo(props => {
 
     const theme = useTheme();
     const classes = useStyles();
+    const isMdScreen = useMediaQuery("(max-width:1600px)");
+
+    const buttonProps = React.useMemo(
+        () => ({
+            print: {
+                color: "default",
+                variant: "outlined",
+                onClick: window.print,
+                className: isMdScreen ? classes.iconButton : classes.actionButton,
+                "aria-label": isMdScreen ? i18n.t("Print") : "",
+                size: isMdScreen ? "small" : undefined,
+                startIcon: isMdScreen ? undefined : <PrintIcon />,
+                children: isMdScreen ? <PrintIcon fontSize="medium" /> : i18n.t("Print"),
+            } as const,
+            export: {
+                color: "primary",
+                variant: "contained",
+                onClick: exportToExcel,
+                disableElevation: true,
+                disabled: disabledExport,
+                className: isMdScreen ? classes.iconButton : classes.actionButton,
+                "aria-label": isMdScreen ? i18n.t("Export to Excel") : "",
+                size: isMdScreen ? "small" : undefined,
+                startIcon: isMdScreen ? undefined : <DownloadIcon />,
+                children: isMdScreen ? (
+                    <DownloadIcon fontSize="medium" />
+                ) : (
+                    i18n.t("Export to Excel")
+                ),
+            } as const,
+        }),
+        [classes, disabledExport, exportToExcel, isMdScreen]
+    );
 
     return (
-        <Box display="flex" gridColumnGap={theme.spacing(2)}>
+        <Box display="flex" gridColumnGap={theme.spacing(2)} marginLeft={theme.spacing(0.25)}>
             {currentUser.isAdmin() && (
                 <Tooltip title={i18n.t("Settings")}>
                     <Button
                         className={classes.iconButton}
-                        aria-label="settings"
+                        aria-label={i18n.t("Settings")}
                         size="small"
                         variant="outlined"
                         onClick={openSettings}
@@ -205,27 +284,13 @@ const Actions: React.FC<ActionsProps> = React.memo(props => {
                 </Tooltip>
             )}
 
-            <Button
-                className={classes.actionButton}
-                variant="outlined"
-                color="default"
-                startIcon={<PrintIcon />}
-                onClick={window.print}
-            >
-                {i18n.t("Print")}
-            </Button>
+            <Tooltip title={buttonProps.print["aria-label"]}>
+                <Button {...buttonProps.print} />
+            </Tooltip>
 
-            <Button
-                className={classes.actionButton}
-                variant="contained"
-                color="primary"
-                startIcon={<DownloadIcon />}
-                onClick={exportToExcel}
-                disableElevation
-                disabled={disabledExport}
-            >
-                {i18n.t("Export to Excel")}
-            </Button>
+            <Tooltip title={buttonProps.export["aria-label"]}>
+                <Button {...buttonProps.export} />
+            </Tooltip>
         </Box>
     );
 });

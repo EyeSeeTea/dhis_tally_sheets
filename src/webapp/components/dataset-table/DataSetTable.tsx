@@ -242,14 +242,14 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         headers: {
             border: "1px solid black",
-            padding: "0 0.25rem",
+            padding: "0 0.25em",
             fontWeight: 400,
         },
         title: {
-            fontSize: "1.75rem",
+            fontSize: "1.75em",
         },
         subtitle: {
-            fontSize: "1.5rem",
+            fontSize: "1.5em",
             fontWeight: 400,
         },
         deleteButton: {
@@ -261,14 +261,14 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Table = styled.table`
-    font-size: 1rem;
+    font-size: 1em;
     border-collapse: collapse;
     border-spacing: 0px 1px;
     width: 100%;
 
     td,
     th {
-        font-size: 14px;
+        font-size: 0.6125em;
         padding: 0.1rem 0.3rem 0;
         box-sizing: border-box;
         vertical-align: middle;
