@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-17T10:52:58.151Z\n"
-"PO-Revision-Date: 2024-09-17T10:52:58.151Z\n"
+"POT-Creation-Date: 2024-09-18T12:28:57.605Z\n"
+"PO-Revision-Date: 2024-09-18T12:28:57.605Z\n"
 
 msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr ""
@@ -123,10 +123,10 @@ msgid ""
 "administrator."
 msgstr ""
 
-msgid "Include headers"
+msgid "Reset filters"
 msgstr ""
 
-msgid "Restore changes"
+msgid "Include headers"
 msgstr ""
 
 msgid "Print"
