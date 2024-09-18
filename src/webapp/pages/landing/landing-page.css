@@ -60,4 +60,17 @@
     .print-zone {
         font-size: 0.75rem;
     }
+
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
+        max-width: calc(100vw - 2em) !important;
+        left: 1em !important;
+    }
+
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper .MuiMenuItem-root {
+        min-height: unset !important;
+    }
+
+    .MuiTooltip-tooltipPlacementBottom {
+        margin: 1.25em 0 !important;
+    }
 }
