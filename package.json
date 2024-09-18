@@ -3,7 +3,7 @@
     "description": "HMIS Tally sheets",
     "version": "2.5.0",
     "license": "GPL-3.0",
-    "author": "MSF OCBA, EyeSeeTea team",
+    "author": "EyeSeeTea",
     "homepage": ".",
     "repository": {
         "type": "git",
@@ -119,14 +119,9 @@
         "icons": {
             "48": "icon.png"
         },
-        "developer1": {
-            "url": "",
-            "name": "Victor Garcia - MSFOCBA",
-            "email": "victor.garcia@barcelona.msf.org"
-        },
-        "developer2": {
+        "developer": {
             "url": "https://www.eyeseetea.com/",
-            "name": "EyeSeeTea team"
+            "name": "EyeSeeTea"
         },
         "installs_allowed_from": null,
         "default_locale": "en",
