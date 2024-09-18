@@ -48,6 +48,7 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
             <Box padding={theme.spacing(0.5)}>
                 {includeHeaders && (
                     <Box
+                        className="dataset-headers"
                         display="flex"
                         flexDirection="column"
                         gridRowGap={theme.spacing(2)}
