@@ -19,7 +19,7 @@ export function useLandingPage() {
 
     const [isSettingsOpen, { enable: openSettings, disable: closeSettings }] =
         useBooleanState(false);
-    const [includeHeaders, setIncludeHeaders] = React.useState(false);
+    const [includeHeaders, setIncludeHeaders] = React.useState(true);
 
     const handleChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setIncludeHeaders(event.target.checked);

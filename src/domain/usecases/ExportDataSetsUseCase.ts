@@ -37,12 +37,15 @@ export class ExportDataSetsUseCase {
                         const headers = ds.headers;
                         if (!headers) return ds;
                         const newHeaders = {
-                            healthFacility: config.ouLabel
-                                ? `${headers.healthFacility} ${config.ouLabel}`
-                                : headers.healthFacility,
-                            reportingPeriod: config.periodLabel
-                                ? `${headers.reportingPeriod} ${config.periodLabel}`
-                                : headers.reportingPeriod,
+                            /* Temporary remove */
+                            // healthFacility: config.ouLabel
+                            //     ? `${headers.healthFacility} ${config.ouLabel}`
+                            //     : headers.healthFacility,
+                            // reportingPeriod: config.periodLabel
+                            //     ? `${headers.reportingPeriod} ${config.periodLabel}`
+                            //     : headers.reportingPeriod,
+                            healthFacility: headers.healthFacility,
+                            reportingPeriod: headers.reportingPeriod,
                         };
 
                         // (includeHeaders ? newHeaders: undefined) previously we were always including headers
