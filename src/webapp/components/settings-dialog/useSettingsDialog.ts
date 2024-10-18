@@ -112,26 +112,27 @@ function getTextFields(
             value: settings.administratorGroups,
             onChange: handleChange,
         },
-        {
-            title: i18n.t(
-                "The placeholder label that will be added next to '{{healthFacility}}: '",
-                { healthFacility: i18n.t("Health Facility"), nsSeparator: false }
-            ),
-            label: i18n.t("OU label"),
-            name: "ouLabel",
-            value: settings.ouLabel,
-            onChange: handleChange,
-        },
-        {
-            title: i18n.t(
-                "The placeholder label that will be added next to '{{reportingPeriod}}: '",
-                { reportingPeriod: i18n.t("Reporting Period"), nsSeparator: false }
-            ),
-            label: i18n.t("Period label"),
-            name: "periodLabel",
-            value: settings.periodLabel,
-            onChange: handleChange,
-        },
+        /* Temporary removing ou label, and period label */
+        // {
+        //     title: i18n.t(
+        //         "The placeholder label that will be added next to '{{healthFacility}}: '",
+        //         { healthFacility: i18n.t("Health Facility"), nsSeparator: false }
+        //     ),
+        //     label: i18n.t("OU label"),
+        //     name: "ouLabel",
+        //     value: settings.ouLabel,
+        //     onChange: handleChange,
+        // },
+        // {
+        //     title: i18n.t(
+        //         "The placeholder label that will be added next to '{{reportingPeriod}}: '",
+        //         { reportingPeriod: i18n.t("Reporting Period"), nsSeparator: false }
+        //     ),
+        //     label: i18n.t("Period label"),
+        //     name: "periodLabel",
+        //     value: settings.periodLabel,
+        //     onChange: handleChange,
+        // },
         {
             title: i18n.t(
                 "The placeholder message that will be shown to users at the top of the app. You can use this field to provide instructions or other information. To hide this message, leave this field empty."
