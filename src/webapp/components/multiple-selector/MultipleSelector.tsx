@@ -101,7 +101,9 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                 disabled={disabled}
                 fullWidth
             >
-                <InputLabel htmlFor={name}>{label}</InputLabel>
+                <InputLabel htmlFor={name} className={classes.label}>
+                    {label}
+                </InputLabel>
                 <Select
                     id={name}
                     label={label}
@@ -152,6 +154,14 @@ const useStyles = makeStyles((theme: Theme) =>
                 minWidth: "100%",
                 maxWidth: "100%",
             },
+        },
+        label: {
+            maxHeight: "1em",
+            textOverflow: "ellipsis",
+            textWrap: "nowrap",
+            maxWidth: "100%",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
         },
     })
 );
