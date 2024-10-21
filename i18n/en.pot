@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-18T12:28:57.605Z\n"
-"PO-Revision-Date: 2024-09-18T12:28:57.605Z\n"
+"POT-Creation-Date: 2024-10-21T10:44:36.471Z\n"
+"PO-Revision-Date: 2024-10-21T10:44:36.471Z\n"
 
 msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr ""
@@ -27,10 +27,10 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-msgid "selected"
+msgid "Nothing selected"
 msgstr ""
 
-msgid "Nothing selected"
+msgid "selected"
 msgstr ""
 
 msgid "Unable to fetch the organisation unit children"
@@ -39,10 +39,12 @@ msgstr ""
 msgid "Filter by Organisation Unit"
 msgstr ""
 
-msgid "Select an organisation unit"
+msgid "Organisation unit"
 msgstr ""
 
-msgid "Select current user's organisation units (and children)"
+msgid ""
+"The children of the Organisation Unit selected will also be taken into "
+"account."
 msgstr ""
 
 msgid "Cancel"
@@ -88,16 +90,10 @@ msgstr ""
 msgid "Administrator Groups"
 msgstr ""
 
-msgid "The placeholder label that will be added next to '{{healthFacility}}: '"
-msgstr ""
-
 msgid "Health Facility"
 msgstr ""
 
 msgid "OU label"
-msgstr ""
-
-msgid "The placeholder label that will be added next to '{{reportingPeriod}}: '"
 msgstr ""
 
 msgid "Reporting Period"
@@ -135,7 +131,7 @@ msgstr ""
 msgid "Export to Excel"
 msgstr ""
 
-msgid "Select a dataset"
+msgid "Dataset"
 msgstr ""
 
 msgid "ALL"
@@ -150,7 +146,7 @@ msgstr ""
 msgid "Something went wrong while creating the excel file"
 msgstr ""
 
-msgid "Select a language"
+msgid "Language"
 msgstr ""
 
 msgid "Unable to fetch languages list"

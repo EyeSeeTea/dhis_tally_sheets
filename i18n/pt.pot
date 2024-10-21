@@ -32,11 +32,11 @@ msgstr "Imprimir"
 msgid "Export to Excel"
 msgstr "Exportar para Excel"
 
-msgid "Select a dataset"
-msgstr "Selecione um conjunto de dados"
+msgid "Dataset"
+msgstr "Conjunto de dados"
 
 msgid "ALL"
 msgstr ""
 
-msgid "Select a language"
-msgstr "Selecione um idioma"
+msgid "Language"
+msgstr "Idioma"

@@ -44,7 +44,7 @@ export function useLanguageSelector(
             items: items,
             values: selected,
             onChange: onChange,
-            label: i18n.t("Select a language"),
+            label: i18n.t("Language"),
             name: "select-language",
             loading: loading,
             type: "language",

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-18T12:28:57.605Z\n"
+"POT-Creation-Date: 2024-10-21T10:44:36.471Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -27,11 +27,11 @@ msgstr "Periodo reportado"
 msgid "Value"
 msgstr ""
 
-msgid "selected"
-msgstr ""
-
 msgid "Nothing selected"
 msgstr "Nada seleccionado"
+
+msgid "selected"
+msgstr ""
 
 msgid "Unable to fetch the organisation unit children"
 msgstr ""
@@ -39,10 +39,12 @@ msgstr ""
 msgid "Filter by Organisation Unit"
 msgstr ""
 
-msgid "Select an organisation unit"
+msgid "Organisation unit"
 msgstr ""
 
-msgid "Select current user's organisation units (and children)"
+msgid ""
+"The children of the Organisation Unit selected will also be taken into "
+"account."
 msgstr ""
 
 msgid "Cancel"
@@ -88,18 +90,11 @@ msgstr ""
 msgid "Administrator Groups"
 msgstr ""
 
-msgid "The placeholder label that will be added next to '{{healthFacility}}: '"
-msgstr ""
-
 #, fuzzy
 msgid "Health Facility"
 msgstr "Centro sanitario"
 
 msgid "OU label"
-msgstr ""
-
-msgid ""
-"The placeholder label that will be added next to '{{reportingPeriod}}: '"
 msgstr ""
 
 #, fuzzy
@@ -138,8 +133,8 @@ msgstr "Imprimir"
 msgid "Export to Excel"
 msgstr "Exportar a Excel"
 
-msgid "Select a dataset"
-msgstr "Selecciona un set de datos"
+msgid "Dataset"
+msgstr "Set de datos"
 
 msgid "ALL"
 msgstr ""
@@ -154,8 +149,8 @@ msgstr "Selecciona un set de datos"
 msgid "Something went wrong while creating the excel file"
 msgstr ""
 
-msgid "Select a language"
-msgstr "Selecciona un idioma"
+msgid "Language"
+msgstr "Idioma"
 
 msgid "Unable to fetch languages list"
 msgstr ""

@@ -119,7 +119,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
             items: parents.map(({ id, displayName }) => ({ value: id, text: displayName })),
             values: parents.map(getId),
             onChange: () => {},
-            label: i18n.t("Select an organisation unit"),
+            label: i18n.t("Organisation unit"),
             name: "select-organisation-unit",
             type: "organisation unit",
             pluralType: "organisation units",
