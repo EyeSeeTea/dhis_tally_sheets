@@ -46,7 +46,7 @@ export function useDataSetSelector() {
             type: "dataset",
             pluralType: "datasets",
             onChange: onChange,
-            label: i18n.t("Select a dataset"),
+            label: i18n.t("Dataset"),
             name: "select-dataset",
             loading: loading,
             disabled: loading === "loading" || dataSets.length === 0,
@@ -58,6 +58,7 @@ export function useDataSetSelector() {
             selectedItems: selected.includes(allValue)
                 ? dataSets
                 : dataSets.filter(i => selected.includes(i.id)),
+            isSearchable: true,
         }),
         [selected, onChange, dataSets, loading]
     );
