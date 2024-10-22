@@ -1,4 +1,4 @@
-import { Codec, string, array, optional, oneOf } from "purify-ts";
+import { Codec, string, array, optional, oneOf, record } from "purify-ts";
 
 export const configCodec = oneOf([
     Codec.interface({
@@ -7,7 +7,7 @@ export const configCodec = oneOf([
         administratorGroups: array(string),
         ouLabel: string,
         periodLabel: string,
-        infoPlaceholder: optional(string),
+        infoPlaceholder: oneOf([optional(string), record(string, optional(string))]),
     }),
     Codec.interface({ administratorGroups: array(string) }), // Backwards compatibility
 ]);

@@ -139,7 +139,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                 >
                     {isSearchable && (
                         <>
-                            <Box padding={theme.spacing(1, 3.5, 0, 2)}>
+                            <Box padding={theme.spacing(0, 3.5, 0, 2)}>
                                 <TextField
                                     id="standard-basic"
                                     label="Search"
@@ -159,11 +159,12 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                                         if (e.key !== "Escape") e.stopPropagation();
                                     }}
                                     onClick={e => e.stopPropagation()}
+                                    value={filterText}
                                     autoFocus
                                     fullWidth
                                 />
                             </Box>
-                            <Box margin="1rem 0">
+                            <Box margin="0.75rem 0">
                                 <Divider />
                             </Box>
                         </>
@@ -174,7 +175,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
                     {/* Material UI does not like React.Fragment as children inside the Menu component */}
                     {allOption && <MenuItem value={allOption.value}>{allOption.text}</MenuItem>}
                     {allOption && (
-                        <Box margin="1rem 0">
+                        <Box margin="0.75rem 0">
                             <Divider />
                         </Box>
                     )}

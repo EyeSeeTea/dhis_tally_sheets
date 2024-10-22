@@ -41,7 +41,18 @@ export class ConfigD2DataStoreRepository implements ConfigRepository {
                 return Future.error(new Error(errStr));
             },
             Right: (res): FutureData<Config> => {
-                if ("sheetName" in res) return Future.success(res);
+                if ("sheetName" in res) {
+                    if (typeof res.infoPlaceholder === "string")
+                        return Future.success({
+                            ...res,
+                            infoPlaceholder: { en: res.infoPlaceholder },
+                        });
+                    else
+                        return Future.success({
+                            ...res,
+                            infoPlaceholder: { en: undefined },
+                        });
+                }
                 return Future.success({
                     ...defaultConfig,
                     administratorGroups: res.administratorGroups,

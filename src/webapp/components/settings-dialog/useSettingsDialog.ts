@@ -16,11 +16,11 @@ type Settings = {
     administratorGroups: string;
     ouLabel: string;
     periodLabel: string;
-    infoPlaceholder: Maybe<string>;
+    infoPlaceholder: Record<string, Maybe<string>>;
 };
 
-export function useSettingsDialog(props: SettingsDialogProps) {
-    const { onClose } = props;
+export function useSettingsDialog(props: SettingsDialogProps & { localeCode: string }) {
+    const { onClose, localeCode } = props;
     const { config, compositionRoot } = useAppContext();
 
     const snackbar = useSnackbar();
@@ -32,11 +32,22 @@ export function useSettingsDialog(props: SettingsDialogProps) {
         administratorGroups: config.administratorGroups.join(", "),
     });
 
-    const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const updateSettings = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSettings(prevSettings => ({
             ...prevSettings,
             [name]: value,
+        }));
+    }, []);
+
+    const updatePlaceholder = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setSettings(prevSettings => ({
+            ...prevSettings,
+            infoPlaceholder: {
+                ...prevSettings.infoPlaceholder,
+                [name]: value.trim() === "" ? undefined : value,
+            },
         }));
     }, []);
 
@@ -75,11 +86,30 @@ export function useSettingsDialog(props: SettingsDialogProps) {
     }, [config, onClose]);
 
     const fields = React.useMemo(
-        () => getTextFields(settings, handleChange),
-        [handleChange, settings]
+        () => getTextFields(settings, updateSettings),
+        [updateSettings, settings]
     );
 
-    return { loading, reloading, handleSave, close, fields };
+    const placeholderProps = React.useMemo(
+        () => ({
+            title: i18n.t(
+                "The placeholder message that will be shown to users at the top of the app. You can use this field to provide instructions or other information. To hide this message, leave this field empty."
+            ),
+            label: i18n.t("Message placeholder"),
+            name: localeCode,
+            value: settings.infoPlaceholder[localeCode] ?? "",
+            onChange: updatePlaceholder,
+            minRows: 4,
+            multiline: true,
+        }),
+        [localeCode, settings, updatePlaceholder]
+    );
+
+    const placeholderChanged = React.useMemo(() => {
+        return settings.infoPlaceholder[localeCode] !== config.infoPlaceholder[localeCode];
+    }, [config.infoPlaceholder, localeCode, settings.infoPlaceholder]);
+
+    return { loading, reloading, handleSave, close, fields, placeholderProps, placeholderChanged };
 }
 
 function getTextFields(
@@ -111,38 +141,6 @@ function getTextFields(
             name: "administratorGroups",
             value: settings.administratorGroups,
             onChange: handleChange,
-        },
-        /* Temporary removing ou label, and period label */
-        // {
-        //     title: i18n.t(
-        //         "The placeholder label that will be added next to '{{healthFacility}}: '",
-        //         { healthFacility: i18n.t("Health Facility"), nsSeparator: false }
-        //     ),
-        //     label: i18n.t("OU label"),
-        //     name: "ouLabel",
-        //     value: settings.ouLabel,
-        //     onChange: handleChange,
-        // },
-        // {
-        //     title: i18n.t(
-        //         "The placeholder label that will be added next to '{{reportingPeriod}}: '",
-        //         { reportingPeriod: i18n.t("Reporting Period"), nsSeparator: false }
-        //     ),
-        //     label: i18n.t("Period label"),
-        //     name: "periodLabel",
-        //     value: settings.periodLabel,
-        //     onChange: handleChange,
-        // },
-        {
-            title: i18n.t(
-                "The placeholder message that will be shown to users at the top of the app. You can use this field to provide instructions or other information. To hide this message, leave this field empty."
-            ),
-            label: i18n.t("Message placeholder"),
-            name: "infoPlaceholder",
-            value: settings.infoPlaceholder,
-            onChange: handleChange,
-            minRows: 4,
-            multiline: true,
         },
     ];
 }

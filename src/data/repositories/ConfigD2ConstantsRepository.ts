@@ -77,7 +77,19 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
                 return Future.error(new Error(errStr));
             },
             Right: (res): FutureData<Config> => {
-                if ("sheetName" in res) return Future.success(res);
+                if ("sheetName" in res) {
+                    const placeholder =
+                        typeof res.infoPlaceholder === "string"
+                            ? { en: res.infoPlaceholder }
+                            : res.infoPlaceholder === undefined
+                            ? { en: undefined }
+                            : res.infoPlaceholder;
+
+                    return Future.success({
+                        ...res,
+                        infoPlaceholder: placeholder,
+                    });
+                }
                 return Future.success({
                     ...defaultConfig,
                     administratorGroups: res.administratorGroups,

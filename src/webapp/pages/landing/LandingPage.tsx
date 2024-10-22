@@ -296,10 +296,16 @@ const Actions: React.FC<ActionsProps> = React.memo(props => {
 });
 
 const MessagePlaceholder: React.FC = React.memo(() => {
-    const { config } = useAppContext();
+    const { config, currentUser } = useAppContext();
     const theme = useTheme();
 
     if (!config.infoPlaceholder) return null;
+
+    const message =
+        config.infoPlaceholder[currentUser.preferredLocale] ?? config.infoPlaceholder["en"];
+
+    if (!message) return null;
+
     return (
         <Box
             marginBottom={theme.spacing(0.25)}
@@ -307,7 +313,7 @@ const MessagePlaceholder: React.FC = React.memo(() => {
             borderRadius={theme.shape.borderRadius}
         >
             <Alert severity="info" variant="standard">
-                {config.infoPlaceholder}
+                {message}
             </Alert>
         </Box>
     );
