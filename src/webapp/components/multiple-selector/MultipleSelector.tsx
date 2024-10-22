@@ -104,7 +104,10 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
         return customMenu?.onOpen && items.length > 500 ? items.slice(0, 10) : items;
     }, [customMenu?.onOpen, items]);
 
-    const MenuProps = React.useMemo(() => getMenuProps(isSearchable), [isSearchable]);
+    const MenuProps = React.useMemo(
+        () => getMenuProps(isSearchable, 2, isSearchable),
+        [isSearchable]
+    );
 
     return (
         <DisableableTooltip
@@ -225,14 +228,21 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const ITEM_HEIGHT = 36; // line-height: 1.5 + padding: 6 * 2
-
 const ITEM_PADDING_TOP = 8;
+const DIVIDER = 12 + 1 + 12;
+const SEARCH_FIELD = 52;
+const IMAGINARY_PADDING_BOTTOM = 8;
 
-function getMenuProps(autoFocus: boolean) {
+function getMenuProps(autoFocus: boolean, dividers = 0, isSearchable = false) {
     return {
         PaperProps: {
             style: {
-                maxHeight: ITEM_HEIGHT * 16 + ITEM_PADDING_TOP,
+                maxHeight:
+                    ITEM_HEIGHT * 10 +
+                    ITEM_PADDING_TOP +
+                    dividers * DIVIDER +
+                    (isSearchable ? SEARCH_FIELD : 0) +
+                    IMAGINARY_PADDING_BOTTOM,
                 maxWidth: 600,
             },
         },

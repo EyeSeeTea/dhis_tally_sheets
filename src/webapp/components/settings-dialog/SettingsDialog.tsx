@@ -268,13 +268,20 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const ITEM_HEIGHT = 36; // line-height: 1.5 + padding: 6 * 2
-
 const ITEM_PADDING_TOP = 8;
+const DIVIDER = 12 + 1 + 12;
+const SEARCH_FIELD = 52;
+const IMAGINARY_PADDING_BOTTOM = 8;
 
 const MenuProps = {
     PaperProps: {
         style: {
-            maxHeight: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
+            maxHeight:
+                ITEM_HEIGHT * 5 +
+                ITEM_PADDING_TOP +
+                DIVIDER +
+                SEARCH_FIELD +
+                IMAGINARY_PADDING_BOTTOM,
             maxWidth: 600,
         },
     },
