@@ -182,6 +182,16 @@ describe("filtering by key or value", () => {
             [["c", 3]]
         );
     });
+
+    test("compact", () => {
+        const map = HashMap.fromPairs([
+            ["a", 1],
+            ["b", null],
+            ["c", undefined],
+        ]);
+
+        expectMapPairsToEqual(map.compact(), [["a", 1]]);
+    });
 });
 
 function expectMapPairsToEqual<K, V>(map: HashMap<K, V>, pairsSet: Array<[K, V]>): void {
