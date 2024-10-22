@@ -36,19 +36,13 @@ export class ExportDataSetsUseCase {
                     .map(ds => {
                         const headers = ds.headers;
                         if (!headers) return ds;
+
+                        // Temporary removed ou label and period
                         const newHeaders = {
-                            /* Temporary remove */
-                            // healthFacility: config.ouLabel
-                            //     ? `${headers.healthFacility} ${config.ouLabel}`
-                            //     : headers.healthFacility,
-                            // reportingPeriod: config.periodLabel
-                            //     ? `${headers.reportingPeriod} ${config.periodLabel}`
-                            //     : headers.reportingPeriod,
                             healthFacility: headers.healthFacility,
                             reportingPeriod: headers.reportingPeriod,
                         };
 
-                        // (includeHeaders ? newHeaders: undefined) previously we were always including headers
                         return ds.updateHeaders(newHeaders);
                     })
                     .value()
