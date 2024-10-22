@@ -1,6 +1,6 @@
 import { apiToFuture, FutureData } from "$/data/api-futures";
-import { configCodec, decodeConfig } from "$/data/config-codec";
-import { constants, errors } from "$/data/repositories/d2-metadata";
+import { decodeConfig } from "$/data/config-codec";
+import { constants } from "$/data/repositories/d2-metadata";
 import { runMetadata } from "$/data/response";
 import { Config, defaultConfig } from "$/domain/entities/Config";
 import { Future } from "$/domain/entities/generic/Future";

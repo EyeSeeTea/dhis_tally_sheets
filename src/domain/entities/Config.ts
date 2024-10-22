@@ -1,5 +1,4 @@
 import { Id } from "$/domain/entities/Ref";
-import { Maybe } from "$/utils/ts-utils";
 import i18n from "$/utils/i18n";
 
 export type Config = {
@@ -8,7 +7,7 @@ export type Config = {
     administratorGroups: Id[];
     ouLabel: string;
     periodLabel: string;
-    infoPlaceholder: Record<string, Maybe<string>>;
+    infoPlaceholder: Record<string, string>;
 };
 
 export const defaultConfig: Config = {

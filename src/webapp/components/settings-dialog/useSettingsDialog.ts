@@ -7,6 +7,7 @@ import {
     TooltipTextFieldProps,
 } from "$/webapp/components/settings-dialog/SettingsDialog";
 import { Maybe } from "$/utils/ts-utils";
+import { HashMap } from "$/domain/entities/generic/HashMap";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
 
@@ -60,6 +61,7 @@ export function useSettingsDialog(props: SettingsDialogProps & { localeCode: str
                 .map(id => id.trim())
                 .compact()
                 .value(),
+            infoPlaceholder: HashMap.fromObject(settings.infoPlaceholder).compact().toObject(),
         };
 
         compositionRoot.config.update.execute(config).run(

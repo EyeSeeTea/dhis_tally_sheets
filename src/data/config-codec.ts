@@ -9,7 +9,7 @@ export const configCodec = oneOf([
         administratorGroups: array(string),
         ouLabel: string,
         periodLabel: string,
-        infoPlaceholder: oneOf([optional(string), record(string, optional(string))]),
+        infoPlaceholder: oneOf([optional(string), record(string, string)]),
     }),
     Codec.interface({ administratorGroups: array(string) }), // Backwards compatibility
 ]);
@@ -27,7 +27,7 @@ export function decodeConfig(json: unknown, storage: string, key: string): Confi
                     typeof res.infoPlaceholder === "string"
                         ? { en: res.infoPlaceholder }
                         : res.infoPlaceholder === undefined
-                        ? { en: undefined }
+                        ? {}
                         : res.infoPlaceholder;
 
                 return {
