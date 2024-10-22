@@ -1,11 +1,11 @@
 import { DataStore } from "@eyeseetea/d2-api/api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
-import { configCodec } from "$/data/config-codec";
+import { decodeConfig } from "$/data/config-codec";
 import { Config, defaultConfig } from "$/domain/entities/Config";
 import { Future } from "$/domain/entities/generic/Future";
 import { ConfigRepository } from "$/domain/repositories/ConfigRepository";
 import { D2Api } from "$/types/d2-api";
-import { constants, errors } from "$/data/repositories/d2-metadata";
+import { constants } from "$/data/repositories/d2-metadata";
 
 export class ConfigD2DataStoreRepository implements ConfigRepository {
     private namespace = constants.datastoreNamespace;
@@ -34,30 +34,6 @@ export class ConfigD2DataStoreRepository implements ConfigRepository {
     }
 
     private decodeConfig(config: unknown): FutureData<Config> {
-        return configCodec.decode(config).caseOf({
-            Left: (err): FutureData<Config> => {
-                const errStr = errors.invalidJSON(this.namespace, this.configKey);
-                console.error(new Error(errStr + err));
-                return Future.error(new Error(errStr));
-            },
-            Right: (res): FutureData<Config> => {
-                if ("sheetName" in res) {
-                    if (typeof res.infoPlaceholder === "string")
-                        return Future.success({
-                            ...res,
-                            infoPlaceholder: { en: res.infoPlaceholder },
-                        });
-                    else
-                        return Future.success({
-                            ...res,
-                            infoPlaceholder: { en: undefined },
-                        });
-                }
-                return Future.success({
-                    ...defaultConfig,
-                    administratorGroups: res.administratorGroups,
-                });
-            },
-        });
+        return Future.success(decodeConfig(config, this.namespace, this.configKey));
     }
 }
