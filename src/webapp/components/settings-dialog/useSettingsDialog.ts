@@ -92,7 +92,7 @@ export function useSettingsDialog(props: SettingsDialogProps & { localeCode: str
         [updateSettings, settings]
     );
 
-    const placeholderProps = React.useMemo(
+    const placeholderProps: TooltipTextFieldProps = React.useMemo(
         () => ({
             title: i18n.t(
                 "The placeholder message that will be shown to users at the top of the app. You can use this field to provide instructions or other information. To hide this message, leave this field empty."

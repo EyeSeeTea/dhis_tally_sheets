@@ -87,9 +87,11 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
     const helperText = React.useMemo(() => {
         if (allOption && isAllSelected)
             return `${items.length} ${items.length > 1 ? pluralType : type} ` + i18n.t("selected");
+
         const selectedCount = selected.filter(
             v => v !== "multiple-selector-void" && v !== undefined
         ).length;
+
         return selectedCount
             ? `${selectedCount} ${selectedCount > 1 ? pluralType : type} ` + i18n.t("selected")
             : undefined;

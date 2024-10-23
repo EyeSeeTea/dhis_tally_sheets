@@ -6,14 +6,14 @@ import { Locale } from "$/domain/entities/Locale";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
 
-export function useLocaleSelector(preferredLocale: string) {
+export function useLocaleSelector() {
     const { compositionRoot } = useAppContext();
 
     const snackbar = useSnackbar();
 
     const [locales, setLocales] = React.useState<Locale[]>([]);
     const [loading, setLoading] = React.useState<LoadingState>("loading");
-    const [selected, setSelected] = React.useState<string>(preferredLocale);
+    const [selected, setSelected] = React.useState<string>("en");
 
     const items = React.useMemo(
         () =>
@@ -33,13 +33,11 @@ export function useLocaleSelector(preferredLocale: string) {
             items: items,
             value: selected,
             onChange: onChange,
-            loading: loading,
-            allItems: locales,
             name: "select-language",
             label: i18n.t("Language"),
             disabled: loading === "loading",
         }),
-        [items, selected, onChange, loading, locales]
+        [items, selected, onChange, loading]
     );
 
     React.useEffect(
