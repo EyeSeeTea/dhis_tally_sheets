@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-10-22T20:22:05.308Z\n"
+"POT-Creation-Date: 2024-10-23T01:16:49.384Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -27,11 +27,11 @@ msgstr "Periodo reportado"
 msgid "Value"
 msgstr ""
 
-msgid "selected"
-msgstr ""
-
 msgid "Nothing selected"
 msgstr "Nada seleccionado"
+
+msgid "selected"
+msgstr ""
 
 msgid "Unable to fetch the organisation unit children"
 msgstr ""
@@ -58,6 +58,11 @@ msgstr "Volver"
 
 msgid "Help"
 msgstr "Ayuda"
+
+msgid ""
+"You have made changes. Please save or discard them before changing the "
+"language."
+msgstr ""
 
 msgid "Settings"
 msgstr ""
@@ -134,17 +139,8 @@ msgstr ""
 msgid "Unable to fetch datasets list"
 msgstr ""
 
-#, fuzzy
 msgid "Unable to fetch datasets"
-msgstr "Selecciona un set de datos"
+msgstr ""
 
 msgid "Something went wrong while creating the excel file"
 msgstr ""
-
-#, fuzzy
-#~ msgid "Health Facility"
-#~ msgstr "Centro sanitario"
-
-#, fuzzy
-#~ msgid "Reporting Period"
-#~ msgstr "Periodo reportado"
