@@ -58,13 +58,13 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
 
     const apply = React.useCallback(() => {
         startLoading();
+
         const orgUnitIds = _(currentPaths)
             .map(path => path.split("/").slice(-1))
             .flatten()
             .value();
 
-        const ids = orgUnitIds;
-        const getOrgUnits$ = compositionRoot.orgUnits.getWithChildren.execute(ids);
+        const getOrgUnits$ = compositionRoot.orgUnits.getWithChildren.execute(orgUnitIds);
 
         getOrgUnits$.run(
             orgUnits => {
