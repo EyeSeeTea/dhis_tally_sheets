@@ -66,14 +66,14 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(prop
     const mergedClasses = [className, classes.formControl].join(" ");
 
     const MenuProps = React.useMemo(
-        () => getMenuProps(isSearchable, 2, isSearchable),
+        () => getMenuProps({ autoFocus: isSearchable, dividers: 2, isSearchable: isSearchable }),
         [isSearchable]
     );
 
     return (
         <DisableableTooltip
             disabled={disabled}
-            title={helperText ?? ""}
+            title={helperText || ""}
             open={!menuIsOpen && tooltipIsOpen}
             onOpen={openTooltip}
             onClose={closeTooltip}
@@ -171,15 +171,17 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
-function getMenuProps(autoFocus: boolean, dividers = 0, isSearchable = false) {
+function getMenuProps(options: { autoFocus: boolean; dividers?: number; isSearchable?: boolean }) {
+    const { autoFocus, dividers, isSearchable } = options;
+
     return {
         PaperProps: {
             style: {
                 maxHeight:
                     ITEM_HEIGHT * 10 +
                     ITEM_PADDING_TOP +
-                    dividers * DIVIDER +
-                    (isSearchable ? SEARCH_FIELD : 0) +
+                    (dividers ?? 0) * DIVIDER +
+                    (isSearchable ?? false ? SEARCH_FIELD : 0) +
                     IMAGINARY_PADDING_BOTTOM,
                 maxWidth: 600,
             },

@@ -83,7 +83,7 @@ export class HashMap<K, V> {
     }
 
     compact(): HashMap<K, NonNullable<V>> {
-        return this.pickBy(([_, value]) => value !== null && value !== undefined) as HashMap<
+        return this.pickBy(([_key, value]) => value !== null && value !== undefined) as HashMap<
             K,
             NonNullable<V>
         >;

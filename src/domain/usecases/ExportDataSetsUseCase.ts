@@ -33,18 +33,7 @@ export class ExportDataSetsUseCase {
             .mapValues(([dataSet, locales]) =>
                 locales
                     .map(locale => dataSet.applyLocale(locale))
-                    .map(ds => {
-                        const headers = ds.headers;
-                        if (!headers) return ds;
-
-                        // Temporary removed ou label and period
-                        const newHeaders = {
-                            healthFacility: headers.healthFacility,
-                            reportingPeriod: headers.reportingPeriod,
-                        };
-
-                        return ds.updateHeaders(newHeaders);
-                    })
+                    //.map(ds=>ds.updateHeaders({... + labels})) Temporary removed ou label and period from headers
                     .value()
             )
             .values()

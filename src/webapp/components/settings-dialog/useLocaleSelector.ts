@@ -24,20 +24,16 @@ export function useLocaleSelector() {
         [locales]
     );
 
-    const onChange = React.useCallback((value: string) => {
-        setSelected(value);
-    }, []);
-
     const props = React.useMemo(
         () => ({
             items: items,
             value: selected,
-            onChange: onChange,
+            onChange: setSelected,
             name: "select-language",
             label: i18n.t("Language"),
             disabled: loading === "loading",
         }),
-        [items, selected, onChange, loading]
+        [items, selected, loading]
     );
 
     React.useEffect(

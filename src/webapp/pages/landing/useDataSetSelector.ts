@@ -30,10 +30,6 @@ export function useDataSetSelector() {
         setSelected([]);
     }, []);
 
-    const onChange = React.useCallback((values: string[]) => {
-        setSelected(values);
-    }, []);
-
     const allValue = "all-datasets";
 
     const props: SelectorProps<BasicDataSet> = React.useMemo(
@@ -45,7 +41,7 @@ export function useDataSetSelector() {
             values: selected,
             type: "dataset",
             pluralType: "datasets",
-            onChange: onChange,
+            onChange: setSelected,
             label: i18n.t("Dataset"),
             name: "select-dataset",
             loading: loading,
@@ -60,7 +56,7 @@ export function useDataSetSelector() {
                 : dataSets.filter(i => selected.includes(i.id)),
             isSearchable: true,
         }),
-        [selected, onChange, dataSets, loading]
+        [selected, dataSets, loading]
     );
 
     React.useEffect(() => {

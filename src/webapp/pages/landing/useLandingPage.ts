@@ -19,11 +19,14 @@ export function useLandingPage() {
 
     const [isSettingsOpen, { enable: openSettings, disable: closeSettings }] =
         useBooleanState(false);
-    const [includeHeaders, setIncludeHeaders] = React.useState(true);
+    const [includeHeaders, { set: setIncludeHeaders, enable: addHeaders }] = useBooleanState(true);
 
-    const handleChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        setIncludeHeaders(event.target.checked);
-    }, []);
+    const handleChange = React.useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            setIncludeHeaders(event.target.checked);
+        },
+        [setIncludeHeaders]
+    );
 
     const {
         props: dataSetSelectorProps,
@@ -85,9 +88,9 @@ export function useLandingPage() {
 
     const resetView = React.useCallback(() => {
         resetSelectedDataSets();
-        setIncludeHeaders(true);
+        addHeaders();
         setOrgUnits([]);
-    }, [resetSelectedDataSets, setOrgUnits]);
+    }, [resetSelectedDataSets, addHeaders, setOrgUnits]);
 
     const setSelectedOrgUnits = React.useCallback(
         (orgUnits: OrgUnit[]) => {

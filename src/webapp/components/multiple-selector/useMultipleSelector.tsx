@@ -11,8 +11,8 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
         onChange,
         allOption,
         customMenu,
-        type = "item",
-        pluralType = "items",
+        type = i18n.t("item"),
+        pluralType = i18n.t("items"),
     } = props;
 
     const [menuIsOpen, { enable: openMenu, disable: closeMenu }] = useBooleanState(false);
@@ -22,9 +22,9 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
     const notifyChange = React.useCallback(
         (event: React.ChangeEvent<{ value: unknown }>) => {
             onChange(
-                (event.target.value as string[]).filter(
-                    s => s !== "multiple-selector-void" && s !== undefined && s !== null
-                )
+                (event.target.value as (string | undefined | null)[])
+                    .filter<string>(s => s !== undefined && s !== null && typeof s === "string")
+                    .filter(s => s !== "multiple-selector-void")
             );
         },
         [onChange]
@@ -41,21 +41,22 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
 
     const selected = React.useMemo(() => {
         if (isAllSelected && allOption) return [allOption.value];
-        else return _(values).isEmpty() ? ["multiple-selector-void"] : values;
+        else if (_(values).isEmpty()) return ["multiple-selector-void"];
+        else return values;
     }, [allOption, isAllSelected, values]);
 
     const helperText = React.useMemo(() => {
-        if (allOption && isAllSelected)
-            return `${items.length} ${items.length > 1 ? pluralType : type} ` + i18n.t("selected");
+        const all = allOption && isAllSelected;
+        const length = (all ? items : selected).length;
 
-        const selectedCount = selected.filter(
-            v => v !== "multiple-selector-void" && v !== undefined
-        ).length;
-
-        return selectedCount
-            ? `${selectedCount} ${selectedCount > 1 ? pluralType : type} ` + i18n.t("selected")
-            : undefined;
-    }, [allOption, isAllSelected, items.length, pluralType, selected, type]);
+        return (
+            length !== 0 &&
+            i18n.t("{{length}} {{type}} selected", {
+                length: length,
+                type: length > 1 ? pluralType : type,
+            })
+        );
+    }, [allOption, isAllSelected, items, pluralType, selected, type]);
 
     const virtualValues = React.useMemo(
         () => (customMenu?.onOpen && selected.length > 500 ? selected.slice(0, 10) : selected),
@@ -67,8 +68,7 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
     }, [customMenu?.onOpen, items]);
 
     const filteredItems = React.useMemo(
-        () =>
-            renderItems.filter(item => item.text.toLowerCase().includes(filterText.toLowerCase())),
+        () => renderItems.filter(item => includesInsensitive(item.text, filterText)),
         [renderItems, filterText]
     );
 
@@ -89,4 +89,8 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
         virtualValues,
         filteredItems,
     };
+}
+
+function includesInsensitive(text: string, filterText: string) {
+    return text.toLowerCase().includes(filterText.toLowerCase());
 }

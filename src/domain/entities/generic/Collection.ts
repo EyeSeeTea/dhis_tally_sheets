@@ -322,7 +322,7 @@ export class Collection<T> {
             return _c<U[]>([]);
         }
 
-        const unzipped = (this.xs[0] as U[]).map((_, i) =>
+        const unzipped = (this.xs[0] as U[]).map((_key, i) =>
             this.xs.map(tuple => (tuple as U[])[i] as U)
         );
 

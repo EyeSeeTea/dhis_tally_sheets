@@ -16,9 +16,10 @@ export const configCodec = oneOf([
 
 export function decodeConfig(json: unknown, storage: string, key: string): Config {
     return configCodec.decode(json).caseOf({
-        Left: (err): Config => {
+        Left: err => {
             const errStr = errors.invalidJSON(storage, key);
-            console.error(new Error(errStr + err));
+            console.error(new Error(err));
+            console.error(new Error(errStr));
             throw new Error(errStr);
         },
         Right: (res): Config => {
@@ -35,6 +36,7 @@ export function decodeConfig(json: unknown, storage: string, key: string): Confi
                     messageInfo: message,
                 };
             }
+
             return {
                 ...defaultConfig,
                 administratorGroups: res.administratorGroups,

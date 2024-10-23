@@ -64,9 +64,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
             .flatten()
             .value();
 
-        const getOrgUnits$ = compositionRoot.orgUnits.getWithChildren.execute(orgUnitIds);
-
-        getOrgUnits$.run(
+        compositionRoot.orgUnits.getWithChildren.execute(orgUnitIds).run(
             orgUnits => {
                 onChange(orgUnits);
                 stopLoading();
@@ -128,6 +126,11 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
         };
     }, [selected, disabled, openDialog]);
 
+    const rootIds = React.useMemo(
+        () => currentUser.organisationUnits.map(getId),
+        [currentUser.organisationUnits]
+    );
+
     return (
         <>
             <MultipleSelector {...selectorProps} />
@@ -158,8 +161,8 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                             selected={currentPaths}
                             singleSelection={true}
                             initiallyExpanded={initiallyExpanded}
-                            selectableLevels={[3, 4, 5, 6]}
-                            rootIds={currentUser.organisationUnits.map(getId)}
+                            selectableLevels={selectableLevels}
+                            rootIds={rootIds}
                             typeInput="radio"
                         />
                     </Box>
@@ -195,6 +198,8 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     })
 );
+
+const selectableLevels = [3, 4, 5, 6];
 
 const ORG_UNIT_SELECTOR_HEIGHT = 500;
 
