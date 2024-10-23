@@ -1,6 +1,5 @@
 import React from "react";
 import {
-    TextField,
     Box,
     useTheme,
     makeStyles,
@@ -9,17 +8,16 @@ import {
     Select,
     MenuItem,
     Divider,
-    InputAdornment,
     Input,
     ListItemIcon,
 } from "@material-ui/core";
 import {
     CheckCircleOutline as CheckCircleIcon,
-    Search as SearchIcon,
     Translate as TranslateIcon,
 } from "@material-ui/icons";
 import { DropdownItem, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "$/webapp/contexts/app-context";
+import { SearchField } from "$/webapp/components/multiple-selector/SearchField";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
 
@@ -69,9 +67,10 @@ export const LanguageSelector: React.FC<SelectorProps> = React.memo(props => {
         [classes]
     );
 
-    const filteredItems = React.useMemo(() => {
-        return items.filter(item => item.text.toLowerCase().includes(filterText.toLowerCase()));
-    }, [items, filterText]);
+    const filteredItems = React.useMemo(
+        () => items.filter(item => item.text.toLowerCase().includes(filterText.toLowerCase())),
+        [items, filterText]
+    );
 
     return (
         <Box alignSelf="flex-end">
@@ -89,20 +88,7 @@ export const LanguageSelector: React.FC<SelectorProps> = React.memo(props => {
                 disabled={disabled}
             >
                 <Box padding={theme.spacing(0, 3.5, 0, 2)}>
-                    <TextField
-                        id="standard-basic"
-                        label="Search"
-                        margin="dense"
-                        variant="outlined"
-                        size="small"
-                        onChange={filter}
-                        value={filterText}
-                        InputProps={InputProps}
-                        onKeyDown={preventAutoselect}
-                        onClick={stopPropagation}
-                        autoFocus
-                        fullWidth
-                    />
+                    <SearchField text={filterText} filter={filter} />
                 </Box>
 
                 <Box margin="0.75rem 0">
@@ -186,24 +172,3 @@ const MenuProps = {
     anchorOrigin: { vertical: "top", horizontal: "left" },
     autoFocus: false,
 } as const;
-
-const InputProps = {
-    endAdornment: (
-        <InputAdornment position="end">
-            <SearchIcon color="disabled" />
-        </InputAdornment>
-    ),
-} as const;
-
-function preventAutoselect(): React.KeyboardEventHandler<HTMLDivElement> {
-    return e => {
-        // Prevents autoselecting item while typing (default Select behaviour)
-        if (e.key !== "Escape") e.stopPropagation();
-    };
-}
-
-function stopPropagation(): React.MouseEventHandler<HTMLDivElement> {
-    return e => {
-        e.stopPropagation();
-    };
-}
