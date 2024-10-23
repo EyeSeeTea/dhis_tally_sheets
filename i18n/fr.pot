@@ -12,16 +12,16 @@ msgid "Health facility"
 msgstr "Structure de santé"
 
 msgid "Reporting period"
-msgstr "Periode rapportée"
+msgstr "Période rapportée"
 
 msgid "Nothing selected"
-msgstr ""
+msgstr "Rien sélectionné"
 
 msgid "Back"
-msgstr ""
+msgstr "Retour"
 
 msgid "Help"
-msgstr ""
+msgstr "Aide"
 
 msgid "Include headers"
 msgstr "Ajouter en-tête"
@@ -36,7 +36,7 @@ msgid "Dataset"
 msgstr "Ensemble de données"
 
 msgid "ALL"
-msgstr ""
+msgstr "TOUT"
 
 msgid "Language"
 msgstr "Langue"

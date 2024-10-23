@@ -9,7 +9,7 @@ export const configCodec = oneOf([
         administratorGroups: array(string),
         ouLabel: string,
         periodLabel: string,
-        infoPlaceholder: oneOf([optional(string), record(string, string)]),
+        messageInfo: oneOf([optional(string), record(string, string)]),
     }),
     Codec.interface({ administratorGroups: array(string) }), // Backwards compatibility
 ]);
@@ -23,16 +23,16 @@ export function decodeConfig(json: unknown, storage: string, key: string): Confi
         },
         Right: (res): Config => {
             if ("sheetName" in res) {
-                const placeholder =
-                    typeof res.infoPlaceholder === "string"
-                        ? { en: res.infoPlaceholder }
-                        : res.infoPlaceholder === undefined
+                const message =
+                    typeof res.messageInfo === "string"
+                        ? { en: res.messageInfo }
+                        : res.messageInfo === undefined
                         ? {}
-                        : res.infoPlaceholder;
+                        : res.messageInfo;
 
                 return {
                     ...res,
-                    infoPlaceholder: placeholder,
+                    messageInfo: message,
                 };
             }
             return {

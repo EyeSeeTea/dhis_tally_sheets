@@ -40,7 +40,7 @@ export const LanguageSelector: React.FC<SelectorProps> = React.memo(props => {
     const snackbar = useSnackbar();
 
     const [filterText, setFilterText] = React.useState("");
-    const localesUsed = Object.keys(config.infoPlaceholder);
+    const localesUsed = Object.keys(config.messageInfo);
 
     const notifyChange = React.useCallback(
         (event: React.ChangeEvent<{ value: unknown }>) => {

@@ -15,13 +15,13 @@ msgid "Reporting period"
 msgstr "Período"
 
 msgid "Nothing selected"
-msgstr ""
+msgstr "Nada selecionado"
 
 msgid "Back"
-msgstr ""
+msgstr "Voltar"
 
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 msgid "Include headers"
 msgstr "Adicionar cabeçalho"
@@ -36,7 +36,7 @@ msgid "Dataset"
 msgstr "Conjunto de dados"
 
 msgid "ALL"
-msgstr ""
+msgstr "TODOS"
 
 msgid "Language"
 msgstr "Idioma"

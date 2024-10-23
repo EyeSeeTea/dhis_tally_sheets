@@ -17,7 +17,7 @@ type Settings = {
     administratorGroups: string;
     ouLabel: string;
     periodLabel: string;
-    infoPlaceholder: Record<string, Maybe<string>>;
+    messageInfo: Record<string, Maybe<string>>;
 };
 
 export function useSettingsDialog(props: SettingsDialogProps & { localeCode: string }) {
@@ -41,12 +41,12 @@ export function useSettingsDialog(props: SettingsDialogProps & { localeCode: str
         }));
     }, []);
 
-    const updatePlaceholder = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const updateMessage = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSettings(prevSettings => ({
             ...prevSettings,
-            infoPlaceholder: {
-                ...prevSettings.infoPlaceholder,
+            messageInfo: {
+                ...prevSettings.messageInfo,
                 [name]: value.trim() === "" ? undefined : value,
             },
         }));
@@ -61,7 +61,7 @@ export function useSettingsDialog(props: SettingsDialogProps & { localeCode: str
                 .map(id => id.trim())
                 .compact()
                 .value(),
-            infoPlaceholder: HashMap.fromObject(settings.infoPlaceholder).compact().toObject(),
+            messageInfo: HashMap.fromObject(settings.messageInfo).compact().toObject(),
         };
 
         compositionRoot.config.update.execute(config).run(
@@ -92,26 +92,26 @@ export function useSettingsDialog(props: SettingsDialogProps & { localeCode: str
         [updateSettings, settings]
     );
 
-    const placeholderProps: TooltipTextFieldProps = React.useMemo(
+    const messageProps: TooltipTextFieldProps = React.useMemo(
         () => ({
             title: i18n.t(
-                "The placeholder message that will be shown to users at the top of the app. You can use this field to provide instructions or other information. To hide this message, leave this field empty."
+                "The message that will be shown to users at the top of the app. You can use this field to provide instructions or other information. To hide this message, leave this field empty."
             ),
-            label: i18n.t("Message placeholder"),
+            label: i18n.t("Information message"),
             name: localeCode,
-            value: settings.infoPlaceholder[localeCode] ?? "",
-            onChange: updatePlaceholder,
+            value: settings.messageInfo[localeCode] ?? "",
+            onChange: updateMessage,
             minRows: 4,
             multiline: true,
         }),
-        [localeCode, settings, updatePlaceholder]
+        [localeCode, settings, updateMessage]
     );
 
-    const placeholderChanged = React.useMemo(() => {
-        return settings.infoPlaceholder[localeCode] !== config.infoPlaceholder[localeCode];
-    }, [config.infoPlaceholder, localeCode, settings.infoPlaceholder]);
+    const messageChanged = React.useMemo(() => {
+        return settings.messageInfo[localeCode] !== config.messageInfo[localeCode];
+    }, [config.messageInfo, localeCode, settings.messageInfo]);
 
-    return { loading, reloading, handleSave, close, fields, placeholderProps, placeholderChanged };
+    return { loading, reloading, handleSave, close, fields, messageProps, messageChanged };
 }
 
 function getTextFields(

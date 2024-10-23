@@ -299,10 +299,9 @@ const MessagePlaceholder: React.FC = React.memo(() => {
     const { config, currentUser } = useAppContext();
     const theme = useTheme();
 
-    if (!config.infoPlaceholder) return null;
+    if (!config.messageInfo) return null;
 
-    const message =
-        config.infoPlaceholder[currentUser.preferredLocale] ?? config.infoPlaceholder["en"];
+    const message = config.messageInfo[currentUser.preferredLocale] ?? config.messageInfo["en"];
 
     if (!message) return null;
 

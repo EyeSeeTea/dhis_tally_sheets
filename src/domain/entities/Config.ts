@@ -7,7 +7,7 @@ export type Config = {
     administratorGroups: Id[];
     ouLabel: string;
     periodLabel: string;
-    infoPlaceholder: Record<string, string>;
+    messageInfo: Record<string, string>;
 };
 
 export const defaultConfig: Config = {
@@ -16,9 +16,9 @@ export const defaultConfig: Config = {
     administratorGroups: [],
     ouLabel: "",
     periodLabel: "",
-    infoPlaceholder: {
+    messageInfo: {
         en: i18n.t(
-            "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info message placeholder under settings options. For any questions or feedback, please contact us through the 'Send Feedback' button on the bottom right corner."
+            "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info message under settings options. For any questions or feedback, please contact us through the 'Send Feedback' button on the bottom right corner."
         ),
     },
 };

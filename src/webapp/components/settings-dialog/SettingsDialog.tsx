@@ -32,7 +32,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
     const styles = useStyles();
     const localeSelectorProps = useLocaleSelector();
 
-    const { loading, reloading, fields, handleSave, close, placeholderProps, placeholderChanged } =
+    const { loading, reloading, fields, handleSave, close, messageProps, messageChanged } =
         useSettingsDialog({
             open,
             onClose,
@@ -57,10 +57,10 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         ))}
 
                         <Box display="flex" flexDirection="column">
-                            {placeholderProps && <TooltipTextField {...placeholderProps} />}
+                            {messageProps && <TooltipTextField {...messageProps} />}
                             <LanguageSelector
                                 {...localeSelectorProps}
-                                hasChanges={placeholderChanged}
+                                hasChanges={messageChanged}
                             />
                         </Box>
                     </Box>

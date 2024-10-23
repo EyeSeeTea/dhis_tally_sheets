@@ -15,28 +15,28 @@ msgid "Reporting period"
 msgstr "الفترة المشمولة بالتقرير"
 
 msgid "Nothing selected"
-msgstr ""
+msgstr "لم يتم اختيار شيء"
 
 msgid "Back"
-msgstr ""
+msgstr "رجوع"
 
 msgid "Help"
-msgstr ""
+msgstr "مساعدة"
 
 msgid "Include headers"
-msgstr ""
+msgstr "تضمين الرؤوس"
 
 msgid "Print"
-msgstr ""
+msgstr "طباعة"
 
 msgid "Export to Excel"
-msgstr ""
+msgstr "تصدير إلى إكسل"
 
 msgid "Select a dataset"
-msgstr ""
+msgstr "اختر مجموعة بيانات"
 
 msgid "ALL"
-msgstr ""
+msgstr "الكل"
 
 msgid "Select a language"
-msgstr ""
+msgstr "اختر لغة"
