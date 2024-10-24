@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-23T01:45:38.296Z\n"
-"PO-Revision-Date: 2024-10-23T01:45:38.296Z\n"
+"POT-Creation-Date: 2024-10-24T08:36:55.657Z\n"
+"PO-Revision-Date: 2024-10-24T08:36:55.657Z\n"
 
 msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr ""
@@ -29,7 +29,13 @@ msgstr ""
 msgid "Nothing selected"
 msgstr ""
 
-msgid "selected"
+msgid "item"
+msgstr ""
+
+msgid "items"
+msgstr ""
+
+msgid "{{length}} {{type}} selected"
 msgstr ""
 
 msgid "Unable to fetch the organisation unit children"
