@@ -64,6 +64,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
             .flatten()
             .value();
 
+        // TODO: useCallbackEffect
         compositionRoot.orgUnits.getWithChildren.execute(orgUnitIds).run(
             orgUnits => {
                 onChange(orgUnits);

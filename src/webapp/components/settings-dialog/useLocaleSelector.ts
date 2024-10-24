@@ -36,6 +36,7 @@ export function useLocaleSelector() {
         [items, selected, loading]
     );
 
+    //TODO: useCallbackEffect
     React.useEffect(
         () =>
             compositionRoot.locales.get.execute().run(
