@@ -23,7 +23,7 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
         (event: React.ChangeEvent<{ value: unknown }>) => {
             onChange(
                 (event.target.value as (string | undefined | null)[])
-                    .filter<string>(s => s !== undefined && s !== null && typeof s === "string")
+                    .filter(isString)
                     .filter(s => s !== "multiple-selector-void")
             );
         },
@@ -94,3 +94,6 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
 function includesInsensitive(text: string, filterText: string) {
     return text.toLowerCase().includes(filterText.toLowerCase());
 }
+
+const isString = (s: string | undefined | null): s is string =>
+    typeof s === "string" && s !== undefined && s !== null;
