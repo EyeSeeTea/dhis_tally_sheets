@@ -12,7 +12,7 @@
 
     /* Send feedback */
     header + div {
-        display: none;
+        display: var(--send-feedback);
     }
 
     #app > div[class^="MuiBox"] {

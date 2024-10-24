@@ -82,6 +82,13 @@ export class HashMap<K, V> {
         return this.pickBy(([key, value]) => !pred([key, value]));
     }
 
+    compact(): HashMap<K, NonNullable<V>> {
+        return this.pickBy(([_key, value]) => value !== null && value !== undefined) as HashMap<
+            K,
+            NonNullable<V>
+        >;
+    }
+
     toCollection(): Collection<[K, V]> {
         return Collection.from(this.toPairs());
     }

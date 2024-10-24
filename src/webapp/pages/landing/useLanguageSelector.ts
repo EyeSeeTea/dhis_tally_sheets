@@ -33,18 +33,14 @@ export function useLanguageSelector(
         [available]
     );
 
-    const onChange = React.useCallback((values: string[]) => {
-        setSelected(values);
-    }, []);
-
     const allValue = "all-languages";
 
     const props: SelectorProps<Locale> = React.useMemo(
         () => ({
             items: items,
             values: selected,
-            onChange: onChange,
-            label: i18n.t("Select a language"),
+            onChange: setSelected,
+            label: i18n.t("Language"),
             name: "select-language",
             loading: loading,
             type: "language",
@@ -62,7 +58,7 @@ export function useLanguageSelector(
                 ? available
                 : available.filter(i => selected.includes(i.code)),
         }),
-        [items, selected, onChange, loading, available, canSelectAllLocales]
+        [items, selected, loading, available, canSelectAllLocales]
     );
 
     React.useEffect(

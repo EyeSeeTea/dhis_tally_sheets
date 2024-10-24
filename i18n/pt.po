@@ -1,12 +1,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
+"POT-Creation-Date: 2024-10-24T08:36:55.657Z\n"
+"PO-Revision-Date: 2024-09-03T13:24:25.031Z\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-24T08:36:55.657Z\n"
-"PO-Revision-Date: 2024-10-24T08:36:55.657Z\n"
 
 msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr ""
@@ -18,16 +18,16 @@ msgid ""
 msgstr ""
 
 msgid "Health facility"
-msgstr ""
+msgstr "Centro sanitário"
 
 msgid "Reporting period"
-msgstr ""
+msgstr "Período"
 
 msgid "Value"
 msgstr ""
 
 msgid "Nothing selected"
-msgstr ""
+msgstr "Nada selecionado"
 
 msgid "item"
 msgstr ""
@@ -59,10 +59,10 @@ msgid "Apply"
 msgstr ""
 
 msgid "Back"
-msgstr ""
+msgstr "Voltar"
 
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 msgid ""
 "You have made changes. Please save or discard them before changing the "
@@ -76,7 +76,7 @@ msgid "Save"
 msgstr ""
 
 msgid "Language"
-msgstr ""
+msgstr "Idioma"
 
 msgid "Unable to fetch languages list"
 msgstr ""
@@ -102,8 +102,8 @@ msgid "Sheet name"
 msgstr ""
 
 msgid ""
-"The filename of the zip file that will be created when more than one "
-"dataset is selected"
+"The filename of the zip file that will be created when more than one dataset "
+"is selected"
 msgstr ""
 
 msgid "Filename"
@@ -127,19 +127,19 @@ msgid "Reset filters"
 msgstr ""
 
 msgid "Include headers"
-msgstr ""
+msgstr "Adicionar cabeçalho"
 
 msgid "Print"
-msgstr ""
+msgstr "Imprimir"
 
 msgid "Export to Excel"
-msgstr ""
+msgstr "Exportar para Excel"
 
 msgid "Dataset"
-msgstr ""
+msgstr "Conjunto de dados"
 
 msgid "ALL"
-msgstr ""
+msgstr "TODOS"
 
 msgid "Unable to fetch datasets list"
 msgstr ""
