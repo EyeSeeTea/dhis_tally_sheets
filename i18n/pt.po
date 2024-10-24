@@ -1,0 +1,151 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"POT-Creation-Date: 2024-10-24T08:36:55.657Z\n"
+"PO-Revision-Date: 2024-09-03T13:24:25.031Z\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgid "The {{storage}} {{key}} is not a valid JSON object."
+msgstr ""
+
+msgid ""
+"Thanks for downloading HMIS Tally Sheets! You can edit or hide this info "
+"message under settings options. For any questions or feedback, please "
+"contact us through the 'Send Feedback' button on the bottom right corner."
+msgstr ""
+
+msgid "Health facility"
+msgstr "Centro sanitário"
+
+msgid "Reporting period"
+msgstr "Período"
+
+msgid "Value"
+msgstr ""
+
+msgid "Nothing selected"
+msgstr "Nada selecionado"
+
+msgid "item"
+msgstr ""
+
+msgid "items"
+msgstr ""
+
+msgid "{{length}} {{type}} selected"
+msgstr ""
+
+msgid "Unable to fetch the organisation unit children"
+msgstr ""
+
+msgid "Filter by Organisation Unit"
+msgstr ""
+
+msgid "Organisation unit"
+msgstr ""
+
+msgid ""
+"The children of the Organisation Unit selected will also be taken into "
+"account."
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Back"
+msgstr "Voltar"
+
+msgid "Help"
+msgstr "Ajuda"
+
+msgid ""
+"You have made changes. Please save or discard them before changing the "
+"language."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Unable to fetch languages list"
+msgstr ""
+
+msgid "Settings saved. Reloading page..."
+msgstr ""
+
+msgid ""
+"The message that will be shown to users at the top of the app. You can use "
+"this field to provide instructions or other information. To hide this "
+"message, leave this field empty."
+msgstr ""
+
+msgid "Information message"
+msgstr ""
+
+msgid ""
+"The sheet name of the zip file that will be created when more than one "
+"dataset is selected"
+msgstr ""
+
+msgid "Sheet name"
+msgstr ""
+
+msgid ""
+"The filename of the zip file that will be created when more than one dataset "
+"is selected"
+msgstr ""
+
+msgid "Filename"
+msgstr ""
+
+msgid "User Group IDs separated by commas"
+msgstr ""
+
+msgid "Administrator Groups"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid ""
+"An error occurred while loading the application. Please contact your "
+"administrator."
+msgstr ""
+
+msgid "Reset filters"
+msgstr ""
+
+msgid "Include headers"
+msgstr "Adicionar cabeçalho"
+
+msgid "Print"
+msgstr "Imprimir"
+
+msgid "Export to Excel"
+msgstr "Exportar para Excel"
+
+msgid "Dataset"
+msgstr "Conjunto de dados"
+
+msgid "ALL"
+msgstr "TODOS"
+
+msgid "Unable to fetch datasets list"
+msgstr ""
+
+msgid "Unable to fetch datasets"
+msgstr ""
+
+msgid "Something went wrong while creating the excel file"
+msgstr ""
