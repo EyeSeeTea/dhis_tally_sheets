@@ -47,7 +47,7 @@ export function useMultipleSelector(props: MultipleSelectorProps) {
 
     const helperText = React.useMemo(() => {
         const all = allOption && isAllSelected;
-        const length = (all ? items : selected).length;
+        const length = (all ? items : selected.filter(s => s !== "multiple-selector-void")).length;
 
         return (
             length !== 0 &&
