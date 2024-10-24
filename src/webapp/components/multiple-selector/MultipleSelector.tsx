@@ -181,7 +181,7 @@ function getMenuProps(options: { autoFocus: boolean; dividers?: number; isSearch
                     ITEM_HEIGHT * 10 +
                     ITEM_PADDING_TOP +
                     (dividers ?? 0) * DIVIDER +
-                    (isSearchable ?? false ? SEARCH_FIELD : 0) +
+                    (isSearchable ? SEARCH_FIELD : 0) +
                     IMAGINARY_PADDING_BOTTOM,
                 maxWidth: 600,
             },
