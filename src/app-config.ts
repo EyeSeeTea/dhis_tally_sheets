@@ -5,20 +5,7 @@ export const appConfig: AppConfig = {
     appearance: {
         showShareButton: false,
     },
-    feedback: {
-        repositories: {
-            clickUp: {
-                // https://app.clickup.com/${workspace}/v/b/N-${listId}-M
-                // Web development -> Common resources -> app-skeleton
-                listId: "901204158366",
-                title: "[User feedback] {title}",
-                body: "## dhis2\n\nUsername: {username}\n\n{body}",
-            },
-        },
-        layoutOptions: {
-            buttonPosition: "bottom-end",
-        },
-    },
+    feedback: undefined,
     storage: "constants",
 };
 
