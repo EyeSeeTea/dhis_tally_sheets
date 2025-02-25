@@ -33,21 +33,7 @@ export class ExportDataSetsUseCase {
             .mapValues(([dataSet, locales]) =>
                 locales
                     .map(locale => dataSet.applyLocale(locale))
-                    .map(ds => {
-                        const headers = ds.headers;
-                        if (!headers) return ds;
-                        const newHeaders = {
-                            healthFacility: config.ouLabel
-                                ? `${headers.healthFacility} ${config.ouLabel}`
-                                : headers.healthFacility,
-                            reportingPeriod: config.periodLabel
-                                ? `${headers.reportingPeriod} ${config.periodLabel}`
-                                : headers.reportingPeriod,
-                        };
-
-                        // (includeHeaders ? newHeaders: undefined) previously we were always including headers
-                        return ds.updateHeaders(newHeaders);
-                    })
+                    //.map(ds=>ds.updateHeaders({... + labels})) Temporary removed ou label and period from headers
                     .value()
             )
             .values()

@@ -55,6 +55,8 @@ function App(props: AppProps) {
             setShowShareButton(isShareButtonVisible);
             setLoader("loaded");
         }
+
+        cssVarSendFeedback();
         setup().catch(err => {
             setLoader("error");
             setErr(err.message);
@@ -104,6 +106,13 @@ function App(props: AppProps) {
                 </MuiThemeProvider>
             );
     }
+}
+
+function cssVarSendFeedback() {
+    document.documentElement.style.setProperty(
+        "--send-feedback",
+        appConfig.feedback ? "none" : "block"
+    );
 }
 
 const useStyles = makeStyles((theme: Theme) =>

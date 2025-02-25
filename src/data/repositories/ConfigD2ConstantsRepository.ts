@@ -1,6 +1,6 @@
 import { apiToFuture, FutureData } from "$/data/api-futures";
-import { configCodec } from "$/data/config-codec";
-import { constants, errors } from "$/data/repositories/d2-metadata";
+import { decodeConfig } from "$/data/config-codec";
+import { constants } from "$/data/repositories/d2-metadata";
 import { runMetadata } from "$/data/response";
 import { Config, defaultConfig } from "$/domain/entities/Config";
 import { Future } from "$/domain/entities/generic/Future";
@@ -70,20 +70,9 @@ export class ConfigD2ConstantsRepository implements ConfigRepository {
     }
 
     private decodeConfig(description: unknown): FutureData<Config> {
-        return configCodec.decode(description).caseOf({
-            Left: (err): FutureData<Config> => {
-                const errStr = errors.invalidJSON(constants.constantsStorageName, "description");
-                console.error(new Error(errStr + err));
-                return Future.error(new Error(errStr));
-            },
-            Right: (res): FutureData<Config> => {
-                if ("sheetName" in res) return Future.success(res);
-                return Future.success({
-                    ...defaultConfig,
-                    administratorGroups: res.administratorGroups,
-                });
-            },
-        });
+        return Future.success(
+            decodeConfig(description, constants.constantsStorageName, "description")
+        );
     }
 }
 

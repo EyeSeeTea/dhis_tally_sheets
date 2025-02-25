@@ -16,6 +16,8 @@ import {
     Theme,
 } from "@material-ui/core";
 import { useSettingsDialog } from "$/webapp/components/settings-dialog/useSettingsDialog";
+import { useLocaleSelector } from "$/webapp/components/settings-dialog/useLocaleSelector";
+import { LanguageSelector } from "$/webapp/components/settings-dialog/LanguageSelector";
 import { Maybe } from "$/utils/ts-utils";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
@@ -28,11 +30,14 @@ export interface SettingsDialogProps {
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose }) => {
     const theme = useTheme();
     const styles = useStyles();
+    const localeSelectorProps = useLocaleSelector();
 
-    const { loading, reloading, fields, handleSave, close } = useSettingsDialog({
-        open,
-        onClose,
-    });
+    const { loading, reloading, fields, handleSave, close, messageProps, messageChanged } =
+        useSettingsDialog({
+            open,
+            onClose,
+            localeCode: localeSelectorProps.value,
+        });
 
     return (
         <>
@@ -50,6 +55,14 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         {fields.map((fieldProps, idx) => (
                             <TooltipTextField key={idx} {...fieldProps} />
                         ))}
+
+                        <Box display="flex" flexDirection="column">
+                            {messageProps && <TooltipTextField {...messageProps} />}
+                            <LanguageSelector
+                                {...localeSelectorProps}
+                                hasChanges={messageChanged}
+                            />
+                        </Box>
                     </Box>
                 </DialogContent>
 

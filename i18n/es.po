@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-18T12:28:57.605Z\n"
+"POT-Creation-Date: 2024-10-24T08:36:55.657Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -9,14 +9,18 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgid "The {{storage}} {{key}} is not a valid JSON object."
-msgstr ""
+msgstr "El {{storage}} {{key}} no es un objeto JSON válido."
 
+#, fuzzy
 msgid ""
 "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info "
-"message placeholder under settings options. For any questions or feedback, "
-"please contact us through the 'Send Feedback' button on the bottom right "
-"corner."
+"message under settings options. For any questions or feedback, please "
+"contact us through the 'Send Feedback' button on the bottom right corner."
 msgstr ""
+"¡Gracias por descargar HMIS Tally Sheets! Puede editar o ocultar este "
+"mensaje de información en las opciones de configuración. Para cualquier "
+"pregunta o comentario, por favor contáctenos a través del botón 'Send "
+"Feedback' en la esquina inferior derecha."
 
 msgid "Health facility"
 msgstr "Centro sanitario"
@@ -25,31 +29,41 @@ msgid "Reporting period"
 msgstr "Periodo reportado"
 
 msgid "Value"
-msgstr ""
-
-msgid "selected"
-msgstr ""
+msgstr "Valor"
 
 msgid "Nothing selected"
 msgstr "Nada seleccionado"
 
-msgid "Unable to fetch the organisation unit children"
+msgid "item"
 msgstr ""
+
+msgid "items"
+msgstr ""
+
+msgid "{{length}} {{type}} selected"
+msgstr ""
+
+msgid "Unable to fetch the organisation unit children"
+msgstr "No se pueden obtener los hijos de la unidad organizativa"
 
 msgid "Filter by Organisation Unit"
-msgstr ""
+msgstr "Filtrar por Unidad Organizativa"
 
-msgid "Select an organisation unit"
-msgstr ""
+msgid "Organisation unit"
+msgstr "Unidad Organizativa"
 
-msgid "Select current user's organisation units (and children)"
+msgid ""
+"The children of the Organisation Unit selected will also be taken into "
+"account."
 msgstr ""
+"También se tendrán en cuenta los hijos de la Unidad Organizativa "
+"seleccionada."
 
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 msgid "Apply"
-msgstr ""
+msgstr "Aplicar"
 
 msgid "Back"
 msgstr "Volver"
@@ -57,77 +71,78 @@ msgstr "Volver"
 msgid "Help"
 msgstr "Ayuda"
 
-msgid "Settings"
+msgid ""
+"You have made changes. Please save or discard them before changing the "
+"language."
 msgstr ""
+"Ha realizado cambios. Por favor, guarde o descarte antes de cambiar el "
+"idioma."
+
+msgid "Settings"
+msgstr "Configuración"
 
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Unable to fetch languages list"
+msgstr "No se puede obtener la lista de idiomas"
 
 msgid "Settings saved. Reloading page..."
+msgstr "Configuración guardada. Recargando la página..."
+
+msgid ""
+"The message that will be shown to users at the top of the app. You can use "
+"this field to provide instructions or other information. To hide this "
+"message, leave this field empty."
 msgstr ""
+"El mensaje que se mostrará a los usuarios en la parte superior de la "
+"aplicación. Puede usar este campo para proporcionar instrucciones u otra "
+"información. Para ocultar este mensaje, deje este campo vacío."
+
+msgid "Information message"
+msgstr "Mensaje de información"
 
 msgid ""
 "The sheet name of the zip file that will be created when more than one "
 "dataset is selected"
 msgstr ""
+"El nombre de la hoja de datos del archivo zip que se creará cuando se "
+"seleccione más de un conjunto de datos"
 
 msgid "Sheet name"
-msgstr ""
+msgstr "Nombre de la hoja"
 
 msgid ""
 "The filename of the zip file that will be created when more than one dataset "
 "is selected"
 msgstr ""
+"El nombre del archivo zip que se creará cuando se seleccione más de un "
+"conjunto de datos"
 
 msgid "Filename"
-msgstr ""
+msgstr "Nombre del archivo"
 
 msgid "User Group IDs separated by commas"
-msgstr ""
+msgstr "IDs de grupos de usuarios separados por comas"
 
 msgid "Administrator Groups"
-msgstr ""
-
-msgid "The placeholder label that will be added next to '{{healthFacility}}: '"
-msgstr ""
-
-#, fuzzy
-msgid "Health Facility"
-msgstr "Centro sanitario"
-
-msgid "OU label"
-msgstr ""
-
-msgid ""
-"The placeholder label that will be added next to '{{reportingPeriod}}: '"
-msgstr ""
-
-#, fuzzy
-msgid "Reporting Period"
-msgstr "Periodo reportado"
-
-msgid "Period label"
-msgstr ""
-
-msgid ""
-"The placeholder message that will be shown to users at the top of the app. "
-"You can use this field to provide instructions or other information. To hide "
-"this message, leave this field empty."
-msgstr ""
-
-msgid "Message placeholder"
-msgstr ""
+msgstr "Grupos de administradores"
 
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 msgid ""
 "An error occurred while loading the application. Please contact your "
 "administrator."
 msgstr ""
+"Ocurrió un error al cargar la aplicación. Por favor, contacte a su "
+"administrador."
 
 msgid "Reset filters"
-msgstr ""
+msgstr "Restablecer filtros"
 
 msgid "Include headers"
 msgstr "Incluir cabeceras"
@@ -138,24 +153,20 @@ msgstr "Imprimir"
 msgid "Export to Excel"
 msgstr "Exportar a Excel"
 
-msgid "Select a dataset"
-msgstr "Selecciona un set de datos"
+msgid "Dataset"
+msgstr "Set de datos"
 
 msgid "ALL"
-msgstr ""
+msgstr "TODO"
 
 msgid "Unable to fetch datasets list"
-msgstr ""
+msgstr "No se pudo obtener la lista de conjuntos de datos"
 
-#, fuzzy
 msgid "Unable to fetch datasets"
-msgstr "Selecciona un set de datos"
+msgstr "No se pudo obtener los conjuntos de datos"
 
 msgid "Something went wrong while creating the excel file"
-msgstr ""
+msgstr "Algo salió mal al crear el archivo de Excel"
 
-msgid "Select a language"
-msgstr "Selecciona un idioma"
-
-msgid "Unable to fetch languages list"
-msgstr ""
+#~ msgid "selected"
+#~ msgstr "seleccionado"

@@ -5,26 +5,27 @@ import {
     DialogContent,
     DialogTitle,
     Button,
-    FormControlLabel,
-    Switch,
     Box,
+    LinearProgress,
+    Tooltip,
+    useTheme,
     createStyles,
     makeStyles,
     Theme,
-    LinearProgress,
 } from "@material-ui/core";
+import { styled } from "styled-components";
+import { InfoOutlined as InfoOutlinedIcon } from "@material-ui/icons";
 import { OrgUnitsSelector, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
 import { OrgUnit } from "$/domain/entities/OrgUnit";
+import { getId } from "$/domain/entities/Ref";
 import {
     MultipleSelector,
     MultipleSelectorProps,
 } from "$/webapp/components/multiple-selector/MultipleSelector";
-import { DisableableTooltip } from "$/webapp/components/disableable-tooltip/DisableableTooltip";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
-import { getId } from "$/domain/entities/Ref";
 
 interface OrgUnitSelectorProps {
     selected: OrgUnit[];
@@ -36,16 +37,13 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
     const { onChange, selected, disabled } = props;
     const { api, currentUser, compositionRoot } = useAppContext();
 
-    const classes = useStyles();
+    const theme = useTheme();
     const snackbar = useSnackbar();
+    const classes = useStyles();
 
     const [isOpen, { enable: open, disable: close }] = useBooleanState(false);
     const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
-    const [onlyUserOU, setOnlyUserOU] = React.useState(false);
-    const [current, setCurrent] = React.useState<{ selectedPaths: string[]; onlyUserOU: boolean }>({
-        selectedPaths: [],
-        onlyUserOU: false,
-    });
+    const [currentPaths, setCurrentPaths] = React.useState<string[]>([]);
 
     const selectedPaths = React.useMemo(() => {
         const paths = selected.map(({ path }) => path);
@@ -53,40 +51,23 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
         return deepestCommonRoot === "" ? [] : [deepestCommonRoot];
     }, [selected]);
 
-    const toggleUserDataSetsOnly = React.useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>) => {
-            setCurrent(({ selectedPaths }) => ({
-                selectedPaths: selectedPaths,
-                onlyUserOU: e.target.checked,
-            }));
-        },
-        [setCurrent]
-    );
-
-    const updateSelected = React.useCallback((paths: string[]) => {
-        setCurrent(({ onlyUserOU }) => ({ selectedPaths: paths, onlyUserOU: onlyUserOU }));
-    }, []);
-
     const cancel = React.useCallback(() => {
-        setCurrent({ selectedPaths: selectedPaths, onlyUserOU: onlyUserOU });
+        setCurrentPaths(selectedPaths);
         close();
-    }, [close, onlyUserOU, selectedPaths]);
+    }, [close, selectedPaths]);
 
     const apply = React.useCallback(() => {
         startLoading();
-        const userOrgUnitIds = currentUser.organisationUnits.map(getId);
-        const orgUnitIds = _(current.selectedPaths)
+
+        const orgUnitIds = _(currentPaths)
             .map(path => path.split("/").slice(-1))
             .flatten()
             .value();
 
-        const ids = current.onlyUserOU ? userOrgUnitIds : orgUnitIds;
-        const getOrgUnits$ = compositionRoot.orgUnits.getWithChildren.execute(ids);
-
-        getOrgUnits$.run(
+        // TODO: useCallbackEffect
+        compositionRoot.orgUnits.getWithChildren.execute(orgUnitIds).run(
             orgUnits => {
                 onChange(orgUnits);
-                setOnlyUserOU(current.onlyUserOU);
                 stopLoading();
                 close();
             },
@@ -99,9 +80,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
         );
     }, [
         startLoading,
-        currentUser.organisationUnits,
-        current.selectedPaths,
-        current.onlyUserOU,
+        currentPaths,
         compositionRoot.orgUnits.getWithChildren,
         onChange,
         stopLoading,
@@ -117,8 +96,8 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
 
     const openDialog = React.useCallback(() => {
         open();
-        setCurrent({ selectedPaths: onlyUserOU ? [] : selectedPaths, onlyUserOU: onlyUserOU });
-    }, [onlyUserOU, open, selectedPaths]);
+        setCurrentPaths(selectedPaths);
+    }, [open, selectedPaths]);
 
     const clear = React.useCallback(() => {
         if (_(selected).isEmpty()) cancel();
@@ -129,15 +108,17 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
     const label = i18n.t("Filter by Organisation Unit");
 
     const selectorProps: MultipleSelectorProps = React.useMemo(() => {
-        const sorted = _(selected)
-            .sortBy(ou => ou.level)
+        const topLevel = Math.min(...selected.map(ou => ou.level));
+
+        const parents = _(selected)
+            .filter(ou => ou.level === topLevel)
             .value();
 
         return {
-            items: sorted.map(({ id, displayName }) => ({ value: id, text: displayName })),
-            values: sorted.map(getId),
+            items: parents.map(({ id, displayName }) => ({ value: id, text: displayName })),
+            values: parents.map(getId),
             onChange: () => {},
-            label: i18n.t("Select an organisation unit"),
+            label: i18n.t("Organisation unit"),
             name: "select-organisation-unit",
             type: "organisation unit",
             pluralType: "organisation units",
@@ -146,54 +127,30 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
         };
     }, [selected, disabled, openDialog]);
 
-    const illegalOrgUnits = React.useMemo(
-        () =>
-            currentUser.organisationUnits
-                .filter(({ level }) => level <= 2)
-                .map(({ displayName }) => displayName),
+    const rootIds = React.useMemo(
+        () => currentUser.organisationUnits.map(getId),
         [currentUser.organisationUnits]
     );
-
-    const notAvailableText = _(illegalOrgUnits).isNotEmpty()
-        ? i18n.t(
-              "Option not available for users assigned to organisation units: " +
-                  illegalOrgUnits.join(", ")
-          )
-        : "";
 
     return (
         <>
             <MultipleSelector {...selectorProps} />
             <Dialog open={isOpen} onClose={cancel} fullWidth aria-label={label}>
-                <DialogTitle>{label}</DialogTitle>
-                <DialogContent dividers>
-                    <DisableableTooltip
-                        title={notAvailableText}
-                        disabled={_(illegalOrgUnits).isNotEmpty()}
-                    >
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={current.onlyUserOU}
-                                    onChange={toggleUserDataSetsOnly}
-                                    name="userDataSetsOnly"
-                                    color="primary"
-                                    disabled={_(illegalOrgUnits).isNotEmpty()}
-                                />
-                            }
-                            label={i18n.t(
-                                "Select current user's organisation units (and children)"
+                <DialogTitle>
+                    <Box display="flex" gridColumnGap={theme.spacing(1)} alignItems="center">
+                        {label}
+                        <Tooltip
+                            title={i18n.t(
+                                "The children of the Organisation Unit selected will also be taken into account."
                             )}
-                        />
-                    </DisableableTooltip>
-                    {/* Prevent flashing the User on switch is toggled */}
-                    <Box
-                        height={ORG_UNIT_SELECTOR_HEIGHT + 84}
-                        className={current.onlyUserOU ? classes.show : classes.hide}
-                        component="span"
-                        role="presentation"
-                    />
-                    <Box className={current.onlyUserOU ? classes.hide : classes.show}>
+                        >
+                            <InfoOutlinedIcon color="action" />
+                        </Tooltip>
+                    </Box>
+                </DialogTitle>
+
+                <NoPaddingContent dividers className={classes.content}>
+                    <Box>
                         <OrgUnitsSelector
                             api={api}
                             withElevation={false}
@@ -201,17 +158,19 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
                             hideMemberCount={false}
                             fullWidth={false}
                             height={ORG_UNIT_SELECTOR_HEIGHT}
-                            onChange={updateSelected}
-                            selected={current.selectedPaths}
+                            onChange={setCurrentPaths}
+                            selected={currentPaths}
                             singleSelection={true}
-                            selectOnClick={true}
                             initiallyExpanded={initiallyExpanded}
-                            selectableLevels={[3, 4, 5, 6]}
+                            selectableLevels={selectableLevels}
+                            rootIds={rootIds}
                             typeInput="radio"
                         />
                     </Box>
-                </DialogContent>
+                </NoPaddingContent>
+
                 <LinearProgress hidden={!loading} />
+
                 <DialogActions>
                     <Button onClick={cancel} color="default">
                         {i18n.t("Cancel")}
@@ -233,17 +192,29 @@ function findCommonRoot(arr: string[]) {
     );
 }
 
-const ORG_UNIT_SELECTOR_HEIGHT = 500;
-
-const useStyles = makeStyles((_theme: Theme) =>
+const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        show: {
-            display: "inherit",
-        },
-        hide: {
-            display: "none",
+        content: {
+            padding: theme.spacing(0),
         },
     })
 );
 
-const controls = {};
+const selectableLevels = [3, 4, 5, 6];
+
+const ORG_UNIT_SELECTOR_HEIGHT = 500;
+
+const controls = {
+    filterByLevel: false,
+    filterByGroup: false,
+    selectAll: false,
+};
+
+const NoPaddingContent = styled(DialogContent)`
+    padding: 0;
+    & .MuiCardContent-root,
+    & .MuiCardContent-root:last-child {
+        padding: 0;
+        padding-left: 1.5rem;
+    }
+`;
