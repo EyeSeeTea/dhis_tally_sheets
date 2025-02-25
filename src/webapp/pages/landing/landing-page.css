@@ -1,0 +1,76 @@
+@media print {
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    #root > header,
+    header * {
+        display: none;
+    }
+
+    /* Send feedback */
+    header + div {
+        display: none;
+    }
+
+    #app > div[class^="MuiBox"] {
+        margin: 0;
+        padding: 0;
+    }
+
+    #app > div > div:not(.print-zone) {
+        display: none;
+    }
+
+    .print-zone[class^="MuiBox"] {
+        margin: 0;
+    }
+
+    .print-zone .dataset-container {
+        border: none;
+        padding: 0;
+    }
+
+    .print-zone .dataset-container > div[class^="MuiBox"] {
+        padding: 0;
+    }
+
+    .print-zone button[aria-label="delete"] {
+        display: none;
+    }
+
+    h4[class^="MuiTypography"],
+    h6[class^="MuiTypography"] {
+        border: unset;
+        padding: 0;
+    }
+
+    .MuiTooltip-popper[role="tooltip"],
+    .MuiTooltip-popper[role="tooltip"] * {
+        display: none !important;
+    }
+}
+
+@media (max-width: 980px) {
+    .dataset-headers .MuiTypography-h6 {
+        font-size: 1.25em;
+    }
+    .print-zone {
+        font-size: 0.75rem;
+    }
+
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
+        max-width: calc(100vw - 2em) !important;
+        left: 1em !important;
+    }
+
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper .MuiMenuItem-root {
+        min-height: unset !important;
+    }
+
+    .MuiTooltip-tooltipPlacementBottom {
+        margin: 1.25em 0 !important;
+    }
+}
