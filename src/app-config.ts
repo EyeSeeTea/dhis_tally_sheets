@@ -9,7 +9,7 @@ export const appConfig: AppConfig = {
         showShareButton: false,
     },
     feedback: undefined,
-    storage: storageSources.includes(rawStorageSource) ? rawStorageSource : "constants",
+    storage: storageSources.includes(rawStorageSource) ? rawStorageSource : "dataStore",
 };
 
 interface AppConfig {
