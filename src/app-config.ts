@@ -21,4 +21,4 @@ interface AppConfig {
     storage: StorageSource;
 }
 
-export type StorageSource = typeof storageSources[number];
+export type StorageSource = (typeof storageSources)[number];
