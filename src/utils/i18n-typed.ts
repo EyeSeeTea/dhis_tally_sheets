@@ -2,16 +2,12 @@
 import i18n from "$/locales";
 
 export function getModuleForNamespace(namespace: string) {
-    /* TBR: Somehow 3 ticks have the expected i18n, and the rest has an overwritten i18n with no resources loaded
-     * by whatever is creating a new instance */
-    const instance = i18n.cloneInstance();
     return {
         t: function <Str extends string>(...args: I18nTArgs<Str>): string {
             const [s, options] = args;
-            return instance.t(s, { ...options, ns: namespace });
+            return i18n.t(s, { ...options, ns: namespace });
         },
-        changeLanguage: instance.changeLanguage.bind(instance),
-        setDefaultNamespace: instance.setDefaultNamespace.bind(instance),
+        changeLanguage: i18n.changeLanguage.bind(i18n),
     };
 }
 
