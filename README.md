@@ -1,3 +1,14 @@
+
+## Automatic generation of Tally Sheets
+
+*App for an easy, quick and automatic generation of tally sheets given a dataset in DHIS2.*
+
+Teams working in the fields can generate Tally Sheets to print on paper and take with them to their interventions.
+
+![tally_sheets-1](https://github.com/user-attachments/assets/4b8d512e-c0bb-4286-b76e-e36b69181738)
+
+
+
 ## Setup
 
 ```shell
