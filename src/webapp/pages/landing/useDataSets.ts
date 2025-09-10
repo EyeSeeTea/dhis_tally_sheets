@@ -13,7 +13,7 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
 
     const snackbar = useSnackbar();
 
-    // Cache in useHook, to restore sections when a Data Set is added again and prevent quick
+    // Maintain a cache of previously fetched DataSets to prevent unnecessary API requests on re-selection
     const [cachedDataSets, setCachedDataSets] = React.useState<DataSet[]>([]);
     const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
     const [dataSets, setDataSets] = React.useState<DataSet[]>([]);
