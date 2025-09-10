@@ -40,29 +40,29 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
         console.debug("Added DataSets", added, "Removed DataSets", removed);
 
         if (_(added).isNotEmpty()) {
-            const cached = cachedDataSets.filter(ds => added.map(getId).includes(ds.id));
-            const toRequest = added.filter(ds => !cached.map(getId).includes(ds.id));
+            const addedIds = new Set(added.map(getId));
+
+            const cached = cachedDataSets.filter(ds => addedIds.has(ds.id));
+            const toRequest = excludeFromDataSet(added, cached);
             if (_(toRequest).isNotEmpty()) {
                 startLoading();
                 compositionRoot.dataSets.getByIds.execute(toRequest.map(getId)).run(
                     addedDataSets => {
-                        setDataSets(dataSets => {
-                            setCachedDataSets(cachedDataSets => {
-                                const newCached = _(cachedDataSets)
-                                    .concat(_(addedDataSets))
-                                    .uniqBy(getId)
-                                    .value();
-                                setCachedDataSets(newCached);
-                                return newCached;
-                            });
-                            const newDataSets = _(dataSets)
+                        setDataSets(currentDataSets => {
+                            const newCached = _(cachedDataSets)
+                                .concat(_(addedDataSets))
+                                .uniqBy(getId)
+                                .value();
+                            setCachedDataSets(newCached);
+
+                            const newDataSets = _(currentDataSets)
                                 .concat(_(addedDataSets))
                                 .concat(_(cached))
                                 .uniqBy(getId)
                                 .value();
                             return _(removed).isEmpty()
                                 ? newDataSets
-                                : excludeRemoved(newDataSets, removed);
+                                : excludeFromDataSet(newDataSets, removed);
                         });
                         stopLoading();
                     },
@@ -77,11 +77,11 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
                     const newDataSets = _(dataSets).concat(_(cached)).uniqBy(getId).value();
                     return _(removed).isEmpty()
                         ? newDataSets
-                        : excludeRemoved(newDataSets, removed);
+                        : excludeFromDataSet(newDataSets, removed);
                 });
             }
         } else if (_(removed).isNotEmpty()) {
-            setDataSets(dataSets => excludeRemoved(dataSets, removed));
+            setDataSets(dataSets => excludeFromDataSet(dataSets, removed));
         }
     }, [
         cachedDataSets,
@@ -96,8 +96,9 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
     return { dataSets, removeSection, loadingDataSets: loading };
 }
 
-function excludeRemoved(dataSets: DataSet[], removed: BasicDataSet[]) {
-    return dataSets.filter(ds => !removed.map(getId).includes(ds.id));
+function excludeFromDataSet<T extends BasicDataSet>(dataSets: T[], removed: BasicDataSet[]) {
+    const removeIds = new Set(removed.map(getId));
+    return dataSets.filter(ds => !removeIds.has(ds.id));
 }
 
 function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) {
