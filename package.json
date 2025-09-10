@@ -16,7 +16,7 @@
         "@dhis2/d2-i18n-extract": "1.0.8",
         "@dhis2/d2-i18n-generate": "1.2.0",
         "@dhis2/ui": "6.12.0",
-        "@eyeseetea/d2-api": "1.16.0-beta.6",
+        "@eyeseetea/d2-api": "1.19.1",
         "@eyeseetea/d2-ui-components": "2.11.0",
         "@eyeseetea/feedback-component": "0.3.0",
         "@eyeseetea/xlsx-populate": "^4.3.0",
