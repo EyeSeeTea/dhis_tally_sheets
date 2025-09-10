@@ -20,6 +20,9 @@ export class UserD2Repository implements UserRepository {
             adminGroups.includes(group.id)
         );
 
+        const username = d2User.userCredentials?.username ?? d2User.username;
+        const userRoles = d2User.userCredentials?.userRoles ?? d2User.userRoles;
+
         return new User({
             id: d2User.id,
             name: d2User.displayName,
@@ -27,7 +30,8 @@ export class UserD2Repository implements UserRepository {
             authorizations: { canSelectAllLocales: userBelongsToSomeAdminGroup },
             preferredLocale: d2User.settings.keyUiLocale,
             organisationUnits: d2User.organisationUnits,
-            ...d2User.userCredentials,
+            username,
+            userRoles,
         });
     }
 }
@@ -36,6 +40,8 @@ const userFields = {
     id: true,
     displayName: true,
     userGroups: { id: true, name: true },
+    username: true,
+    userRoles: { id: true, name: true, authorities: true },
     userCredentials: {
         username: true,
         userRoles: { id: true, name: true, authorities: true },
