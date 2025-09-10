@@ -36,7 +36,6 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
         [setDataSets]
     );
 
-    /* This block is causing performance issues after deselecting ALL option */
     React.useEffect(() => {
         const { added: addedArr, removed } = diffDataSets(selectedDataSets, dataSets);
         const added = _(addedArr);
