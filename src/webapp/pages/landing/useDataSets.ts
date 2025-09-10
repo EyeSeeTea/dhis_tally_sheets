@@ -38,46 +38,44 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
 
     /* This block is causing performance issues after deselecting ALL option */
     React.useEffect(() => {
-        const { added, removed } = diffDataSets(selectedDataSets, dataSets);
+        const { added: addedArr, removed } = diffDataSets(selectedDataSets, dataSets);
+        const added = _(addedArr);
+        if (added.isEmpty() && _(removed).isEmpty()) return;
 
-        console.debug("Added DataSets", added, "Removed DataSets", removed);
+        const cached = added.compactMap(({ id }) => cachedDataSets.get(id));
+        const toRequest = added.filter(({ id }) => !cachedDataSets.get(id));
 
-        if (_(added).isNotEmpty()) {
-            const addedIds = added.map(getId);
-
-            const cached = _(addedIds).compactMap(id => cachedDataSets.get(id));
-            const toRequest = excludeFromDataSet(added, cached.value());
-            if (_(toRequest).isNotEmpty()) {
-                startLoading();
-                compositionRoot.dataSets.getByIds.execute(toRequest.map(getId)).run(
-                    addedDataSets => {
-                        setDataSets(currentDataSets => {
-                            const newCached = cachedDataSets.merge(_(addedDataSets).keyBy(getId));
-                            setCachedDataSets(newCached);
-
-                            const selectedIds = selectedDataSets.map(getId);
-                            return _(selectedIds)
-                                .compactMap(id => newCached.get(id))
-                                .value();
-                        });
-                        stopLoading();
-                    },
-                    err => {
-                        snackbar.error(i18n.t("Unable to fetch datasets"));
-                        console.error(err);
-                        stopLoading();
-                    }
-                );
-            } else {
-                setDataSets(dataSets => {
-                    const selectedIds = selectedDataSets.map(getId);
-                    return _(selectedIds)
-                        .compactMap(id => cachedDataSets.get(id))
-                        .value();
-                });
-            }
-        } else if (_(removed).isNotEmpty()) {
-            setDataSets(dataSets => excludeFromDataSet(dataSets, removed));
+        if (toRequest.isNotEmpty()) {
+            startLoading();
+            compositionRoot.dataSets.getByIds.execute(toRequest.map(getId).value()).run(
+                addedDataSets => {
+                    setCachedDataSets(prev => prev.merge(_(addedDataSets).keyBy(getId)));
+                    setDataSets(currentDataSets => {
+                        const newDataSets = _(currentDataSets)
+                            .concat(_(addedDataSets))
+                            .concat(cached)
+                            .uniqBy(getId)
+                            .value();
+                        return _(removed).isEmpty()
+                            ? newDataSets
+                            : excludeRemoved(newDataSets, removed);
+                    });
+                    stopLoading();
+                },
+                err => {
+                    snackbar.error(i18n.t("Unable to fetch datasets"));
+                    console.error(err);
+                    stopLoading();
+                }
+            );
+        } else {
+            setDataSets(currentDataSets => {
+                const addedDataSets = added.compactMap(ds => cachedDataSets.get(ds.id));
+                const newDataSets = added.isEmpty()
+                    ? currentDataSets
+                    : _(currentDataSets).concat(addedDataSets).uniqBy(getId).value();
+                return _(removed).isEmpty() ? newDataSets : excludeRemoved(newDataSets, removed);
+            });
         }
     }, [
         cachedDataSets,
@@ -92,9 +90,9 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
     return { dataSets, removeSection, loadingDataSets: loading };
 }
 
-function excludeFromDataSet<T extends BasicDataSet>(dataSets: T[], removed: BasicDataSet[]) {
-    const removeIds = new Set(removed.map(getId));
-    return dataSets.filter(ds => !removeIds.has(ds.id));
+function excludeRemoved(dataSets: DataSet[], removed: BasicDataSet[]) {
+    const removedIds = new Set(removed.map(getId));
+    return dataSets.filter(ds => !removedIds.has(ds.id));
 }
 
 function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) {
