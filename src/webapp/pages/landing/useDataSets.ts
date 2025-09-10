@@ -7,6 +7,7 @@ import { useBooleanState } from "$/webapp/utils/use-boolean";
 import { getId, Id } from "$/domain/entities/Ref";
 import _ from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
+import { HashMap } from "$/domain/entities/generic/HashMap";
 
 export function useDataSets(selectedDataSets: BasicDataSet[]) {
     const { compositionRoot } = useAppContext();
@@ -14,7 +15,9 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
     const snackbar = useSnackbar();
 
     // Maintain a cache of previously fetched DataSets to prevent unnecessary API requests on re-selection
-    const [cachedDataSets, setCachedDataSets] = React.useState<DataSet[]>([]);
+    const [cachedDataSets, setCachedDataSets] = React.useState<HashMap<Id, DataSet>>(
+        HashMap.empty()
+    );
     const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
     const [dataSets, setDataSets] = React.useState<DataSet[]>([]);
 
@@ -40,29 +43,22 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
         console.debug("Added DataSets", added, "Removed DataSets", removed);
 
         if (_(added).isNotEmpty()) {
-            const addedIds = new Set(added.map(getId));
+            const addedIds = added.map(getId);
 
-            const cached = cachedDataSets.filter(ds => addedIds.has(ds.id));
-            const toRequest = excludeFromDataSet(added, cached);
+            const cached = _(addedIds).compactMap(id => cachedDataSets.get(id));
+            const toRequest = excludeFromDataSet(added, cached.value());
             if (_(toRequest).isNotEmpty()) {
                 startLoading();
                 compositionRoot.dataSets.getByIds.execute(toRequest.map(getId)).run(
                     addedDataSets => {
                         setDataSets(currentDataSets => {
-                            const newCached = _(cachedDataSets)
-                                .concat(_(addedDataSets))
-                                .uniqBy(getId)
-                                .value();
+                            const newCached = cachedDataSets.merge(_(addedDataSets).keyBy(getId));
                             setCachedDataSets(newCached);
 
-                            const newDataSets = _(currentDataSets)
-                                .concat(_(addedDataSets))
-                                .concat(_(cached))
-                                .uniqBy(getId)
+                            const selectedIds = selectedDataSets.map(getId);
+                            return _(selectedIds)
+                                .compactMap(id => newCached.get(id))
                                 .value();
-                            return _(removed).isEmpty()
-                                ? newDataSets
-                                : excludeFromDataSet(newDataSets, removed);
                         });
                         stopLoading();
                     },
@@ -74,10 +70,10 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
                 );
             } else {
                 setDataSets(dataSets => {
-                    const newDataSets = _(dataSets).concat(_(cached)).uniqBy(getId).value();
-                    return _(removed).isEmpty()
-                        ? newDataSets
-                        : excludeFromDataSet(newDataSets, removed);
+                    const selectedIds = selectedDataSets.map(getId);
+                    return _(selectedIds)
+                        .compactMap(id => cachedDataSets.get(id))
+                        .value();
                 });
             }
         } else if (_(removed).isNotEmpty()) {
