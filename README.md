@@ -7,7 +7,7 @@ The **HMIS Tally Sheets App** is a custom web application that allows end users 
 ## Features
 - **Dataset Selection** → Browse all available datasets in a dropdown (datasets with the attribute `hideInTallySheet = yes` are excluded).
 - **Customizable View** → Adjust titles, remove sections, and preview the dataset before exporting.
-- **One-Click Export** → Generate an Excel file ready for use in data collection.
+- **One-Click Print/Export** → Print as a file or generate an Excel tally sheet ready for use in data collection.
 
 ## Typical Use Case
 1. Select a dataset from the dropdown.
