@@ -1,6 +1,6 @@
 # DHIS2 Tally Sheet
 
-The **HMIS Tally Sheets App** is a custom web application that allows end users to:
+The **Tally Sheets App** is a custom web application that allows end users to:
 - generate printable tally sheets 
 - export **DHIS2 datasets** into **Excel file** for offline editing and printing for data collection.
 
