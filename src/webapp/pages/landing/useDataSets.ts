@@ -46,7 +46,7 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
 
         if (toRequest.isNotEmpty()) {
             startLoading();
-            compositionRoot.dataSets.getByIds.execute(toRequest.map(getId).value()).run(
+            return compositionRoot.dataSets.getByIds.execute(toRequest.map(getId).value()).run(
                 addedDataSets => {
                     setCachedDataSets(prev => prev.merge(_(addedDataSets).keyBy(getId)));
                     setDataSets(currentDataSets => {
