@@ -36,7 +36,26 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
         [setDataSets]
     );
 
-    React.useEffect(() => {
+    const fetchAndCacheDataSets = React.useCallback(
+        (toRequest: BasicDataSet[]) => {
+            startLoading();
+            return compositionRoot.dataSets.getByIds
+                .execute(toRequest.map(getId))
+                .map(addedDataSets => {
+                    setCachedDataSets(prev => prev.merge(_(addedDataSets).keyBy(getId)));
+                    stopLoading();
+                    return addedDataSets;
+                })
+                .mapError(err => {
+                    console.error(err);
+                    stopLoading();
+                    return err;
+                });
+        },
+        [compositionRoot, startLoading, stopLoading, setCachedDataSets]
+    );
+
+    const syncDataSetsWithSelection = React.useCallback(() => {
         const { added: addedArr, removed } = diffDataSets(selectedDataSets, dataSets);
         const added = _(addedArr);
         if (added.isEmpty() && _(removed).isEmpty()) return;
@@ -45,10 +64,8 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
         const toRequest = added.filter(({ id }) => !cachedDataSets.get(id));
 
         if (toRequest.isNotEmpty()) {
-            startLoading();
-            return compositionRoot.dataSets.getByIds.execute(toRequest.map(getId).value()).run(
+            return fetchAndCacheDataSets(toRequest.value()).run(
                 addedDataSets => {
-                    setCachedDataSets(prev => prev.merge(_(addedDataSets).keyBy(getId)));
                     setDataSets(currentDataSets => {
                         const newDataSets = _(currentDataSets)
                             .concat(_(addedDataSets))
@@ -59,12 +76,9 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
                             ? newDataSets
                             : excludeRemoved(newDataSets, removed);
                     });
-                    stopLoading();
                 },
-                err => {
+                () => {
                     snackbar.error(i18n.t("Unable to fetch datasets"));
-                    console.error(err);
-                    stopLoading();
                 }
             );
         } else {
@@ -76,15 +90,11 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
                 return _(removed).isEmpty() ? newDataSets : excludeRemoved(newDataSets, removed);
             });
         }
-    }, [
-        cachedDataSets,
-        compositionRoot,
-        dataSets,
-        selectedDataSets,
-        snackbar,
-        startLoading,
-        stopLoading,
-    ]);
+    }, [cachedDataSets, dataSets, selectedDataSets, snackbar, fetchAndCacheDataSets, setDataSets]);
+
+    React.useEffect(() => {
+        return syncDataSetsWithSelection();
+    }, [syncDataSetsWithSelection]);
 
     return { dataSets, removeSection, loadingDataSets: loading };
 }
