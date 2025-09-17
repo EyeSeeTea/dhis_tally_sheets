@@ -11,7 +11,6 @@ msgstr ""
 msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr "El {{storage}} {{key}} no es un objeto JSON válido."
 
-#, fuzzy
 msgid ""
 "Thanks for downloading Tally Sheets! You can edit or hide this info message "
 "under settings options. For any questions or feedback, please contact us "

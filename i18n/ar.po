@@ -144,9 +144,8 @@ msgstr "الكل"
 msgid "Unable to fetch datasets list"
 msgstr ""
 
-#, fuzzy
 msgid "Unable to fetch datasets"
-msgstr "اختر مجموعة بيانات"
+msgstr "تعذر جلب مجموعات البيانات"
 
 msgid "Something went wrong while creating the excel file"
 msgstr ""
