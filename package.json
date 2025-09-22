@@ -1,7 +1,7 @@
 {
-    "name": "hmis-tally-sheets",
-    "description": "HMIS Tally sheets",
-    "version": "4.0.0",
+    "name": "tally-sheets",
+    "description": "Tally sheets",
+    "version": "4.1.0",
     "license": "GPL-3.0",
     "author": "EyeSeeTea",
     "homepage": ".",
@@ -16,7 +16,7 @@
         "@dhis2/d2-i18n-extract": "1.0.8",
         "@dhis2/d2-i18n-generate": "1.2.0",
         "@dhis2/ui": "6.12.0",
-        "@eyeseetea/d2-api": "1.16.0-beta.6",
+        "@eyeseetea/d2-api": "1.20.0",
         "@eyeseetea/d2-ui-components": "2.11.0",
         "@eyeseetea/feedback-component": "0.3.0",
         "@eyeseetea/xlsx-populate": "^4.3.0",
@@ -108,14 +108,14 @@
         "build": "VITE_DHIS2_BASE_URL='' VITE_DHIS2_AUTH='' yarn build-folder && rm -f $npm_package_name.zip && cd build && zip --quiet -r ../$npm_package_name.zip *",
         "prettify": "prettier \"./**/*.{js,jsx,json,css,ts,tsx}\" --write",
         "extract-pot": "yarn d2-i18n-extract -p src/ -o i18n/",
-        "localize": "yarn update-po && d2-i18n-generate -l -n hmis-tally-sheets -p ./i18n/ -o ./src/locales/",
+        "localize": "yarn update-po && d2-i18n-generate -l -n tally-sheets -p ./i18n/ -o ./src/locales/",
         "update-po": "yarn extract-pot && find i18n/ -name '*.po' -exec msgmerge --backup=off -U {} i18n/en.pot \\;",
         "prepare": "husky install",
         "script-example": "npx ts-node src/scripts/example.ts"
     },
     "manifest.webapp": {
-        "name": "HMIS Tally sheets",
-        "description": "HMIS Tally sheets",
+        "name": "Tally sheets",
+        "description": "Tally sheets",
         "icons": {
             "48": "icon.png"
         },

@@ -1,3 +1,21 @@
+# DHIS2 Tally Sheet
+
+The **Tally Sheets App** is a custom web application that allows end users to:
+- generate printable tally sheets 
+- export **DHIS2 datasets** into **Excel file** for offline editing and printing for data collection.
+
+## Features
+- **Dataset Selection** → Browse all available datasets in a dropdown (datasets with the attribute `hideInTallySheet = yes` are excluded).
+- **Customizable View** → Adjust titles, remove sections, and preview the dataset before exporting.
+- **One-Click Print/Export** → Print as a file or generate an Excel tally sheet ready for use in data collection.
+
+## Typical Use Case
+1. Select a dataset from the dropdown.
+2. Preview and customize the dataset layout.
+3. Export the tally sheet to Excel.
+4. Edit or print the sheet for field data collection.
+
+
 ## Setup
 
 ```shell

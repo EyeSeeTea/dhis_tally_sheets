@@ -3,7 +3,7 @@ import i18n from "$/utils/i18n";
 export const constants = {
     constantsStorageCode: "TALLY_SHEETS_STORAGE",
     constantsStorageName: "Tally Sheets Storage",
-    datastoreNamespace: "HMIS_Tally_Sheets",
+    datastoreNamespace: "Tally_Sheets",
     datastoreKey: "config",
     hideAttributeName: "hideInTallySheet",
 };
