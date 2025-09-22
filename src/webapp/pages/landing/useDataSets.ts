@@ -7,14 +7,17 @@ import { useBooleanState } from "$/webapp/utils/use-boolean";
 import { getId, Id } from "$/domain/entities/Ref";
 import _ from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
+import { HashMap } from "$/domain/entities/generic/HashMap";
 
 export function useDataSets(selectedDataSets: BasicDataSet[]) {
     const { compositionRoot } = useAppContext();
 
     const snackbar = useSnackbar();
 
-    // Cache in useHook, to restore sections when a Data Set is added again and prevent quick
-    const [cachedDataSets, setCachedDataSets] = React.useState<DataSet[]>([]);
+    // Maintain a cache of previously fetched DataSets to prevent unnecessary API requests on re-selection
+    const [cachedDataSets, setCachedDataSets] = React.useState<HashMap<Id, DataSet>>(
+        HashMap.empty()
+    );
     const [loading, { enable: startLoading, disable: stopLoading }] = useBooleanState(false);
     const [dataSets, setDataSets] = React.useState<DataSet[]>([]);
 
@@ -33,71 +36,72 @@ export function useDataSets(selectedDataSets: BasicDataSet[]) {
         [setDataSets]
     );
 
-    /* This block is causing performance issues after deselecting ALL option */
-    React.useEffect(() => {
-        const { added, removed } = diffDataSets(selectedDataSets, dataSets);
-
-        console.debug("Added DataSets", added, "Removed DataSets", removed);
-
-        if (_(added).isNotEmpty()) {
-            const cached = cachedDataSets.filter(ds => added.map(getId).includes(ds.id));
-            const toRequest = added.filter(ds => !cached.map(getId).includes(ds.id));
-            if (_(toRequest).isNotEmpty()) {
-                startLoading();
-                compositionRoot.dataSets.getByIds.execute(toRequest.map(getId)).run(
-                    addedDataSets => {
-                        setDataSets(dataSets => {
-                            setCachedDataSets(cachedDataSets => {
-                                const newCached = _(cachedDataSets)
-                                    .concat(_(addedDataSets))
-                                    .uniqBy(getId)
-                                    .value();
-                                setCachedDataSets(newCached);
-                                return newCached;
-                            });
-                            const newDataSets = _(dataSets)
-                                .concat(_(addedDataSets))
-                                .concat(_(cached))
-                                .uniqBy(getId)
-                                .value();
-                            return _(removed).isEmpty()
-                                ? newDataSets
-                                : excludeRemoved(newDataSets, removed);
-                        });
-                        stopLoading();
-                    },
-                    err => {
-                        snackbar.error(i18n.t("Unable to fetch datasets"));
-                        console.error(err);
-                        stopLoading();
-                    }
-                );
-            } else {
-                setDataSets(dataSets => {
-                    const newDataSets = _(dataSets).concat(_(cached)).uniqBy(getId).value();
-                    return _(removed).isEmpty()
-                        ? newDataSets
-                        : excludeRemoved(newDataSets, removed);
+    const fetchAndCacheDataSets = React.useCallback(
+        (toRequest: BasicDataSet[]) => {
+            startLoading();
+            return compositionRoot.dataSets.getByIds
+                .execute(toRequest.map(getId))
+                .map(addedDataSets => {
+                    setCachedDataSets(prev => prev.merge(_(addedDataSets).keyBy(getId)));
+                    stopLoading();
+                    return addedDataSets;
+                })
+                .mapError(err => {
+                    console.error(err);
+                    stopLoading();
+                    return err;
                 });
-            }
-        } else if (_(removed).isNotEmpty()) {
-            setDataSets(dataSets => excludeRemoved(dataSets, removed));
+        },
+        [compositionRoot, startLoading, stopLoading, setCachedDataSets]
+    );
+
+    const syncDataSetsWithSelection = React.useCallback(() => {
+        const { added: addedArr, removed } = diffDataSets(selectedDataSets, dataSets);
+        const added = _(addedArr);
+        if (added.isEmpty() && _(removed).isEmpty()) return;
+
+        const cached = added.compactMap(({ id }) => cachedDataSets.get(id));
+        const toRequest = added.filter(({ id }) => !cachedDataSets.get(id));
+
+        if (toRequest.isNotEmpty()) {
+            return fetchAndCacheDataSets(toRequest.value()).run(
+                addedDataSets => {
+                    setDataSets(currentDataSets => {
+                        const newDataSets = _(currentDataSets)
+                            .concat(_(addedDataSets))
+                            .concat(cached)
+                            .uniqBy(getId)
+                            .value();
+                        return _(removed).isEmpty()
+                            ? newDataSets
+                            : excludeRemoved(newDataSets, removed);
+                    });
+                },
+                () => {
+                    snackbar.error(i18n.t("Unable to fetch datasets"));
+                }
+            );
+        } else {
+            setDataSets(currentDataSets => {
+                const addedDataSets = added.compactMap(ds => cachedDataSets.get(ds.id));
+                const newDataSets = added.isEmpty()
+                    ? currentDataSets
+                    : _(currentDataSets).concat(addedDataSets).uniqBy(getId).value();
+                return _(removed).isEmpty() ? newDataSets : excludeRemoved(newDataSets, removed);
+            });
         }
-    }, [
-        cachedDataSets,
-        compositionRoot,
-        dataSets,
-        selectedDataSets,
-        snackbar,
-        startLoading,
-        stopLoading,
-    ]);
+    }, [cachedDataSets, dataSets, selectedDataSets, snackbar, fetchAndCacheDataSets, setDataSets]);
+
+    React.useEffect(() => {
+        return syncDataSetsWithSelection();
+    }, [syncDataSetsWithSelection]);
 
     return { dataSets, removeSection, loadingDataSets: loading };
 }
 
 function excludeRemoved(dataSets: DataSet[], removed: BasicDataSet[]) {
-    return dataSets.filter(ds => !removed.map(getId).includes(ds.id));
+    const removedIds = new Set(removed.map(getId));
+    return dataSets.filter(ds => !removedIds.has(ds.id));
 }
 
 function diffDataSets(newDataSets: BasicDataSet[], oldDataSets: BasicDataSet[]) {

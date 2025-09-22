@@ -4,7 +4,7 @@ const rawStorageSource = import.meta.env.VITE_STORAGE_SOURCE;
 
 export const storageSources = ["constants", "dataStore"] as const;
 export const appConfig: AppConfig = {
-    id: "hmis-tally-sheets",
+    id: "tally-sheets",
     appearance: {
         showShareButton: false,
     },

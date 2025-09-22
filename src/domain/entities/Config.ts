@@ -12,13 +12,13 @@ export type Config = {
 
 export const defaultConfig: Config = {
     sheetName: "Datasets",
-    fileName: "HMIS_Tally_Sheets",
+    fileName: "Tally_Sheets",
     administratorGroups: [],
     ouLabel: "",
     periodLabel: "",
     messageInfo: {
         en: i18n.t(
-            "Thanks for downloading HMIS Tally Sheets! You can edit or hide this info message under settings options. For any questions or feedback, please contact us through the 'Send Feedback' button on the bottom right corner."
+            "Thanks for downloading Tally Sheets! You can edit or hide this info message under settings options. For any questions or feedback, please contact us through the 'Send Feedback' button on the bottom right corner."
         ),
     },
 };
