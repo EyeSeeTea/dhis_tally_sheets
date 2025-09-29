@@ -5,6 +5,8 @@ type HeaderBarProps = {
     appName: string;
 };
 
+// avoid rendering header for versions < 2.42
+//https://developers.dhis2.org/docs/references/global-shell/#header-bars
 export const HeaderBar: React.FC<HeaderBarProps> = props => {
     const { appName } = props;
     const shouldRenderHeaderBar = window.self === window.top;
