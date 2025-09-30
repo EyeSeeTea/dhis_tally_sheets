@@ -24,7 +24,7 @@ import { muiTheme } from "./themes/dhis2.theme";
 import { D2Api } from "$/types/d2-api";
 import i18n from "$/utils/i18n";
 import "./App.css";
-import { HeaderBar } from "$/webapp/components/header-bar/header-bar";
+import { HeaderBar } from "$/webapp/components/header-bar/HeaderBar";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
