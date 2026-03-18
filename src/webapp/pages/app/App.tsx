@@ -1,5 +1,3 @@
-import styled from "styled-components";
-import { HeaderBar } from "@dhis2/ui";
 import { SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import { Feedback } from "@eyeseetea/feedback-component";
 import { MuiThemeProvider } from "@material-ui/core/styles";
@@ -26,6 +24,7 @@ import { muiTheme } from "./themes/dhis2.theme";
 import { D2Api } from "$/types/d2-api";
 import i18n from "$/utils/i18n";
 import "./App.css";
+import { HeaderBar } from "$/webapp/components/header-bar/HeaderBar";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
@@ -85,7 +84,7 @@ function App(props: AppProps) {
                 <MuiThemeProvider theme={muiTheme}>
                     <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
                         <SnackbarProvider>
-                            <StyledHeaderBar appName="Tally sheets" />
+                            <HeaderBar appName="Tally sheets" />
 
                             {appConfig.feedback && appContext && (
                                 <Feedback
@@ -129,11 +128,5 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     })
 );
-
-const StyledHeaderBar = styled(HeaderBar)`
-    div:first-of-type {
-        box-sizing: border-box;
-    }
-`;
 
 export default React.memo(App);
