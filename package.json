@@ -1,7 +1,7 @@
 {
     "name": "tally-sheets",
     "description": "Tally sheets",
-    "version": "4.1.0",
+    "version": "4.2.0",
     "license": "GPL-3.0",
     "author": "EyeSeeTea",
     "homepage": ".",
@@ -9,6 +9,7 @@
         "type": "git",
         "url": "git+https://github.com/EyeSeeTea/dhis_tally_sheets.git"
     },
+    "packageManager": "yarn@4.12.0",
     "dependencies": {
         "$": "link:./src",
         "@dhis2/app-runtime": "2.8.0",
@@ -19,7 +20,7 @@
         "@eyeseetea/d2-api": "1.20.0",
         "@eyeseetea/d2-ui-components": "2.11.0",
         "@eyeseetea/feedback-component": "0.3.0",
-        "@eyeseetea/xlsx-populate": "^4.3.0",
+        "@eyeseetea/xlsx-populate": "4.3.1",
         "@material-ui/core": "4.12.4",
         "@material-ui/icons": "4.11.3",
         "@material-ui/lab": "4.0.0-alpha.60",
@@ -110,7 +111,7 @@
         "extract-pot": "yarn d2-i18n-extract -p src/ -o i18n/",
         "localize": "yarn update-po && d2-i18n-generate -l -n tally-sheets -p ./i18n/ -o ./src/locales/",
         "update-po": "yarn extract-pot && find i18n/ -name '*.po' -exec msgmerge --backup=off -U {} i18n/en.pot \\;",
-        "prepare": "husky install",
+        "prepare": "corepack enable 2>/dev/null || true && husky install",
         "script-example": "npx ts-node src/scripts/example.ts"
     },
     "manifest.webapp": {
@@ -133,5 +134,19 @@
     },
     "engines": {
         "yarn": ">= 1.0.0"
+    },
+    "resolutions": {
+        "axios": "1.13.5",
+        "@babel/runtime": "7.26.10",
+        "brace-expansion": "1.1.12",
+        "form-data": "4.0.4",
+        "glob-parent": "5.1.2",
+        "i18next": "19.8.5",
+        "lodash": "4.17.23",
+        "minimatch": "3.1.3",
+        "nanoid": "3.3.8",
+        "node-fetch": "2.6.7",
+        "path-to-regexp": "1.9.0",
+        "qs": "6.14.2"
     }
 }
