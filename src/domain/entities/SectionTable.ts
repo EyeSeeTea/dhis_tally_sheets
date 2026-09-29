@@ -19,6 +19,14 @@ export type SectionTable = Readonly<{
     rows: ReadonlyArray<SectionTableRow>;
 }>;
 
+/* The tally sheet layout of a data set, as built by `DataSet.toTable()` */
+export type DataSetTable = Readonly<{ sections: ReadonlyArray<SectionWithTables> }>;
+
+export type SectionWithTables = Readonly<{
+    section: Section;
+    tables: ReadonlyArray<SectionTable>;
+}>;
+
 export function getSectionTables(
     section: Pick<Section, "categoryCombos" | "greyedFields">
 ): ReadonlyArray<SectionTable> {

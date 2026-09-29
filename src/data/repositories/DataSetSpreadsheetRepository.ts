@@ -1,5 +1,5 @@
 import XlsxPopulate, { Sheet, Workbook } from "@eyeseetea/xlsx-populate";
-import { Headers, DataSet, Section } from "$/domain/entities/DataSet";
+import { Headers, DataSet } from "$/domain/entities/DataSet";
 import {
     DataSetExportOptions,
     DataSetExportRepository,
@@ -10,7 +10,7 @@ import { Future } from "$/domain/entities/generic/Future";
 import { Maybe } from "$/utils/ts-utils";
 import { defaultConfig } from "$/domain/entities/Config";
 import _ from "$/domain/entities/generic/Collection";
-import { getSectionTables, HeaderCell, SectionTable } from "$/domain/entities/SectionTable";
+import { HeaderCell, SectionTable, SectionWithTables } from "$/domain/entities/SectionTable";
 
 /* Shouldn't be the implemented repository DataSetRepository itself, instead of the "export"?
  * Right? And save method inside DataSetRepository */
@@ -97,8 +97,8 @@ function populateHeaders(sheet: Sheet, headers: Maybe<Headers>, title: string) {
 
 function populateSections(sheet: Sheet, dataSet: DataSet, options: DataSetExportOptions) {
     populateHeaders(sheet, dataSet.headers, dataSet.displayName);
-    const row = dataSet.sections.reduce(
-        (row, section) => addSection(sheet, section, row, options),
+    const row = dataSet.toTable().sections.reduce(
+        (row, sectionWithTables) => addSection(sheet, sectionWithTables, row, options),
         3 //starts at 3 because of the headers
     );
 
@@ -107,17 +107,18 @@ function populateSections(sheet: Sheet, dataSet: DataSet, options: DataSetExport
 
 function addSection(
     sheet: Sheet,
-    section: Section,
+    sectionWithTables: SectionWithTables,
     rowNum: RowNumber,
     options: DataSetExportOptions
 ): RowNumber {
+    const { section, tables } = sectionWithTables;
     const titleRow = rowNum + 1;
     const descriptionRow = section.description ? titleRow + 1 : titleRow;
     sheet.row(titleRow).cell(START_COLUMN).value(section.displayName).style(styles.titleStyle);
     if (section.description)
         sheet.row(descriptionRow).cell(START_COLUMN).value(section.description);
 
-    return getSectionTables(section).reduce<RowNumber>(
+    return tables.reduce<RowNumber>(
         (row, table) => addTable(sheet, table, row, options),
         descriptionRow + 1
     );

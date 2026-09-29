@@ -27,6 +27,36 @@ describe("DataSet", () => {
         expect(translatedDataSet.locale).toBe(spanishLocale);
     });
 
+    describe("toTable", () => {
+        /* Sections of the fixture, in order, with their number of category combos */
+        const tablesBySectionId = {
+            sec_two_categores: 1,
+            sec_default: 1,
+            sec_x_y: 1,
+            sec_greyed_fields: 1,
+            sec_one_column_greyed_field: 1,
+            sec_two_category_combos: 2,
+        };
+        const sectionIds = Object.keys(tablesBySectionId);
+        const removedSectionId = "sec_default";
+
+        it("lays out every section with one table per category combo", () => {
+            const { sections } = processedDataSet.toTable();
+
+            expect(
+                sections.map(({ section, tables }) => ({ id: section.id, tables: tables.length }))
+            ).toEqual(Object.entries(tablesBySectionId).map(([id, tables]) => ({ id, tables })));
+        });
+
+        it("leaves out removed sections", () => {
+            const { sections } = processedDataSet.removeSection(removedSectionId).toTable();
+
+            expect(sections.map(({ section }) => section.id)).toEqual(
+                sectionIds.filter(id => id !== removedSectionId)
+            );
+        });
+    });
+
     it("should translate all fields when locale is applied", async () => {
         const ds = processedDataSet;
         const translated = ds.applyLocale(spanishLocale);

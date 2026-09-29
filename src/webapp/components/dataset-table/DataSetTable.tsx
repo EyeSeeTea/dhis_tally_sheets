@@ -10,18 +10,12 @@ import {
     useTheme,
 } from "@material-ui/core";
 import { Clear as ClearIcon } from "@material-ui/icons";
-import {
-    CategoryCombo,
-    DataSet,
-    GreyedField,
-    Section as SectionType,
-} from "$/domain/entities/DataSet";
-import { getId, Id } from "$/domain/entities/Ref";
+import { DataSet, Section as SectionType } from "$/domain/entities/DataSet";
+import { Id } from "$/domain/entities/Ref";
+import { SectionTable } from "$/domain/entities/SectionTable";
 import i18n from "$/utils/i18n";
 import { styled } from "styled-components";
-import { Maybe } from "$/utils/ts-utils";
 import { useAppContext } from "$/webapp/contexts/app-context";
-import _ from "$/domain/entities/generic/Collection";
 
 interface DataSetTableProps {
     dataSet: DataSet;
@@ -35,6 +29,8 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
 
     const theme = useTheme();
     const classes = useStyles();
+
+    const { sections } = React.useMemo(() => dataSet.toTable(), [dataSet]);
 
     const deleteSection = React.useCallback(
         (section: SectionType) => {
@@ -66,8 +62,13 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
                     <Typography className={[classes.headers, classes.title].join(" ")} variant="h4">
                         {dataSet.displayName}
                     </Typography>
-                    {dataSet.sections.map(section => (
-                        <Section key={section.id} section={section} onDelete={deleteSection} />
+                    {sections.map(({ section, tables }) => (
+                        <Section
+                            key={section.id}
+                            section={section}
+                            tables={tables}
+                            onDelete={deleteSection}
+                        />
                     ))}
                 </Box>
             </Box>
@@ -77,11 +78,12 @@ export const DataSetTable: React.FC<DataSetTableProps> = React.memo(props => {
 
 interface SectionProps {
     section: SectionType;
+    tables: ReadonlyArray<SectionTable>;
     onDelete: (section: SectionType) => void;
 }
 
 const Section: React.FC<SectionProps> = React.memo(props => {
-    const { section, onDelete } = props;
+    const { section, tables, onDelete } = props;
 
     const theme = useTheme();
     const classes = useStyles();
@@ -106,75 +108,69 @@ const Section: React.FC<SectionProps> = React.memo(props => {
                     borderRadius={theme.shape.borderRadius}
                     marginTop={theme.spacing(0.25)}
                 >
-                    <SectionTable section={section} />
+                    <SectionTables tables={tables} />
                 </Box>
             </Typography>
         </Box>
     );
 });
 
-const SectionTable: React.FC<{ section: SectionType }> = React.memo(props => {
-    const { section } = props;
+const SectionTables: React.FC<{ tables: ReadonlyArray<SectionTable> }> = React.memo(props => {
+    const { tables } = props;
+    const { config } = useAppContext();
 
     const theme = useTheme();
-
-    const tables = React.useMemo(() => {
-        return getSectionTables(section.categoryCombos, section.greyedFields);
-    }, [section.categoryCombos, section.greyedFields]);
 
     return (
         <Box display="flex" flexDirection="column" gridRowGap={theme.spacing(3)}>
             {tables.map((table, idx) => (
-                <DisplayTable table={table} key={idx} />
+                <DisplayTable
+                    table={table}
+                    highlightSubSections={config.highlightSubSections}
+                    key={idx}
+                />
             ))}
         </Box>
     );
 });
 
-/* A MUST refactor for next iteration:
- * As both in view layer and data layer DataSet can be represented as a Table,
- * we might do something like DataSet.toTable(): DataSetTable */
-const DisplayTable: React.FC<{ table: TableProps }> = React.memo(props => {
+interface DisplayTableProps {
+    table: SectionTable;
+    highlightSubSections: boolean;
+}
+
+const DisplayTable: React.FC<DisplayTableProps> = React.memo(props => {
     const {
-        table: { thead, tbody },
+        table: { headers, rows },
+        highlightSubSections,
     } = props;
 
     return (
         <Table>
             <thead>
-                {thead.map((row, rIdx) => {
-                    const mergeRange = getMergeRanges(row);
-
-                    return (
-                        <tr key={rIdx}>
-                            {row
-                                .map((v, cIdx) => ({
-                                    v: v,
-                                    show: !mergeRange.some(
-                                        ([start, end]) => start < cIdx && cIdx <= end
-                                    ),
-                                }))
-                                .map(
-                                    ({ v, show }, cIdx) =>
-                                        show && (
-                                            <th
-                                                key={cIdx}
-                                                className={v === undefined ? "no-border" : ""}
-                                                colSpan={getColSpan(cIdx, mergeRange)}
-                                            >
-                                                {v}
-                                            </th>
-                                        )
-                                )}
-                        </tr>
-                    );
-                })}
+                {headers.map((headerRow, rIdx) => (
+                    <tr key={rIdx}>
+                        <th className="no-border" />
+                        {headerRow.map(({ label, span }, cIdx) => (
+                            <th key={cIdx} colSpan={span > 1 ? span : undefined}>
+                                {label}
+                            </th>
+                        ))}
+                    </tr>
+                ))}
             </thead>
             <tbody>
-                {tbody.map((row, rIdx) => (
+                {rows.map((row, rIdx) => (
                     <tr key={rIdx}>
-                        {row.map((v, cIdx) => (
-                            <td key={cIdx}>{v}</td>
+                        <td
+                            className={
+                                highlightSubSections && row.isSubSection ? "sub-section" : undefined
+                            }
+                        >
+                            {row.dataElementName}
+                        </td>
+                        {row.greyed.map((isGreyed, cIdx) => (
+                            <td key={cIdx}>{isGreyed ? GREYED_FIELD_MARK : undefined}</td>
                         ))}
                     </tr>
                 ))}
@@ -183,61 +179,7 @@ const DisplayTable: React.FC<{ table: TableProps }> = React.memo(props => {
     );
 });
 
-function getColSpan(idx: number, mergeRanges: MergeRange[]): Maybe<number> {
-    const range = _(mergeRanges.filter(([start, _end]) => start === idx)).first();
-    return range ? range[1] - range[0] + 1 : undefined;
-}
-
-function getSectionTables(
-    categoryCombos: CategoryCombo[],
-    greyedFields: GreyedField[]
-): TableProps[] {
-    return categoryCombos.map(categoryCombo => {
-        const optionNames = categoryCombo.categories.map(({ categoryOptions }) =>
-            categoryOptions.map(({ displayFormName }) => displayFormName)
-        );
-        const thead = (_(optionNames).cartesian().unzip().value() as string[][]).map(
-            row => [undefined, ...row] //add an empty cell for the data elements column
-        );
-
-        const cocIds = categoryCombo.categoryOptionCombos.map(getId);
-        const combinations = (_(thead).first()?.length ?? 1) - DATA_ELEMENTS_OFFSET;
-
-        const tbody =
-            categoryCombo.dataElements?.map(de => {
-                const gfs = greyedFields
-                    .filter(gf => gf.dataElement.id === de.id)
-                    .map(gf => cocIds.indexOf(gf.categoryOptionCombo.id))
-                    .filter(idx => idx >= 0);
-
-                return [de.displayFormName, ...markGreyedFields(gfs, combinations)];
-            }) ?? [];
-
-        return { thead, tbody };
-    });
-}
-
-function getMergeRanges(row: Row): MergeRange[] {
-    return row
-        .reduce<MergeRange[]>((acc, v, idx, arr) => {
-            const last = acc.slice(-1);
-            const rest = acc.slice(0, -1);
-            if (!last || arr.at(idx - 1) !== v) return acc.concat([[idx, idx]]);
-            else return rest.concat(last.map(([start, _end]) => [start, idx]));
-        }, [])
-        .filter(([start, end]) => start !== end);
-}
-
-function markGreyedFields(columns: number[], length: number): (string | undefined)[] {
-    return Array.from({ length: length }, (_, i) => (columns.includes(i) ? "X" : undefined));
-}
-
-const DATA_ELEMENTS_OFFSET = 1;
-
-type MergeRange = [number, number];
-
-type Row = Maybe<string>[];
-type TableProps = { thead: Row[]; tbody: Row[] };
+const GREYED_FIELD_MARK = "X";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -277,6 +219,15 @@ const Table = styled.table`
 
     td:not(:first-child) {
         text-align: center;
+    }
+
+    /* Same look as sub-sections in the Data Entry app (ClickUp #869ee3pre), scaled like the
+     * export: 10pt data elements, 18pt sub-sections */
+    td.sub-section {
+        font-size: calc(0.6125em * 1.8);
+        font-weight: 700;
+        background-color: #a0adba;
+        print-color-adjust: exact;
     }
 
     td,

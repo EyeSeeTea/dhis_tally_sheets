@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-09-10T10:41:49.366Z\n"
-"PO-Revision-Date: 2025-09-10T10:41:49.366Z\n"
+"POT-Creation-Date: 2026-09-29T12:51:29.086Z\n"
+"PO-Revision-Date: 2026-09-29T12:51:29.086Z\n"
 
 msgid "The {{storage}} {{key}} is not a valid JSON object."
 msgstr ""
@@ -91,6 +91,14 @@ msgid ""
 msgstr ""
 
 msgid "Information message"
+msgstr ""
+
+msgid ""
+"Data elements with every category option combo greyed in a section are "
+"shown as sub-section headings, in bold, larger and with a grey background"
+msgstr ""
+
+msgid "Highlight data elements with no disaggregation"
 msgstr ""
 
 msgid ""

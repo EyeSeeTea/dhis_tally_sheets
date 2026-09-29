@@ -6,6 +6,8 @@ import {
     DialogTitle,
     Button,
     TextField,
+    FormControlLabel,
+    Switch,
     Box,
     useTheme,
     LinearProgress,
@@ -32,12 +34,20 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
     const styles = useStyles();
     const localeSelectorProps = useLocaleSelector();
 
-    const { loading, reloading, fields, handleSave, close, messageProps, messageChanged } =
-        useSettingsDialog({
-            open,
-            onClose,
-            localeCode: localeSelectorProps.value,
-        });
+    const {
+        loading,
+        reloading,
+        fields,
+        handleSave,
+        close,
+        highlightSubSectionsProps,
+        messageProps,
+        messageChanged,
+    } = useSettingsDialog({
+        open,
+        onClose,
+        localeCode: localeSelectorProps.value,
+    });
 
     return (
         <>
@@ -55,6 +65,8 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         {fields.map((fieldProps, idx) => (
                             <TooltipTextField key={idx} {...fieldProps} />
                         ))}
+
+                        <TooltipSwitch {...highlightSubSectionsProps} />
 
                         <Box display="flex" flexDirection="column">
                             {messageProps && <TooltipTextField {...messageProps} />}
@@ -107,6 +119,29 @@ const TooltipTextField: React.FC<TooltipTextFieldProps> = React.memo(props => {
                 fullWidth
                 minRows={minRows}
                 multiline={multiline}
+            />
+        </Tooltip>
+    );
+});
+
+export interface TooltipSwitchProps {
+    title: string;
+    label: string;
+    name: string;
+    checked: boolean;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const TooltipSwitch: React.FC<TooltipSwitchProps> = React.memo(props => {
+    const { title, label, name, checked, onChange } = props;
+
+    return (
+        <Tooltip title={title} enterDelay={500}>
+            <FormControlLabel
+                control={
+                    <Switch name={name} checked={checked} onChange={onChange} color="primary" />
+                }
+                label={label}
             />
         </Tooltip>
     );
