@@ -2,11 +2,9 @@ import React from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components/snackbar";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
-import {
-    SettingsDialogProps,
-    TooltipSwitchProps,
-    TooltipTextFieldProps,
-} from "$/webapp/components/settings-dialog/SettingsDialog";
+import { SettingsDialogProps } from "$/webapp/components/settings-dialog/SettingsDialog";
+import { TooltipSwitchProps } from "$/webapp/components/settings-dialog/TooltipSwitch";
+import { TooltipTextFieldProps } from "$/webapp/components/settings-dialog/TooltipTextField";
 import { Config } from "$/domain/entities/Config";
 import { Maybe } from "$/utils/ts-utils";
 import { HashMap } from "$/domain/entities/generic/HashMap";
