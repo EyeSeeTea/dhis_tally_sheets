@@ -43,6 +43,7 @@ export class ExportDataSetsUseCase {
             translatedDataSets.map(dataSet =>
                 this.repositories.dataSetExportRepository.save(dataSet, {
                     sheetName: config.sheetName,
+                    highlightSubSections: config.highlightSubSections,
                 })
             )
         ).map(blobFiles => {

@@ -8,6 +8,7 @@ export type Config = {
     ouLabel: string;
     periodLabel: string;
     messageInfo: Record<string, string>;
+    highlightSubSections: boolean;
 };
 
 export const defaultConfig: Config = {
@@ -21,4 +22,5 @@ export const defaultConfig: Config = {
             "Thanks for downloading Tally Sheets! You can edit or hide this info message under settings options. For any questions or feedback, please contact us through the 'Send Feedback' button on the bottom right corner."
         ),
     },
+    highlightSubSections: false,
 };

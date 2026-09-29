@@ -4,9 +4,10 @@ import { DataSet } from "$/domain/entities/DataSet";
 export interface DataSetExportRepository {
     save(
         dataSet: DataSet,
-        options?: {
+        options?: Readonly<{
             sheetName: string;
-        }
+            highlightSubSections: boolean;
+        }>
     ): FutureData<ExportFile>;
 }
 
