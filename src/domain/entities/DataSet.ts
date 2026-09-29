@@ -48,7 +48,6 @@ export class DataSet extends BasicDataSet {
         return new this(attrs);
     }
 
-    /* The tally sheet layout shared by every renderer of the data set (preview and export) */
     toTable(): DataSetTable {
         return {
             sections: this.sections.map(section => ({

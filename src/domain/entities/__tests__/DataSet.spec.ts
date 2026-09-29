@@ -28,7 +28,6 @@ describe("DataSet", () => {
     });
 
     describe("toTable", () => {
-        /* Sections of the fixture, in order, with their number of category combos */
         const tablesBySectionId = {
             sec_two_categores: 1,
             sec_default: 1,

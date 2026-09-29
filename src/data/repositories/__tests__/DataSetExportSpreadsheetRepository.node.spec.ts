@@ -149,8 +149,6 @@ function getNameCell(sheet: XlsxPopulate.Sheet, name: string) {
     return cell;
 }
 
-/* One section with a Male/Female category combo: the heading data element has both combos
- * greyed, the value data element none */
 const subSectionDataSet = createSubSectionDataSet();
 
 function createSubSectionDataSet(): DataSet {

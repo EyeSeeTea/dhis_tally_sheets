@@ -65,7 +65,6 @@ const dataElementStyle = { fontSize: 10, wrapText: true };
 
 const styles = {
     dataElementStyle: dataElementStyle,
-    /* Same look as sub-sections in the Data Entry app (ClickUp #869ee3pre) */
     subSectionStyle: { ...dataElementStyle, bold: true, fontSize: 18, fill: "A0ADBA" },
     titleStyle: {
         bold: true,
@@ -177,7 +176,6 @@ function addTable(
     return lastRow + LINE_BREAK;
 }
 
-/* Sheet column where each header cell starts, after the data elements column */
 function withStartColumns(
     headerRow: ReadonlyArray<HeaderCell>
 ): ReadonlyArray<HeaderCell & { column: number }> {

@@ -1,25 +1,20 @@
 import { CategoryCombo, GreyedField, Section } from "$/domain/entities/DataSet";
 import { getId, Id } from "$/domain/entities/Ref";
 
-/* A category option heading, covering `span` consecutive combinations */
 export type HeaderCell = Readonly<{ label: string; span: number }>;
 
 export type SectionTableRow = Readonly<{
     dataElementName: string;
     /* One entry per combination column, in header order */
     greyed: ReadonlyArray<boolean>;
-    /* Used as a sub-section heading: every combo of the data element is greyed */
     isSubSection: boolean;
 }>;
 
-/* The tally sheet layout of one category combo of a section: one header row per category
- * and one row per data element */
 export type SectionTable = Readonly<{
     headers: ReadonlyArray<ReadonlyArray<HeaderCell>>;
     rows: ReadonlyArray<SectionTableRow>;
 }>;
 
-/* The tally sheet layout of a data set, as built by `DataSet.toTable()` */
 export type DataSetTable = Readonly<{ sections: ReadonlyArray<SectionWithTables> }>;
 
 export type SectionWithTables = Readonly<{

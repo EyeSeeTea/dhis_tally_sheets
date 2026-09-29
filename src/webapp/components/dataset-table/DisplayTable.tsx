@@ -67,8 +67,7 @@ const Table = styled.table`
         text-align: center;
     }
 
-    /* Same look as sub-sections in the Data Entry app (ClickUp #869ee3pre), scaled like the
-     * export: 10pt data elements, 18pt sub-sections */
+    /* 1.8 is the 10pt to 18pt ratio of data elements to sub-sections in the export */
     td.sub-section {
         font-size: calc(0.6125em * 1.8);
         font-weight: 700;

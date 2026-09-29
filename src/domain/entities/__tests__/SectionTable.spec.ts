@@ -142,8 +142,6 @@ describe("getSectionTables", () => {
             expect(getSubSectionFlags(outsideCombo)).toEqual([false, false]);
         });
 
-        /* Accepted false positive, same as in Data Entry (ClickUp #869ee3pre): a default
-         * category combo has a single combo, so greying it flags the row */
         it("flags a data element with the default category combo and its only combo greyed", () => {
             const categoryCombo = createCategoryCombo({
                 categories: [[DEFAULT]],
@@ -161,7 +159,6 @@ describe("getSectionTables", () => {
     });
 });
 
-/* Sub-section flags of [DE_HEADING, DE_VALUE] in a Male/Female category combo */
 function getSubSectionFlags(greyedFields: ReadonlyArray<GreyedField>): ReadonlyArray<boolean> {
     const section = createSection([sexCombo([DE_HEADING, DE_VALUE])], greyedFields);
 
