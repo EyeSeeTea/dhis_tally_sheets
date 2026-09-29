@@ -52,7 +52,7 @@ function getCategoryComboTable(
         };
     });
 
-    return { headers: getHeaders(optionNames), rows: rows };
+    return { headers: columnsCount === 0 ? [] : getHeaders(optionNames), rows: rows };
 }
 
 /* Each option of a category spans all the combinations of the categories below it, and the

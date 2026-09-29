@@ -1,6 +1,6 @@
 import { errors } from "$/data/repositories/d2-metadata";
 import { Config, defaultConfig } from "$/domain/entities/Config";
-import { Codec, string, array, optional, oneOf, record } from "purify-ts";
+import { Codec, string, array, optional, oneOf, record, boolean } from "purify-ts";
 
 export const configCodec = oneOf([
     Codec.interface({
@@ -10,6 +10,7 @@ export const configCodec = oneOf([
         ouLabel: string,
         periodLabel: string,
         messageInfo: oneOf([optional(string), record(string, string)]),
+        highlightSubSections: optional(boolean), // Absent in configs saved before it existed
     }),
     Codec.interface({ administratorGroups: array(string) }), // Backwards compatibility
 ]);
@@ -34,6 +35,8 @@ export function decodeConfig(json: unknown, storage: string, key: string): Confi
                 return {
                     ...res,
                     messageInfo: message,
+                    highlightSubSections:
+                        res.highlightSubSections ?? defaultConfig.highlightSubSections,
                 };
             }
 

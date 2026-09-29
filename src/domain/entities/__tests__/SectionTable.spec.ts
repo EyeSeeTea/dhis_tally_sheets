@@ -66,6 +66,20 @@ describe("getSectionTables", () => {
                 rows: [{ dataElementName: nameOf(DE_HEADING), greyed: [], isSubSection: false }],
             });
         });
+        it("has no headers and no columns when a category has no options", () => {
+            const categoryCombo = createCategoryCombo({
+                categories: [[MALE, FEMALE], []],
+                cocIds: [],
+                dataElementIds: [DE_HEADING],
+            });
+
+            const [table] = getSectionTables(createSection([categoryCombo], []));
+
+            expect(table).toEqual({
+                headers: [],
+                rows: [{ dataElementName: nameOf(DE_HEADING), greyed: [], isSubSection: false }],
+            });
+        });
     });
 
     describe("rows", () => {

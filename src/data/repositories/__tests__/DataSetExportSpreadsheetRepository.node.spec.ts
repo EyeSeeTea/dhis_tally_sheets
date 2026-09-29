@@ -11,7 +11,8 @@ import {
 } from "$/data/repositories/__tests__/spreadsheet-fixtures/spreadsheetFixtures";
 import _ from "$/domain/entities/generic/Collection";
 import { DataSetExportRepository } from "$/domain/repositories/DataSetExportRepository";
-import { DataSet } from "$/domain/entities/DataSet";
+import { DataSet, GreyedField } from "$/domain/entities/DataSet";
+import { DataSetExportOptions } from "$/domain/repositories/DataSetExportRepository";
 
 describe("DataSetSpreadsheetRepository", () => {
     const repository = new DataSetSpreadsheetRepository();
@@ -30,6 +31,48 @@ describe("DataSetSpreadsheetRepository", () => {
 
     it("should export a translated workbook that matches the referenced file", async () => {
         await expectDataSetToMatchFile(translatedDataSets.es, translatedDataSet, repository);
+    });
+
+    describe("category headers", () => {
+        it("merges each option over the combinations it spans", async () => {
+            const sheet = await exportSheet(repository, processedDataSet);
+
+            const merges = sheet.merged().map(range => ({
+                label: range.startCell().value(),
+                width: range.endCell().columnNumber() - range.startCell().columnNumber() + 1,
+            }));
+
+            expect(merges).toEqual([
+                { label: "Option A", width: 2 },
+                { label: "Option B", width: 2 },
+            ]);
+        });
+    });
+
+    describe("sub-section data elements", () => {
+        const subSectionStyle = { bold: true, fontSize: 18, fill: SUB_SECTION_FILL };
+        const dataElementStyle = { bold: false, fontSize: 10, fill: undefined };
+
+        it("highlights the name of a data element with every combo greyed", async () => {
+            const styles = await getNameStyles(repository, { highlightSubSections: true });
+
+            expect(styles).toEqual({ heading: subSectionStyle, value: dataElementStyle });
+        });
+
+        it("keeps the data element style when highlighting is off", async () => {
+            const styles = await getNameStyles(repository, { highlightSubSections: false });
+
+            expect(styles).toEqual({ heading: dataElementStyle, value: dataElementStyle });
+        });
+
+        it("keeps the greyed marks on a highlighted row", async () => {
+            const sheet = await exportSheet(repository, subSectionDataSet, {
+                highlightSubSections: true,
+            });
+            const row = getNameCell(sheet, HEADING_NAME).row();
+
+            expect([row.cell(2).value(), row.cell(3).value()]).toEqual(["X", "X"]);
+        });
     });
 
     /* TODO: Remaining tests*/
@@ -65,3 +108,101 @@ async function expectDataSetToMatchFile(
 
 const processedDataSetPath = "spreadsheet-fixtures/spreadsheets/processed-dataset.xlsx";
 const translatedDataSet = "spreadsheet-fixtures/spreadsheets/translated-dataset-es.xlsx";
+
+const [HEADING_ID, HEADING_NAME] = ["de_heading", "----- Heading -----"];
+const [VALUE_ID, VALUE_NAME] = ["de_value", "Value data element"];
+const SUB_SECTION_FILL = { type: "solid", color: { rgb: "A0ADBA" } };
+
+async function getNameStyles(
+    repository: DataSetExportRepository,
+    options: Pick<DataSetExportOptions, "highlightSubSections">
+) {
+    const sheet = await exportSheet(repository, subSectionDataSet, options);
+    const getStyle = (name: string) => {
+        const { bold, fontSize, fill } = getNameCell(sheet, name).style([
+            "bold",
+            "fontSize",
+            "fill",
+        ]);
+        return { bold, fontSize, fill };
+    };
+
+    return { heading: getStyle(HEADING_NAME), value: getStyle(VALUE_NAME) };
+}
+
+async function exportSheet(
+    repository: DataSetExportRepository,
+    dataSet: DataSet,
+    options: Pick<DataSetExportOptions, "highlightSubSections"> = { highlightSubSections: false }
+) {
+    const exportFile = await repository
+        .save(dataSet, { sheetName: "Sheet", ...options })
+        .toPromise();
+    const workbook = await XlsxPopulate.fromDataAsync(await exportFile.blob.arrayBuffer());
+
+    return workbook.sheet(0);
+}
+
+function getNameCell(sheet: XlsxPopulate.Sheet, name: string) {
+    const cell = sheet.find(name).at(0);
+    if (!cell) throw new Error(`Cell not found: ${name}`);
+    return cell;
+}
+
+/* One section with a Male/Female category combo: the heading data element has both combos
+ * greyed, the value data element none */
+const subSectionDataSet = createSubSectionDataSet();
+
+function createSubSectionDataSet(): DataSet {
+    const categoryCombo = { id: "cc_sex" };
+    const categoryOptions = [createCategoryOption("Male"), createCategoryOption("Female")];
+    const cocs = categoryOptions.map(option => ({
+        id: `coc_${option.id}`,
+        categoryOptions: [option],
+    }));
+    const dataElements = [
+        createDataElement(HEADING_ID, HEADING_NAME, categoryCombo),
+        createDataElement(VALUE_ID, VALUE_NAME, categoryCombo),
+    ];
+    const greyedFields: GreyedField[] = cocs.map(coc => ({
+        dataElement: { id: HEADING_ID },
+        categoryOptionCombo: { id: coc.id },
+    }));
+
+    return new DataSet({
+        id: "sub_section_data_set",
+        name: "Sub-section DataSet",
+        displayName: "Sub-section DataSet",
+        formType: "SECTION",
+        translations: [],
+        attributeValues: [],
+        dataSetElements: [],
+        sections: [
+            {
+                id: "section",
+                name: "Section",
+                displayName: "Section",
+                translations: [],
+                categoryCombos: [
+                    {
+                        ...categoryCombo,
+                        categories: [{ categoryOptions: categoryOptions }],
+                        categoryOptionCombos: cocs,
+                        dataElements: dataElements,
+                        greyedFields: [],
+                    },
+                ],
+                dataElements: dataElements,
+                greyedFields: greyedFields,
+            },
+        ],
+    });
+}
+
+function createCategoryOption(name: string) {
+    return { id: name.toLowerCase(), name: name, displayFormName: name, translations: [] };
+}
+
+function createDataElement(id: string, name: string, categoryCombo: { id: string }) {
+    return { id: id, name: name, displayFormName: name, translations: [], categoryCombo };
+}
