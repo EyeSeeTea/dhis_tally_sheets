@@ -50,7 +50,7 @@ describe("DataSetSpreadsheetRepository", () => {
     });
 
     describe("sub-section data elements", () => {
-        const subSectionStyle = { bold: true, fontSize: 18, fill: SUB_SECTION_FILL };
+        const subSectionStyle = { bold: true, fontSize: 14, fill: SUB_SECTION_FILL };
         const dataElementStyle = { bold: false, fontSize: 10, fill: undefined };
 
         it("highlights the name of a data element with every combo greyed", async () => {
@@ -65,13 +65,26 @@ describe("DataSetSpreadsheetRepository", () => {
             expect(styles).toEqual({ heading: dataElementStyle, value: dataElementStyle });
         });
 
-        it("keeps the greyed marks on a highlighted row", async () => {
-            const sheet = await exportSheet(repository, subSectionDataSet, {
+        it("fills the greyed cells of a highlighted row instead of marking them", async () => {
+            const cells = await getHeadingCombinationCells(repository, {
                 highlightSubSections: true,
             });
-            const row = getNameCell(sheet, HEADING_NAME).row();
 
-            expect([row.cell(2).value(), row.cell(3).value()]).toEqual(["X", "X"]);
+            expect(cells).toEqual([
+                { value: undefined, fill: SUB_SECTION_GREYED_FILL },
+                { value: undefined, fill: SUB_SECTION_GREYED_FILL },
+            ]);
+        });
+
+        it("marks the greyed cells with an X when highlighting is off", async () => {
+            const cells = await getHeadingCombinationCells(repository, {
+                highlightSubSections: false,
+            });
+
+            expect(cells).toEqual([
+                { value: "X", fill: undefined },
+                { value: "X", fill: undefined },
+            ]);
         });
     });
 
@@ -112,6 +125,12 @@ const translatedDataSet = "spreadsheet-fixtures/spreadsheets/translated-dataset-
 const [HEADING_ID, HEADING_NAME] = ["de_heading", "----- Heading -----"];
 const [VALUE_ID, VALUE_NAME] = ["de_value", "Value data element"];
 const SUB_SECTION_FILL = { type: "solid", color: { rgb: "A0ADBA" } };
+const SUB_SECTION_GREYED_FILL = {
+    type: "pattern",
+    pattern: "lightUp",
+    foreground: { rgb: "A0ADBA" },
+    background: { rgb: "D5DDE5" },
+};
 
 async function getNameStyles(
     repository: DataSetExportRepository,
@@ -128,6 +147,19 @@ async function getNameStyles(
     };
 
     return { heading: getStyle(HEADING_NAME), value: getStyle(VALUE_NAME) };
+}
+
+async function getHeadingCombinationCells(
+    repository: DataSetExportRepository,
+    options: Pick<DataSetExportOptions, "highlightSubSections">
+) {
+    const sheet = await exportSheet(repository, subSectionDataSet, options);
+    const row = getNameCell(sheet, HEADING_NAME).row();
+
+    return [2, 3].map(column => ({
+        value: row.cell(column).value(),
+        fill: row.cell(column).style("fill"),
+    }));
 }
 
 async function exportSheet(

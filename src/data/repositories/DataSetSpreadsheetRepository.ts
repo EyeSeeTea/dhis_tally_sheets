@@ -65,7 +65,15 @@ const dataElementStyle = { fontSize: 10, wrapText: true };
 
 const styles = {
     dataElementStyle: dataElementStyle,
-    subSectionStyle: { ...dataElementStyle, bold: true, fontSize: 18, fill: "A0ADBA" },
+    subSectionStyle: { ...dataElementStyle, bold: true, fontSize: 14, fill: "A0ADBA" },
+    subSectionGreyedStyle: {
+        fill: {
+            type: "pattern",
+            pattern: "lightUp",
+            foreground: { rgb: "A0ADBA" },
+            background: { rgb: "D5DDE5" },
+        },
+    },
     titleStyle: {
         bold: true,
         fontSize: 13.5,
@@ -159,12 +167,10 @@ function addTable(
                 .style(highlight ? styles.subSectionStyle : styles.dataElementStyle);
 
         row.greyed.forEach((isGreyed, idx) => {
-            if (isGreyed)
-                sheet
-                    .row(r)
-                    .cell(FIRST_COMBINATION_COLUMN + idx)
-                    .value(GREYED_FIELD_MARK)
-                    .style(styles.dataElementStyle);
+            if (!isGreyed) return;
+            const cell = sheet.row(r).cell(FIRST_COMBINATION_COLUMN + idx);
+            if (highlight) cell.style(styles.subSectionGreyedStyle);
+            else cell.value(GREYED_FIELD_MARK).style(styles.dataElementStyle);
         });
     });
 

@@ -28,20 +28,20 @@ export const DisplayTable: React.FC<DisplayTableProps> = React.memo(props => {
                 ))}
             </thead>
             <tbody>
-                {rows.map((row, rIdx) => (
-                    <tr key={rIdx}>
-                        <td
-                            className={
-                                highlightSubSections && row.isSubSection ? "sub-section" : undefined
-                            }
-                        >
-                            {row.dataElementName}
-                        </td>
-                        {row.greyed.map((isGreyed, cIdx) => (
-                            <td key={cIdx}>{isGreyed ? GREYED_FIELD_MARK : undefined}</td>
-                        ))}
-                    </tr>
-                ))}
+                {rows.map((row, rIdx) => {
+                    const highlight = highlightSubSections && row.isSubSection;
+
+                    return (
+                        <tr key={rIdx} className={highlight ? "sub-section" : undefined}>
+                            <td>{row.dataElementName}</td>
+                            {row.greyed.map((isGreyed, cIdx) => (
+                                <td key={cIdx}>
+                                    {isGreyed && !highlight ? GREYED_FIELD_MARK : undefined}
+                                </td>
+                            ))}
+                        </tr>
+                    );
+                })}
             </tbody>
         </Table>
     );
@@ -67,12 +67,25 @@ const Table = styled.table`
         text-align: center;
     }
 
-    /* 1.8 is the 10pt to 18pt ratio of data elements to sub-sections in the export */
-    td.sub-section {
-        font-size: calc(0.6125em * 1.8);
+    tr.sub-section td {
+        print-color-adjust: exact;
+        background-color: #e8edf2;
+        background-size: 8px 8px;
+        background-image: repeating-linear-gradient(
+            45deg,
+            #d5dde5 0,
+            #d5dde5 0.8px,
+            #e8edf2 0,
+            #e8edf2 50%
+        );
+    }
+
+    /* 1.4 is the 10pt to 14pt ratio of data elements to sub-sections in the export */
+    tr.sub-section td:first-child {
+        font-size: calc(0.6125em * 1.4);
         font-weight: 700;
         background-color: #a0adba;
-        print-color-adjust: exact;
+        background-image: none;
     }
 
     td,
