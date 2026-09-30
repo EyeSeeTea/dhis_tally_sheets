@@ -2,21 +2,17 @@ import React from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components/snackbar";
 import { useAppContext } from "$/webapp/contexts/app-context";
 import { useBooleanState } from "$/webapp/utils/use-boolean";
-import {
-    SettingsDialogProps,
-    TooltipTextFieldProps,
-} from "$/webapp/components/settings-dialog/SettingsDialog";
+import { SettingsDialogProps } from "$/webapp/components/settings-dialog/SettingsDialog";
+import { TooltipSwitchProps } from "$/webapp/components/settings-dialog/TooltipSwitch";
+import { TooltipTextFieldProps } from "$/webapp/components/settings-dialog/TooltipTextField";
+import { Config } from "$/domain/entities/Config";
 import { Maybe } from "$/utils/ts-utils";
 import { HashMap } from "$/domain/entities/generic/HashMap";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
 
-type Settings = {
-    sheetName: string;
-    fileName: string;
+type Settings = Omit<Config, "administratorGroups" | "messageInfo"> & {
     administratorGroups: string;
-    ouLabel: string;
-    periodLabel: string;
     messageInfo: Record<string, Maybe<string>>;
 };
 
@@ -40,6 +36,14 @@ export function useSettingsDialog(props: SettingsDialogProps & { localeCode: str
             [name]: value,
         }));
     }, []);
+
+    const updateHighlightSubSections = React.useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { checked } = e.target;
+            setSettings(prevSettings => ({ ...prevSettings, highlightSubSections: checked }));
+        },
+        []
+    );
 
     const updateMessage = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -107,11 +111,33 @@ export function useSettingsDialog(props: SettingsDialogProps & { localeCode: str
         [localeCode, settings, updateMessage]
     );
 
+    const highlightSubSectionsProps: TooltipSwitchProps = React.useMemo(
+        () => ({
+            title: i18n.t(
+                "Data elements with every category option combo greyed in a section are shown as sub-section headings, in bold, larger and with a grey background"
+            ),
+            label: i18n.t("Highlight data elements with no disaggregation"),
+            name: "highlightSubSections",
+            checked: settings.highlightSubSections,
+            onChange: updateHighlightSubSections,
+        }),
+        [settings.highlightSubSections, updateHighlightSubSections]
+    );
+
     const messageChanged = React.useMemo(() => {
         return settings.messageInfo[localeCode] !== config.messageInfo[localeCode];
     }, [config.messageInfo, localeCode, settings.messageInfo]);
 
-    return { loading, reloading, handleSave, close, fields, messageProps, messageChanged };
+    return {
+        loading,
+        reloading,
+        handleSave,
+        close,
+        fields,
+        highlightSubSectionsProps,
+        messageProps,
+        messageChanged,
+    };
 }
 
 function getTextFields(

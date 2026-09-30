@@ -4,6 +4,7 @@ import { Maybe } from "$/utils/ts-utils";
 import { Locale } from "$/domain/entities/Locale";
 import _ from "$/domain/entities/generic/Collection";
 import i18n from "$/utils/i18n";
+import { DataSetTable, getSectionTables } from "$/domain/entities/SectionTable";
 
 export interface DataSetAttrs extends BasicDataSetAttrs {
     name: string;
@@ -45,6 +46,15 @@ export class DataSet extends BasicDataSet {
         attrs: DataSetAttrs
     ): DataSet {
         return new this(attrs);
+    }
+
+    toTable(): DataSetTable {
+        return {
+            sections: this.sections.map(section => ({
+                section: section,
+                tables: getSectionTables(section),
+            })),
+        };
     }
 
     removeSection(sectionId: Id): DataSet {

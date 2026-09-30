@@ -5,11 +5,9 @@ import {
     DialogContent,
     DialogTitle,
     Button,
-    TextField,
     Box,
     useTheme,
     LinearProgress,
-    Tooltip,
     Backdrop,
     makeStyles,
     createStyles,
@@ -18,7 +16,8 @@ import {
 import { useSettingsDialog } from "$/webapp/components/settings-dialog/useSettingsDialog";
 import { useLocaleSelector } from "$/webapp/components/settings-dialog/useLocaleSelector";
 import { LanguageSelector } from "$/webapp/components/settings-dialog/LanguageSelector";
-import { Maybe } from "$/utils/ts-utils";
+import { TooltipTextField } from "$/webapp/components/settings-dialog/TooltipTextField";
+import { TooltipSwitch } from "$/webapp/components/settings-dialog/TooltipSwitch";
 import i18n from "$/utils/i18n";
 import _ from "$/domain/entities/generic/Collection";
 
@@ -32,12 +31,20 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
     const styles = useStyles();
     const localeSelectorProps = useLocaleSelector();
 
-    const { loading, reloading, fields, handleSave, close, messageProps, messageChanged } =
-        useSettingsDialog({
-            open,
-            onClose,
-            localeCode: localeSelectorProps.value,
-        });
+    const {
+        loading,
+        reloading,
+        fields,
+        handleSave,
+        close,
+        highlightSubSectionsProps,
+        messageProps,
+        messageChanged,
+    } = useSettingsDialog({
+        open,
+        onClose,
+        localeCode: localeSelectorProps.value,
+    });
 
     return (
         <>
@@ -55,6 +62,8 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
                         {fields.map((fieldProps, idx) => (
                             <TooltipTextField key={idx} {...fieldProps} />
                         ))}
+
+                        <TooltipSwitch {...highlightSubSectionsProps} />
 
                         <Box display="flex" flexDirection="column">
                             {messageProps && <TooltipTextField {...messageProps} />}
@@ -82,36 +91,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose })
     );
 };
 
-export interface TooltipTextFieldProps {
-    title: string;
-    label: string;
-    name: string;
-    value: Maybe<string>;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    minRows?: number;
-    multiline?: boolean;
-}
-
-const TooltipTextField: React.FC<TooltipTextFieldProps> = React.memo(props => {
-    const { title, label, name, value, onChange, minRows, multiline } = props;
-
-    return (
-        <Tooltip title={title} enterDelay={500}>
-            <TextField
-                label={label}
-                name={name}
-                margin="dense"
-                variant="standard"
-                value={value}
-                onChange={onChange}
-                fullWidth
-                minRows={minRows}
-                multiline={multiline}
-            />
-        </Tooltip>
-    );
-});
-
+// TODO: replace makeStyles with styled-components
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         backdrop: {
