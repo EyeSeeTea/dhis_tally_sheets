@@ -3,11 +3,14 @@ import { D2Api } from "$/types/d2-api";
 import { apiToFuture, FutureData } from "$/data/api-futures";
 import { OrgUnitRepository } from "$/domain/repositories/OrgUnitRepository";
 import { OrgUnit } from "$/domain/entities/OrgUnit";
+import { Future } from "$/domain/entities/generic/Future";
 
 export class OrgUnitD2Repository implements OrgUnitRepository {
     constructor(private api: D2Api) {}
 
     public getWithChildren(orgUnitIds: Id[]): FutureData<OrgUnit[]> {
+        if (orgUnitIds.length === 0) return Future.success([]);
+
         return apiToFuture(
             this.api.models.organisationUnits.get({
                 fields: orgUnitFields,

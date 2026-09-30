@@ -2,7 +2,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import checker from "vite-plugin-checker";
-import nodePolyfills from "vite-plugin-node-stdlib-browser";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 import * as path from "path";
 
 export default ({ mode }) => {
@@ -13,7 +13,10 @@ export default ({ mode }) => {
     return defineConfig({
         base: "", // Relative paths
         plugins: [
-            nodePolyfills(),
+            // md5.js (a direct dependency) uses Buffer, so the browser build needs
+            // Node stdlib shims. `fs` is excluded so Node-environment tests (see
+            // environmentMatchGlobs below) keep using the real filesystem.
+            nodePolyfills({ exclude: ["fs"] }),
             react(),
             checker({
                 overlay: false,
