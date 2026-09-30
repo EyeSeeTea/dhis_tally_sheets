@@ -108,7 +108,7 @@ export const OrgUnitSelector: React.FC<OrgUnitSelectorProps> = React.memo(props 
     const label = i18n.t("Filter by Organisation Unit");
 
     const selectorProps: MultipleSelectorProps = React.useMemo(() => {
-        const topLevel = Math.min(...selected.map(ou => ou.level));
+        const topLevel = selected.reduce((min, ou) => Math.min(min, ou.level), Infinity);
 
         const parents = _(selected)
             .filter(ou => ou.level === topLevel)

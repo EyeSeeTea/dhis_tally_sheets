@@ -44,7 +44,10 @@ function exportDataSet(workbook: Workbook, dataSet: DataSet, sheetName: string) 
         .compact()
         .map(s => s.length)
         .value();
-    const length = Math.min(60, Math.max(...ranges));
+    const length = Math.min(
+        60,
+        ranges.reduce((max, range) => Math.max(max, range), 0)
+    );
     sheet.column("A").width(length);
 
     return workbook.outputAsync().then(buffer => {
